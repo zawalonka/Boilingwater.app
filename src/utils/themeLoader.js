@@ -190,6 +190,39 @@ export function applyTheme(processedTheme) {
 }
 
 /**
+ * Preloads theme images to prevent lag when they first appear
+ * Creates image elements and loads them in the background
+ * 
+ * @param {Object} themeData - Theme object with images field
+ * @returns {Promise<void>} Resolves when all images are preloaded
+ * 
+ * @example
+ *   const theme = await loadTheme('alpha')
+ *   await preloadThemeImages(theme)
+ */
+export async function preloadThemeImages(themeData) {
+  if (!themeData.images) return
+
+  const imagePromises = Object.entries(themeData.images).map(([key, url]) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => {
+        console.log(`✓ Preloaded ${key}: ${url}`)
+        resolve()
+      }
+      img.onerror = () => {
+        console.warn(`✗ Failed to preload ${key}: ${url}`)
+        resolve() // Don't reject, just log the failure
+      }
+      img.src = url
+    })
+  })
+
+  await Promise.all(imagePromises)
+  console.log(`✓ All images preloaded for theme "${themeData.name}"`)
+}
+
+/**
  * Gets list of available theme IDs
  * Scans the themes directory or reads from a manifest
  * 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import GameScene from './components/GameScene'
-import { initializeTheme, getAvailableThemes } from './utils/themeLoader'
+import { initializeTheme, getAvailableThemes, preloadThemeImages } from './utils/themeLoader'
 import './styles/App.css'
 
 function App() {
@@ -21,6 +21,8 @@ function App() {
         const list = await getAvailableThemes()
         setAvailableThemes(list)
         const processed = await initializeTheme(activeThemeId, { apply: true })
+        // Preload all theme images to prevent lag
+        await preloadThemeImages(processed)
         setActiveThemeData(processed)
         setThemeLoaded(true)
       } catch (error) {
@@ -35,6 +37,8 @@ function App() {
   const handleThemeChange = async (themeId) => {
     try {
       const processed = await initializeTheme(themeId, { apply: true })
+      // Preload new theme images immediately
+      await preloadThemeImages(processed)
       setActiveThemeId(themeId)
       setActiveThemeData(processed)
     } catch (error) {
