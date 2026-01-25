@@ -1,0 +1,200 @@
+{
+  "id": "steam",
+  "name": "Steam (Gaseous H₂O)",
+  "commonName": "Steam",
+  "chemicalFormula": "H₂O",
+  "state": "gas",
+  "compound": "h2o",
+  "description": "Gaseous form of water vapor. Can be invisible at low concentrations (water vapor in air) or visible as a dense white vapor/clouds when near condensation point. Steam is a key state for studying thermodynamics and phase transitions.",
+  
+  "properties": {
+    "specificHeatGas": {
+      "value": 2.01,
+      "units": "J/(g·°C)",
+      "temperature": "100°C",
+      "description": "Energy needed to raise 1 gram of steam by 1°C at constant pressure. Lower than both liquid water (4.186) and solid ice (2.09)."
+    },
+    
+    "heatOfVaporization": {
+      "value": 2257,
+      "units": "kJ/kg",
+      "description": "Energy required to convert liquid water to steam at 100°C. Massive energy requirement is why steam causes severe burns - it releases this energy when condensing on skin."
+    },
+    
+    "density": {
+      "value": 0.598,
+      "units": "kg/m³",
+      "temperature": "100°C",
+      "pressure": "101325 Pa (1 atm)",
+      "description": "Much lower than liquid water (1000 kg/m³). Steam is ~1667 times less dense than liquid water at same temperature, which is why steam rises."
+    },
+    
+    "boilingPoint": {
+      "value": 100,
+      "units": "°C",
+      "pressure": 101325,
+      "pressure_units": "Pa (1 atm)",
+      "description": "Temperature at which liquid water converts to steam at standard atmospheric pressure. At lower pressures, water boils at lower temperatures."
+    },
+    
+    "condensationPoint": {
+      "value": 100,
+      "units": "°C",
+      "pressure": 101325,
+      "pressure_units": "Pa (1 atm)",
+      "description": "Temperature at which steam converts back to liquid water. Same as boiling point - phase equilibrium occurs at this temperature."
+    },
+    
+    "molecularMass": {
+      "value": 18.015,
+      "units": "g/mol",
+      "description": "Same as liquid water and ice - H₂O gas molecules have identical mass to condensed phases."
+    },
+    
+    "thermalConductivity": {
+      "value": 0.0261,
+      "units": "W/(m·K)",
+      "temperature": "100°C",
+      "description": "Much lower than liquid water (0.606) and ice (2.24). Gases conduct heat poorly compared to liquids and solids."
+    },
+    
+    "viscosity": {
+      "value": 0.0000122,
+      "units": "Pa·s",
+      "temperature": "100°C",
+      "description": "Much lower than liquid water (0.001 Pa·s). Steam is very thin and flows easily."
+    },
+    
+    "compressibility": {
+      "description": "Highly compressible - steam volume changes significantly with pressure changes. Much more compressible than liquids or solids."
+    },
+    
+    "dielectricConstant": {
+      "value": 1.0,
+      "description": "Nearly equal to vacuum/air. Steam does not interact with electric fields the way liquid water (78) does."
+    }
+  },
+  
+  "vaporProperties": {
+    "saturation": {
+      "description": "Saturated steam: steam in equilibrium with liquid water at the same temperature. Contains maximum water molecules per volume."
+    },
+    
+    "superheating": {
+      "description": "Superheated steam: steam heated above its saturation temperature. No longer in equilibrium with liquid. Much hotter and less condensable than saturated steam.",
+      "applications": "Turbines in power plants use superheated steam for efficiency"
+    },
+    
+    "invisibility": {
+      "description": "Water vapor becomes invisible when its partial pressure is below saturation. The white 'steam' visible above boiling water is actually tiny water droplets (condensation), not vapor itself."
+    }
+  },
+  
+  "coolingModel": {
+    "heatTransferCoefficient": 0.002,
+    "units": "1/s",
+    "description": "Newton's Law of Cooling coefficient for steam. Slightly higher than liquid water (0.0015) due to gas dynamics and larger surface-to-mass ratio. Hot steam cools rapidly through convection."
+  },
+  
+  "visualProperties": {
+    "color": "#FFFFFF",
+    "opacity": "Highly variable",
+    "appearance": "Invisible when dry/superheated. Visible as white vapor clouds when near saturation and condensing. The 'steam' we see is actually water droplets (aerosol), not the gas itself."
+  },
+  
+  "phaseTransitions": {
+    "condensationTo": {
+      "phase": "water",
+      "temperature": 100,
+      "units": "°C",
+      "energyRequired": -2257,
+      "energyUnits": "kJ/kg (energy released)",
+      "description": "Condensation releases massive amounts of heat - why steam burns are so severe"
+    },
+    
+    "deposition": {
+      "toPhase": "ice",
+      "temperature": "Below 100°C",
+      "description": "Direct conversion from gas to solid without passing through liquid phase (reverse of sublimation)"
+    },
+    
+    "equilibriumWithWater": {
+      "temperature": 100,
+      "units": "°C at 1 atm",
+      "description": "At 100°C (at 1 atm pressure), liquid water and steam coexist in equilibrium"
+    }
+  },
+  
+  "thermodynamicsAndEngineering": {
+    "enthalpyOfVaporization": {
+      "value": 2257,
+      "units": "kJ/kg",
+      "description": "The latent heat - energy hidden in the form of breaking intermolecular bonds during vaporization"
+    },
+    
+    "steamTurbines": {
+      "application": "Power generation in thermal power plants",
+      "efficiency": "Typical 35-40% thermal efficiency",
+      "description": "High-pressure superheated steam expands through turbines to generate electricity"
+    },
+    
+    "pressureTemperatureRelationship": {
+      "clausius_clapeyron": "The Clausius-Clapeyron equation describes how saturation pressure changes with temperature",
+      "consequence": "Higher pressure → higher boiling point. Pressure cookers exploit this to cook faster."
+    }
+  },
+  
+  "environmentalData": {
+    "atmosphericWaterVapor": {
+      "concentration": "0-4% by volume depending on temperature and location",
+      "role": "Absorbs infrared radiation - major greenhouse gas",
+      "hydrological": "Part of the water cycle - evaporation and precipitation"
+    },
+    
+    "clouds": {
+      "composition": "Water droplets and ice crystals suspended in air, not water vapor",
+      "formation": "Water vapor rises and cools; condenses into visible droplets/crystals when saturation is reached"
+    },
+    
+    "humidity": {
+      "relative": "Ratio of water vapor pressure to saturation pressure at same temperature",
+      "dew_point": "Temperature at which air becomes saturated and condensation begins"
+    },
+    
+    "precipitation": {
+      "source": "Cloud water droplets and ice crystals that grow and fall as rain or snow",
+      "process": "Evaporation → condensation → precipitation cycle"
+    }
+  },
+  
+  "dangerousProperties": {
+    "severelyBurns": {
+      "description": "Steam at 100°C causes much worse burns than water at 100°C because condensation releases 2257 kJ/kg of energy directly into tissue",
+      "comparison": "A small amount of steam delivers far more heat to skin than equivalent mass of hot water"
+    },
+    
+    "invisibility": {
+      "danger": "Superheated steam is completely invisible, making it impossible to see the hazard before contact"
+    },
+    
+    "pressure": {
+      "description": "Confined steam builds up tremendous pressure. Rupturing containment causes violent explosions."
+    }
+  },
+  
+  "industrialApplications": {
+    "power_generation": "Thermal and nuclear power plants",
+    "food_processing": "Sterilization and cooking",
+    "chemical_industry": "Heat transfer and reactions",
+    "textile_manufacturing": "Pressing and finishing",
+    "heating_systems": "District heating, radiators",
+    "sterilization": "Autoclaves use high-pressure steam"
+  },
+  
+  "metadata": {
+    "safetyLevel": "dangerous - handle with extreme care",
+    "commonUses": ["cooking", "sterilization", "power generation", "industrial processes"],
+    "educationalNotes": "Steam is crucial for understanding thermodynamics, phase transitions, and the water cycle. The latent heat of vaporization is enormous compared to sensible heat changes. This is why boiling water takes a long time - most energy goes into vaporization, not temperature increase.",
+    "historicalNote": "Steam power revolutionized society during the Industrial Revolution. The development of efficient steam engines transformed manufacturing, transportation, and energy generation. James Watt's improvements to the steam engine made large-scale mechanization possible."
+  }
+}

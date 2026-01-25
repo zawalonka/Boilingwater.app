@@ -1,0 +1,106 @@
+{
+  "id": "h2o",
+  "name": "Dihydrogen Monoxide",
+  "chemicalFormula": "H₂O",
+  "commonName": "Water",
+  
+  "description": "The most abundant compound on Earth. Essential for all known forms of life. H₂O consists of two hydrogen atoms covalently bonded to one oxygen atom. Its three primary states (ice, water, steam) are commonly observed in Earth's biosphere.",
+  
+  "chemistry": {
+    "molecularMass": {
+      "value": 18.015,
+      "units": "g/mol",
+      "description": "2 × H (1.008) + 1 × O (15.999) = 18.015 g/mol"
+    },
+    
+    "elements": {
+      "hydrogen": { "count": 2, "atomicMass": 1.008 },
+      "oxygen": { "count": 1, "atomicMass": 15.999 }
+    },
+    
+    "dipole": {
+      "value": 1.85,
+      "units": "Debye",
+      "description": "Water is a polar molecule with a strong dipole moment, making it an excellent solvent"
+    },
+    
+    "pH": {
+      "value": 7.0,
+      "description": "Pure water is neutral at 25°C (slightly acidic due to dissolved CO₂ from air)"
+    }
+  },
+  
+  "states": {
+    "solid": {
+      "name": "Ice",
+      "id": "ice",
+      "description": "Solid form of water. Less dense than liquid water due to hydrogen bonding crystalline structure."
+    },
+    "liquid": {
+      "name": "Water",
+      "id": "water",
+      "description": "Liquid form of water. Most common state on Earth. Excellent solvent for biological processes."
+    },
+    "gas": {
+      "name": "Steam",
+      "id": "steam",
+      "description": "Gaseous form of water. Invisible water vapor at low concentrations, visible vapor clouds when condensing."
+    }
+  },
+  
+  "thermodynamics": {
+    "triplePoint": {
+      "temperature": 273.16,
+      "units": "K (0.01°C)",
+      "pressure": 611.657,
+      "pressure_units": "Pa",
+      "description": "The unique temperature and pressure where ice, water, and steam coexist in equilibrium. This defines the Kelvin scale."
+    },
+    
+    "criticalPoint": {
+      "temperature": 647.096,
+      "units": "K (373.946°C)",
+      "pressure": 22.064,
+      "pressure_units": "MPa",
+      "description": "Beyond this point, the distinction between liquid and gas phases disappears. Water becomes supercritical."
+    },
+    
+    "standardBoilingPoint": {
+      "temperature": 373.15,
+      "units": "K (100°C)",
+      "pressure": 101325,
+      "pressure_units": "Pa (1 atm)",
+      "description": "Temperature at which liquid water converts to steam at standard atmospheric pressure"
+    },
+    
+    "standardFreezingPoint": {
+      "temperature": 273.15,
+      "units": "K (0°C)",
+      "pressure": 101325,
+      "pressure_units": "Pa (1 atm)",
+      "description": "Temperature at which liquid water converts to ice at standard atmospheric pressure"
+    }
+  },
+  
+  "abundance": {
+    "earthSurface": "71% covered by water",
+    "humanBody": "~60% water by mass",
+    "atmosphere": "0-4% water vapor (varies by location/weather)",
+    "oceansVsFreshwater": "97.5% saltwater, 2.5% freshwater"
+  },
+  
+  "biologicalSignificance": [
+    "Universal solvent for biochemical reactions",
+    "Thermal buffer (high specific heat capacity)",
+    "Transport medium (blood, plant sap)",
+    "Habitat for aquatic life",
+    "Essential for photosynthesis and cellular respiration",
+    "Participates in hydrolysis reactions"
+  ],
+  
+  "metadata": {
+    "educationalNotes": "Water is unique in that its solid form (ice) floats on its liquid form - this is rare in nature and critical for aquatic ecosystems. The strong hydrogen bonding gives water unusual properties like high surface tension, high heat capacity, and high heat of vaporization.",
+    "safetyLevel": "safe",
+    "commonUses": ["drinking", "cooking", "cleaning", "agriculture", "industry", "energy production"]
+  }
+}
