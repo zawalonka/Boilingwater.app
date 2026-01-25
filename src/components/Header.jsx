@@ -102,10 +102,10 @@ function Header({ onMenuClick, onRestart }) {
         <h1 className="app-title">Boiling Water</h1>
 
         {/* 
-          ===== BETA BADGE =====
-          Shows "Beta" label in header
+          ===== PRE-ALPHA BADGE =====
+          Shows "Pre-Alpha" label in header (extremely early development stage)
         */}
-        <span className="beta-badge">Beta</span>
+        <span className="pre-alpha-badge">Pre-Alpha</span>
       </div>
 
       {/* 

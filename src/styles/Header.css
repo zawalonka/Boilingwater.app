@@ -103,8 +103,8 @@
   border-left-color: #ff6600;
 }
 
-.beta-badge {
-  background: rgba(255, 102, 0, 0.8);
+.pre-alpha-badge {
+  background: rgba(220, 53, 69, 0.9);
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
