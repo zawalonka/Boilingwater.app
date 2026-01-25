@@ -516,7 +516,12 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages })
       <div 
         ref={sceneRef}
         className="game-scene-inner"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          width: `${layout.scene.width}px`,
+          height: `${layout.scene.height}px`,
+          backgroundSize: '100% 100%'
+        }}
       >
         {/* 
           ========== WATER STREAM (Water Source) ==========
