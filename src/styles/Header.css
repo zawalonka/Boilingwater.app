@@ -127,6 +127,12 @@
   outline: none;
 }
 
+/* Ensure dropdown options stay legible across themes */
+.theme-selector select option {
+  background: var(--theme-panel-background, #0e1623);
+  color: var(--theme-panel-text, #e8f1ff);
+}
+
 .theme-selector select:focus {
   border-color: var(--theme-header-accent, #ff6600);
   box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
