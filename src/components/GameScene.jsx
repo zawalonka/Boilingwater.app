@@ -28,7 +28,7 @@ function GameScene({ stage, location, onStageChange }) {
   // STATE VARIABLES: These change during gameplay
   // ============================================================================
 
-  // How much water is currently in the pot, in kilograms (0 = empty, typically 0.5kg = full)
+  // How much water is currently in the pot, in kilograms (0 = empty, typically 1.0kg = full)
   const [waterInPot, setWaterInPot] = useState(0)
 
   // Current temperature of the water in Celsius (starts at room temperature)
@@ -36,6 +36,9 @@ function GameScene({ stage, location, onStageChange }) {
 
   // Is the heat burner currently turned on? (true = heat is on, false = heat is off)
   const [heatOn, setHeatOn] = useState(false)
+
+  // Time speed multiplier (1x = normal, 2x = double speed, 4x = 4x speed, etc.)
+  const [timeSpeed, setTimeSpeed] = useState(1)
 
   // Has the water reached its boiling point? (true once boiling starts)
   const [isBoiling, setIsBoiling] = useState(false)
@@ -129,19 +132,19 @@ function GameScene({ stage, location, onStageChange }) {
 
     // Start a repeating timer that runs every TIME_STEP milliseconds (e.g., every 100ms)
     simulationRef.current = setInterval(() => {
-      // Amount of heat energy being input to the water (in Joules)
-      // This is how much energy is transferred to the water each time step
-      const heatInput = 2000  // 2000 Joules per time step
+      // Amount of heat energy being input to the water (in Watts = Joules/second)
+      const heatInputWatts = 2000  // 2000 Watts = typical electric stove burner
 
       // Convert the TIME_STEP from milliseconds to seconds
       // If TIME_STEP = 100 (milliseconds), deltaTime = 0.1 (seconds)
-      const deltaTime = GAME_CONFIG.TIME_STEP / 1000
+      // Multiply by timeSpeed to speed up simulation (2x, 4x, 8x, etc.)
+      const deltaTime = (GAME_CONFIG.TIME_STEP / 1000) * timeSpeed
 
       // Call the physics engine function to calculate what happens in this time step
       // It takes:
       // - Current water properties (mass, temperature, altitude)
-      // - Heat being applied
-      // - Time elapsed in this step
+      // - Heat being applied (Watts)
+      // - Time elapsed in this step (seconds × speed multiplier)
       // And returns new temperature, water mass, and whether it's boiling
       const newState = simulateTimeStep(
         {
@@ -149,14 +152,14 @@ function GameScene({ stage, location, onStageChange }) {
           temperature: temperature,      // Current temperature (°C)
           altitude: altitude             // Current altitude (meters)
         },
-        heatInput,                        // How much heat to apply (Joules)
+        heatInputWatts,                   // How much heat to apply (Watts)
         deltaTime                         // How much time this step represents (seconds)
       )
 
       // Update all the values returned from the physics simulation
       setTemperature(newState.temperature)      // Water is now hotter
       setWaterInPot(newState.waterMass)        // Water mass decreases if boiling (evaporation)
-      setTimeElapsed(prev => prev + deltaTime)  // Track elapsed time
+      setTimeElapsed(prev => prev + deltaTime)  // Track elapsed time (accounts for speed)
 
       // Check if water just started boiling
       // We only show "boiling" if it wasn't boiling before but is now boiling
@@ -173,7 +176,7 @@ function GameScene({ stage, location, onStageChange }) {
         clearInterval(simulationRef.current)
       }
     }
-  }, [heatOn, waterInPot, temperature, altitude, isBoiling, boilingPoint])
+  }, [heatOn, waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed])  // Re-run if any of these change
 
   // ============================================================================
   // POT DRAGGING HANDLERS: Three functions handle the drag lifecycle
@@ -257,8 +260,10 @@ function GameScene({ stage, location, onStageChange }) {
     // We check if pot center is in this region AND pot is empty
     const nearSink = newXPercent < 12 && newYPercent < 15
     if (nearSink && waterInPot === 0) {
-      // Auto-fill with the default water amount
-      setWaterInPot(GAME_CONFIG.DEFAULT_WATER_MASS)  // Typically 0.5 kg
+      // Auto-fill with the default water amount (1.0 kg)
+      setWaterInPot(GAME_CONFIG.DEFAULT_WATER_MASS)
+      // Reset temperature to room temp when filling with fresh water
+      setTemperature(GAME_CONFIG.ROOM_TEMPERATURE)
     }
   }
 
@@ -291,8 +296,21 @@ function GameScene({ stage, location, onStageChange }) {
     // No point heating an empty pot!
     if (waterInPot > 0) {
       setHeatOn(true)
+      setTimeElapsed(0)  // Reset timer when starting
       // Once true, the physics simulation effect will start running
     }
+  }
+
+  /**
+   * Cycle through time speed options: 1x → 2x → 4x → 8x → 1x
+   */
+  const handleSpeedUp = () => {
+    setTimeSpeed(current => {
+      if (current === 1) return 2
+      if (current === 2) return 4
+      if (current === 4) return 8
+      return 1  // Wrap back to 1x
+    })
   }
 
   /**
@@ -425,6 +443,21 @@ function GameScene({ stage, location, onStageChange }) {
         </div>
 
         {/* 
+          ========== DEBUG/VARIABLE WINDOW ==========
+          Shows current temp, altitude, water amount, time
+          Located in top-left under sink
+        */}
+        <div className="debug-panel">
+          <div className="debug-label">Variables:</div>
+          <div className="debug-item">Temp: {formatTemperature(temperature)}°C</div>
+          <div className="debug-item">Altitude: {altitude}m</div>
+          <div className="debug-item">Water: {waterInPot.toFixed(2)} kg</div>
+          <div className="debug-item">Boiling Point: {formatTemperature(boilingPoint)}°C</div>
+          {heatOn && <div className="debug-item">Time: {timeElapsed.toFixed(1)}s</div>}
+          {heatOn && <div className="debug-item">Speed: {timeSpeed}x</div>}
+        </div>
+
+        {/* 
           ========== CONTROLS PANEL ==========
           Status display and buttons
           Located in the bottom-right corner of the game window
@@ -442,6 +475,18 @@ function GameScene({ stage, location, onStageChange }) {
                 onClick={handleTurnOnHeat}
               >
                 🔥 Turn Heat On
+              </button>
+            )}
+
+            {/* 
+              Show speed-up button when heat is on
+            */}
+            {heatOn && (
+              <button 
+                className="action-button speed-button"
+                onClick={handleSpeedUp}
+              >
+                ⚡ Speed: {timeSpeed}x
               </button>
             )}
 

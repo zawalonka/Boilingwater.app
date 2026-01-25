@@ -375,3 +375,49 @@
     min-width: auto;            /* Allow panel to shrink as needed */
   }
 }
+
+/* ========================================================================
+   DEBUG PANEL (Variable display for development)
+   ======================================================================== */
+/* Shows game variables (temp, altitude, water amount, time) */
+/* Located in top-left corner below the sink */
+.debug-panel {
+  position: absolute;
+  top: 80px;                    /* Below sink */
+  left: 15px;
+  background: rgba(0, 0, 0, 0.7);  /* Semi-transparent black */
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;  /* Monospace font for technical look */
+  z-index: 150;                /* Above most elements */
+  min-width: 180px;
+}
+
+.debug-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #4CAF50;              /* Green heading */
+  border-bottom: 1px solid #4CAF50;
+  padding-bottom: 4px;
+}
+
+.debug-item {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+/* ========================================================================
+   SPEED BUTTON (Time speed-up control)
+   ======================================================================== */
+/* Button to cycle through time speeds (1x, 2x, 4x, 8x) */
+.action-button.speed-button {
+  background: #9C27B0;          /* Purple to differentiate from other buttons */
+  font-size: 0.95rem;
+  padding: 10px 20px;
+}
+
+.action-button.speed-button:hover {
+  background: #7B1FA2;          /* Darker purple on hover */
+}
