@@ -16,10 +16,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { 
-  calculateBoilingPoint,  // Calculates water's boiling point based on altitude
+  calculateBoilingPoint,  // Calculates fluid's boiling point based on altitude
   simulateTimeStep,       // Runs one time step of physics (heating/cooling/boiling)
   formatTemperature       // Formats temperature numbers for display (e.g., 98.5°C)
 } from '../utils/physics'
+import { loadFluid, parseFluidProperties, DEFAULT_FLUID } from '../utils/fluidLoader'
 import { GAME_CONFIG } from '../constants/physics'
 import '../styles/GameScene.css'
 
@@ -33,6 +34,10 @@ function GameScene({ stage, location, onStageChange }) {
 
   // Current temperature of the water in Celsius (starts at room temperature)
   const [temperature, setTemperature] = useState(GAME_CONFIG.ROOM_TEMPERATURE)
+
+  // Fluid properties (loaded from JSON, defaults to water)
+  // Contains specific heat, heat of vaporization, cooling coefficient, etc.
+  const [fluidProps, setFluidProps] = useState(null)
 
   // Burner heat setting: 0=off, 1=low, 2=med, 3=high
   // Controls the output power of the gas burner
@@ -90,14 +95,46 @@ function GameScene({ stage, location, onStageChange }) {
   // Higher altitude = lower atmospheric pressure = lower boiling point
   const altitude = location?.altitude || 0
 
-  // Pre-calculate what temperature water will boil at for this altitude
-  // At sea level (0m): 100°C
-  // At Denver (1609m): ~95°C
-  // At Mount Everest base camp (5364m): ~68°C
-  const boilingPoint = calculateBoilingPoint(altitude)
+  // Pre-calculate what temperature fluid will boil at for this altitude
+  // At sea level (0m): 100°C for water
+  // At Denver (1609m): ~95°C for water
+  // At Mount Everest base camp (5364m): ~68°C for water
+  // Note: This is recalculated only when altitude or fluidProps changes
+  const boilingPoint = fluidProps ? calculateBoilingPoint(altitude, fluidProps) : 100
 
   // ============================================================================
-  // EFFECT 1: Initialize the game window dimensions (runs once on component load)
+  // ============================================================================
+  // EFFECT 1: Load fluid properties (runs once on component load)
+  // ============================================================================
+
+  useEffect(() => {
+    // Load the current fluid's properties from JSON
+    // For now, we always load water, but this makes it easy to add fluid selection later
+    async function initializeFluid() {
+      try {
+        const fluidData = await loadFluid(DEFAULT_FLUID)  // 'water'
+        const props = parseFluidProperties(fluidData)
+        setFluidProps(props)
+        console.log(`Loaded fluid: ${props.name} (${props.formula})`, props)
+      } catch (error) {
+        console.error('Failed to load fluid properties:', error)
+        // Set a fallback with basic water properties
+        setFluidProps({
+          id: 'water',
+          name: 'Water',
+          formula: 'H₂O',
+          specificHeat: 4.186,
+          heatOfVaporization: 2257,
+          boilingPointSeaLevel: 100,
+          altitudeLapseRate: 0.00333,
+          coolingCoefficient: 0.0015
+        })
+      }
+    }
+    initializeFluid()
+  }, [])
+
+  // EFFECT 2: Initialize the game window dimensions (runs once on component load)
   // ============================================================================
 
   useEffect(() => {
@@ -122,14 +159,19 @@ function GameScene({ stage, location, onStageChange }) {
   }, [])
 
   // ============================================================================
-  // EFFECT 2: Physics simulation loop (runs continuously when water is in pot)
+  // EFFECT 3: Physics simulation loop (runs continuously when water is in pot)
+  // ============================================================================
+
+  // ============================================================================
+  // EFFECT 3: Physics simulation loop (runs continuously when water is in pot)
   // ============================================================================
 
   useEffect(() => {
     // This effect handles the physics simulation of heating/cooling water
     // It runs continuously while there's water in the pot
     // Heat is only applied when the pot is over the flame
-    if (waterInPot <= 0) return
+    // Now uses Newton's Law of Cooling for realistic temperature decay
+    if (waterInPot <= 0 || !fluidProps) return  // Wait for fluid props to load
 
     // Define the heat activation area around the flame
     // Flame is at ~62.6% X, ~53.4% Y with 40% size container
@@ -157,10 +199,9 @@ function GameScene({ stage, location, onStageChange }) {
         // Map burner heat setting to watts: off=0, low=400W, med=1700W, high=2500W
         const heatLevels = [0, 400, 1700, 2500]
         heatInputWatts = heatLevels[burnerHeat]
-      } else {
-        // No heat applied - use ambient cooling instead
-        heatInputWatts = -GAME_CONFIG.AMBIENT_COOLING_WATTS  // -200W
       }
+      // If heat is off or pot is not over flame, heatInputWatts stays 0
+      // Newton's Law of Cooling will handle the temperature decay automatically
 
       // Convert the TIME_STEP from milliseconds to seconds
       // If TIME_STEP = 100 (milliseconds), deltaTime = 0.1 (seconds)
@@ -169,18 +210,20 @@ function GameScene({ stage, location, onStageChange }) {
 
       // Call the physics engine function to calculate what happens in this time step
       // It takes:
-      // - Current water properties (mass, temperature, altitude)
-      // - Heat being applied (Watts, can be negative for cooling)
+      // - Current fluid properties (mass, temperature, altitude)
+      // - Heat being applied (Watts, 0 for natural cooling)
       // - Time elapsed in this step (seconds × speed multiplier)
-      // And returns new temperature, water mass, and whether it's boiling
+      // - Fluid properties (specific heat, cooling coefficient, etc.)
+      // And returns new temperature, fluid mass, and whether it's boiling
       const newState = simulateTimeStep(
         {
-          waterMass: waterInPot,         // How much water (kg)
+          waterMass: waterInPot,         // How much fluid (kg)
           temperature: temperature,      // Current temperature (°C)
           altitude: altitude             // Current altitude (meters)
         },
-        heatInputWatts,                   // How much heat to apply (Watts, can be negative)
-        deltaTime                         // How much time this step represents (seconds)
+        heatInputWatts,                   // How much heat to apply (Watts)
+        deltaTime,                        // How much time this step represents (seconds)
+        fluidProps                        // Fluid properties (specific heat, cooling, etc.)
       )
 
       // Update all the values returned from the physics simulation
@@ -203,7 +246,7 @@ function GameScene({ stage, location, onStageChange }) {
         clearInterval(simulationRef.current)
       }
     }
-  }, [waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed, potPosition, burnerHeat])  // Re-run if any of these change
+  }, [waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps])  // Re-run if any of these change
 
   // ============================================================================
   // POT DRAGGING HANDLERS: Three functions handle the drag lifecycle

@@ -1,84 +1,13 @@
 /**
- * PHYSICS CONSTANTS FOR THERMODYNAMICS
+ * UNIVERSAL PHYSICS CONSTANTS FOR THERMODYNAMICS
  * All values use SI units (meters, kilograms, seconds, Celsius, Joules) unless otherwise specified
  * 
- * These constants represent real physical properties of water and the atmosphere.
- * They are used throughout the game to simulate realistic heating and boiling behavior.
+ * These constants represent universal physical laws and atmospheric properties.
+ * Fluid-specific properties (like water, ethanol, etc.) are now loaded from src/data/fluids/
+ * 
+ * NOTE: WATER_CONSTANTS has been DEPRECATED and moved to src/data/fluids/water.json
+ * This allows easy extension to other fluids like ethanol, saltwater, oils, etc.
  */
-
-// =====================================================================
-// WATER PROPERTIES
-// =====================================================================
-// These constants describe how water behaves when you heat it or cool it
-export const WATER_CONSTANTS = {
-  // SPECIFIC HEAT CAPACITY (c)
-  // How much energy is needed to raise the temperature of 1 gram of water by 1°C
-  // = 4.186 Joules per gram per degree Celsius
-  // 
-  // This is why water is good for thermal storage—it takes a lot of energy to
-  // change its temperature. For comparison, aluminum is 0.897 J/(g·°C), only 21% of water.
-  // 
-  // Formula: Q = m × c × ΔT
-  // Example: To heat 1 liter (1000g) of water by 10°C:
-  //   Q = 1000g × 4.186 J/(g·°C) × 10°C = 41,860 Joules
-  SPECIFIC_HEAT_LIQUID: 4.186,
-  
-  // HEAT OF VAPORIZATION (latent heat)
-  // Energy needed to convert 1 kilogram of liquid water to steam at 100°C
-  // = 2,257 kilojoules per kilogram = 2,257,000 Joules per kilogram
-  // 
-  // This is MUCH larger than the sensible heat. For example, heating 1 kg of water
-  // from 0°C to 100°C requires 418,600 J, but converting that 100°C water to steam
-  // requires 2,257,000 J—5.4 times more energy!
-  // 
-  // This is why steam burns are so dangerous—the energy required for boiling is huge.
-  // 
-  // Used in formula: m_steam = Q / L_v
-  // Example: 2,257,000 J of heat converts 1 kg of water to steam
-  HEAT_OF_VAPORIZATION: 2257,
-  
-  // HEAT OF FUSION
-  // Energy needed to melt 1 kilogram of ice at 0°C to liquid water at 0°C
-  // = 334 kilojoules per kilogram = 334,000 Joules per kilogram
-  // 
-  // Not currently used in the game (we don't simulate freezing), but included
-  // for educational completeness and future expansion.
-  HEAT_OF_FUSION: 334,
-  
-  // DENSITY OF WATER
-  // Mass per unit volume at 4°C (when water is densest)
-  // = 1.0 kilogram per liter (or 1000 kg per cubic meter)
-  // 
-  // This is why 1 liter of water weighs 1 kg—convenient for calculations!
-  // Density changes slightly with temperature (water is less dense at 0°C and 100°C),
-  // but we use 1.0 as a reasonable average.
-  // 
-  // Used to convert between water volume and mass: mass = volume × density
-  DENSITY: 1.0,
-  
-  // BOILING POINT AT STANDARD PRESSURE (sea level)
-  // = 100°C by definition (standard atmospheric pressure = 101,325 Pa)
-  // 
-  // This is the reference temperature. At higher altitudes, boiling point decreases.
-  // Example: Denver (1600m) → ~95°C; Mount Everest (8848m) → ~68°C
-  BOILING_POINT_SEA_LEVEL: 100,
-  
-  // FREEZING POINT
-  // Temperature at which liquid water becomes solid ice at standard pressure
-  // = 0°C by definition
-  // 
-  // Not used in current game, but important for educational completeness.
-  FREEZING_POINT: 0,
-  
-  // MOLECULAR MASS OF WATER (H₂O)
-  // = 18.015 grams per mole
-  // 
-  // One mole of any substance contains Avogadro's number of molecules (~6.022 × 10²³).
-  // Water's molecular formula H₂O: 1×hydrogen (1) + 2×oxygen (16) ≈ 18
-  // 
-  // Not directly used in our simplified game physics, but included for educational reference.
-  MOLECULAR_MASS: 18.015
-}
 
 // =====================================================================
 // ATMOSPHERIC PROPERTIES
@@ -168,11 +97,12 @@ export const GAME_CONFIG = {
   // This heats 1 kg of water from 20°C to 100°C in about 3.5 minutes of real time
   GAS_BURNER_WATTS: 1700,
   
-  // HEAT LOSS RATE (in Watts)
-  // When pot is removed from the flame, it loses heat to the environment
-  // This is ambient cooling due to air and pot material radiation
-  // Realistic value: 200W for a pot containing hot water
-  AMBIENT_COOLING_WATTS: 200,
+  // HEAT TRANSFER COEFFICIENT (for Newton's Law of Cooling)
+  // This is now loaded from the fluid JSON file (e.g., water.json)
+  // Different fluids have different cooling rates based on their thermal properties
+  // The coefficient determines exponential cooling: dT/dt = -k(T - T_ambient)
+  // Typical range: 0.001 to 0.003 per second for liquids in metal containers
+  // NOTE: AMBIENT_COOLING_WATTS has been deprecated in favor of exponential cooling model
   
   // DEFAULT STARTING TEMPERATURE (in Celsius)
   // Water always starts at room temperature

@@ -1,0 +1,82 @@
+{
+  "id": "water",
+  "name": "Water (H₂O)",
+  "chemicalFormula": "H₂O",
+  "description": "Pure water from a typical tap. The most common substance on Earth's surface.",
+  
+  "properties": {
+    "specificHeatLiquid": {
+      "value": 4.186,
+      "units": "J/(g·°C)",
+      "description": "Energy needed to raise 1 gram by 1°C. Water has one of the highest specific heats, making it excellent for thermal storage."
+    },
+    
+    "heatOfVaporization": {
+      "value": 2257,
+      "units": "kJ/kg",
+      "description": "Energy needed to convert 1 kg of liquid at boiling point to steam. This is why steam burns are so dangerous."
+    },
+    
+    "heatOfFusion": {
+      "value": 334,
+      "units": "kJ/kg",
+      "description": "Energy needed to melt 1 kg of ice at 0°C to liquid water at 0°C."
+    },
+    
+    "density": {
+      "value": 1.0,
+      "units": "kg/L",
+      "description": "Mass per unit volume at 4°C (when water is densest). 1 liter of water = 1 kilogram."
+    },
+    
+    "boilingPoint": {
+      "seaLevel": 100,
+      "units": "°C",
+      "altitudeLapseRate": 0.00333,
+      "description": "Temperature at which water boils at sea level (101.325 kPa). Decreases ~1°C per 300m elevation."
+    },
+    
+    "freezingPoint": {
+      "value": 0,
+      "units": "°C",
+      "description": "Temperature at which water freezes at standard pressure."
+    },
+    
+    "molecularMass": {
+      "value": 18.015,
+      "units": "g/mol",
+      "description": "H₂O: 2 hydrogen atoms (1.008 each) + 1 oxygen atom (15.999) = 18.015 g/mol"
+    },
+    
+    "thermalConductivity": {
+      "value": 0.606,
+      "units": "W/(m·K)",
+      "description": "How well water conducts heat. Relatively low compared to metals."
+    },
+    
+    "viscosity": {
+      "value": 0.001002,
+      "units": "Pa·s",
+      "description": "Resistance to flow at 20°C. Water is relatively fluid compared to oils or honey."
+    }
+  },
+  
+  "coolingModel": {
+    "heatTransferCoefficient": 0.0015,
+    "units": "1/s",
+    "description": "Newton's Law of Cooling coefficient for water in a typical metal pot at room temperature. Determines exponential cooling rate: dT/dt = -k(T - T_ambient)"
+  },
+  
+  "visualProperties": {
+    "color": "#4DB8FF",
+    "steamColor": "#FFFFFF",
+    "opacity": 0.7,
+    "steamOpacity": 0.4
+  },
+  
+  "metadata": {
+    "safetyLevel": "safe",
+    "commonUses": ["drinking", "cooking", "cleaning"],
+    "educationalNotes": "Water's high specific heat and heat of vaporization make it ideal for studying phase changes and thermodynamics."
+  }
+}
