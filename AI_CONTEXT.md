@@ -190,6 +190,7 @@ public/assets/
 2. **Read relevant doc file** - Don't guess at architecture
 3. **Check git history** - Theme fixes are well-documented in commits
 4. **Test theme switching** - Common failure point
+5. **Run locally before commit/push** - `npm run dev` and watch console for errors
 
 ### When You Find a New Gotcha
 1. Add it to [`GOTCHAS.md`](GOTCHAS.md) immediately

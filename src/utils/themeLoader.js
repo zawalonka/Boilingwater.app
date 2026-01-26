@@ -133,6 +133,17 @@ export function validateThemeData(themeData) {
  *   // Now CSS variables can be set from processedTheme.colors
  */
 export function processTheme(themeData, parentTheme = null) {
+  const normalizeEffects = (effects) => {
+    const defaults = {
+      steam: { enabled: false },
+      flameGlow: { enabled: false }
+    }
+    return {
+      steam: { ...defaults.steam, ...(effects?.steam || {}) },
+      flameGlow: { ...defaults.flameGlow, ...(effects?.flameGlow || {}) }
+    }
+  }
+
   // Start with parent theme if specified
   let processed = parentTheme ? JSON.parse(JSON.stringify(parentTheme)) : {}
 
@@ -160,7 +171,7 @@ export function processTheme(themeData, parentTheme = null) {
       ...processed.layout,
       ...themeData.layout
     },
-    effects: themeData.effects || {}  // Do NOT inherit effects; only use if theme defines them
+    effects: normalizeEffects(themeData.effects) // Effects default to disabled unless theme defines them
   }
 }
 

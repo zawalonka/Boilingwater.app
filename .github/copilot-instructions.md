@@ -17,6 +17,7 @@
 1. **Read:** [`AI_CONTEXT.md`](../AI_CONTEXT.md) - Complete navigation and architecture
 2. **Check:** [`GOTCHAS.md`](../GOTCHAS.md) - Known issues that cost debugging time
 3. **Review:** Task-specific docs linked in AI_CONTEXT.md
+4. **Run locally before commit/push:** `npm run dev` and check console for errors
 
 ### Project Essentials
 - **Tech:** React + Vite
