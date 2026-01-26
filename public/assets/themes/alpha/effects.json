@@ -15,5 +15,8 @@
     "blurPx": 18,
     "flickerMs": 360,
     "intensityByHeat": [0, 1, 1.10, 1.22]
+  },
+  "waterStream": {
+    "enabled": true
   }
 }

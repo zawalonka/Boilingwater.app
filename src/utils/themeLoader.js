@@ -136,11 +136,13 @@ export function processTheme(themeData, parentTheme = null) {
   const normalizeEffects = (effects) => {
     const defaults = {
       steam: { enabled: false },
-      flameGlow: { enabled: false }
+      flameGlow: { enabled: false },
+      waterStream: { enabled: false }
     }
     return {
       steam: { ...defaults.steam, ...(effects?.steam || {}) },
-      flameGlow: { ...defaults.flameGlow, ...(effects?.flameGlow || {}) }
+      flameGlow: { ...defaults.flameGlow, ...(effects?.flameGlow || {}) },
+      waterStream: { ...defaults.waterStream, ...(effects?.waterStream || {}) }
     }
   }
 
@@ -279,6 +281,36 @@ export async function getAvailableThemes() {
     console.error('Failed to get available themes:', error)
     return [{ id: THEME_CONFIG.defaultTheme, name: 'Alpha Theme' }]  // Fallback
   }
+}
+
+/**
+ * Gets all themes that apply to a specific level
+ * Filters available themes by levelId
+ * 
+ * @param {string} levelId - The level ID to filter by
+ * @returns {Promise<Array<Object>>} Array of level themes
+ * 
+ * @example
+ *   const levelThemes = await getThemesByLevel('level-1')
+ *   // Returns: [{ id: 'alpha', name: 'Alpha Theme' }, { id: 'alpha-alt', name: 'Alpha Alt' }]
+ */
+export async function getThemesByLevel(levelId) {
+  const available = await getAvailableThemes()
+  const themesData = []
+
+  for (const theme of available) {
+    try {
+      const themeData = await loadTheme(theme.id)
+      // Check if theme belongs to this level (or has no level specified, for backwards compat)
+      if (!themeData.levelId || themeData.levelId === levelId) {
+        themesData.push({ id: theme.id, name: theme.name, levelId: themeData.levelId })
+      }
+    } catch (error) {
+      console.warn(`Could not load theme ${theme.id}:`, error.message)
+    }
+  }
+
+  return themesData
 }
 
 /**

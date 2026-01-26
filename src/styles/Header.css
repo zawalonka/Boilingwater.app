@@ -50,7 +50,54 @@
   margin: 0;
   letter-spacing: 1px;
   color: var(--theme-header-text, #fff);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.title-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.8;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================================================
+   SKIP TUTORIAL BUTTON (Header Banner)
+   ======================================================================== */
+.skip-tutorial-banner-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(76, 175, 80, 0.85);
+  color: white;
+  border: 2px solid #4CAF50;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.skip-tutorial-banner-button:hover {
+  background: #4CAF50;
+  border-color: #45a049;
+  transform: scale(1.05);
+}
+
+.skip-tutorial-note {
+  font-size: 0.65rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* ========================================================================
+   LEVEL SELECTOR
+   ======================================================================== */
 
 .menu-dropdown {
   position: absolute;
@@ -104,20 +151,99 @@
   border-left-color: #ff6600;
 }
 
-.theme-selector {
+.level-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-label {
+  font-size: 0.8rem;
+  color: #fff;
+  opacity: 0.85;
+}
+
+.level-note {
+  font-size: 0.7rem;
+  color: rgba(255, 204, 0, 0.9);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.level-selector select {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--theme-header-text, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.level-selector select option {
+  background: var(--theme-panel-background, #0e1623);
+  color: var(--theme-panel-text, #e8f1ff);
+}
+
+.level-selector select:focus {
+  border-color: var(--theme-header-accent, #ff6600);
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
+}
+
+/* Experiment selector - similar styling to level selector */
+.experiment-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.experiment-label {
+  font-size: 0.8rem;
+  color: #fff;
+  opacity: 0.85;
+}
+
+.experiment-selector select {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--theme-header-text, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.experiment-selector select option {
+  background: var(--theme-panel-background, #0e1623);
+  color: var(--theme-panel-text, #e8f1ff);
+}
+
+.experiment-selector select:focus {
+  border-color: var(--theme-header-accent, #ff6600);
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
+}
+
+.workshop-selector {
   display: flex;
   align-items: center;
   margin-left: auto;
   gap: 6px;
 }
 
-.theme-label {
+.workshop-label {
   font-size: 0.8rem;
   color: #fff;
   opacity: 0.85;
 }
 
-.theme-selector select {
+.workshop-note {
+  font-size: 0.7rem;
+  color: rgba(255, 204, 0, 0.9);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.workshop-selector select {
   background: rgba(255, 255, 255, 0.1);
   color: var(--theme-header-text, #fff);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -128,12 +254,12 @@
 }
 
 /* Ensure dropdown options stay legible across themes */
-.theme-selector select option {
+.workshop-selector select option {
   background: var(--theme-panel-background, #0e1623);
   color: var(--theme-panel-text, #e8f1ff);
 }
 
-.theme-selector select:focus {
+.workshop-selector select:focus {
   border-color: var(--theme-header-accent, #ff6600);
   box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
 }
@@ -152,6 +278,34 @@
 .menu-link:hover {
   background: rgba(255, 102, 0, 0.2);
   border-left: 3px solid var(--theme-header-accent, #ff6600);
+}
+
+/* ========================================================================
+   TEMPERATURE UNIT TOGGLE
+   ======================================================================== */
+.unit-toggle-button {
+  background: var(--theme-button-primary, #4CAF50);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-left: auto;  /* Push to right side */
+}
+
+.unit-toggle-button:hover {
+  background: var(--theme-button-hover, #45a049);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.unit-toggle-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {

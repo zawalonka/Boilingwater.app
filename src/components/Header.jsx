@@ -4,7 +4,8 @@
  * This is the top navigation bar of the application.
  * It displays:
  * - App title ("Boiling Water")
- * - Hamburger menu button (on the left side)
+ * - Level and Experiment dropdowns (when in game view)
+ * - Hamburger menu button (on the right side)
  * - Dropdown menu with navigation links (appears when hamburger is clicked)
  * 
  * The header is fixed at the top of the viewport and doesn't scroll with the page.
@@ -13,6 +14,8 @@
 
 import { useState } from 'react'
 import '../styles/Header.css'
+import { getDefaultTemperatureUnit } from '../utils/unitUtils'
+import { EXPERIMENTS } from '../constants/themes'
 
 /**
  * Header Function Component
@@ -22,18 +25,34 @@ import '../styles/Header.css'
  * - onNavigate: Navigate to a given view (game, about, docs, issue, theme)
  * - onReload: Reload the current level/game view
  * - onThemeChange: Change the active theme id
+ * - onLevelChange: Change the active level id
+ * - onExperimentChange: Change the active experiment id
+ * - onSkipTutorial: Skip the tutorial and reveal level selectors
  * - activeThemeId: Currently selected theme id
- * - availableThemes: Array of theme ids to choose from
+ * - activeLevel: Currently selected level (numeric: 0, 1, 2...)
+ * - activeExperiment: Currently selected experiment id
+ * - availableThemes: Array of theme ids to choose from (filtered by level)
+ * - availableLevels: Array of level objects with id, name, order
+ * - availableExperiments: Array of experiment objects for current level
  * - activeView: Current active view (game, about, docs, submit-issue, submit-theme)
+ * - showSelectors: Whether to show level/theme selector dropdowns
  */
 function Header({ 
   onMenuClick, 
   onNavigate, 
   onReload,
   onThemeChange,
+  onLevelChange,
+  onExperimentChange,
+  onSkipTutorial,
   activeThemeId,
+  activeLevel,
+  activeExperiment,
   availableThemes = [],
-  activeView
+  availableLevels = [],
+  availableExperiments = [],
+  activeView,
+  showSelectors = false
 }) {
   // ============================================================================
   // STATE
@@ -46,6 +65,12 @@ function Header({
    * Starts as false (menu closed)
    */
   const [menuOpen, setMenuOpen] = useState(false)
+
+  /**
+   * Temperature unit preference (C or F)
+   * Starts with default based on browser locale
+   */
+  const [temperatureUnit, setTemperatureUnit] = useState(getDefaultTemperatureUnit())
 
   // ============================================================================
   // EVENT HANDLERS
@@ -76,13 +101,22 @@ function Header({
     setMenuOpen(false)
   }
 
-  // Theme selector
+  // Workshop selector
   const handleThemeChange = (e) => {
     const next = e.target.value
     onThemeChange?.(next)
   }
 
-  // ============================================================================
+  // Level selector
+  const handleLevelChange = (e) => {
+    const next = e.target.value
+    onLevelChange?.(next)
+  }
+
+  // Temperature unit toggle
+  const handleTemperatureUnitChange = () => {
+    setTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')
+  }  // ============================================================================
   // RENDER
   // ============================================================================
 
@@ -112,21 +146,77 @@ function Header({
           <span></span>
         </button>
 
-        {/* 
-          ===== APP TITLE =====
-          Displays "Boiling Water" as the main heading
-        */}
+        {/* App title (keep clean; experiment name lives in dropdown) */}
         <h1 className="app-title">Boiling Water</h1>
 
-        {/* Theme selector replaces the badge so players can switch themes */}
-        <div className="theme-selector">
-          <label htmlFor="theme-select" className="theme-label">Theme:</label>
-          <select id="theme-select" value={activeThemeId} onChange={handleThemeChange}>
-            {availableThemes.map((theme) => (
-              <option key={theme.id} value={theme.id}>{theme.name}</option>
-            ))}
-          </select>
-        </div>
+        {/* Skip Tutorial button (Boiling Water experiment only) */}
+        {activeExperiment === 'boiling-water' && !showSelectors && (
+          <button 
+            className="skip-tutorial-banner-button"
+            onClick={onSkipTutorial}
+            title="Skip the tutorial and unlock level and experiment selectors"
+          >
+            ⏭️ Skip Tutorial
+            <span className="skip-tutorial-note">⚠️ Resets level</span>
+          </button>
+        )}
+
+        {/* Level and Experiment selectors (hidden until tutorial passed or skipped) */}
+        {showSelectors && activeView === 'game' && (
+          <>
+            {/* Level selector - Numeric levels */}
+            <div className="level-selector">
+              <label htmlFor="level-select" className="level-label">Level:</label>
+              <select 
+                id="level-select" 
+                value={activeLevel} 
+                onChange={(e) => onLevelChange?.(parseInt(e.target.value))}
+              >
+                {availableLevels.map((level) => (
+                  <option key={level.id} value={level.id}>{`Level ${level.id}`}</option>
+                ))}
+              </select>
+              <span className="level-note">⚠️ Resets game</span>
+            </div>
+
+            {/* Experiment selector - Changes within current level */}
+            {availableExperiments.length > 0 && (
+              <div className="experiment-selector">
+                <label htmlFor="experiment-select" className="experiment-label">Experiment:</label>
+                <select 
+                  id="experiment-select" 
+                  value={activeExperiment} 
+                  onChange={(e) => onExperimentChange?.(e.target.value)}
+                >
+                  {availableExperiments.map((exp, idx) => (
+                    <option key={exp.id} value={exp.id}>{`${idx + 1}. ${exp.name}`}</option>
+                  ))}
+                </select>
+                <span className="level-note">⚠️ Resets game</span>
+              </div>
+            )}
+
+            {/* Workshop selector - Visual variant within current level */}
+            <div className="workshop-selector">
+              <label htmlFor="workshop-select" className="workshop-label">Workshop:</label>
+              <select id="workshop-select" value={activeThemeId} onChange={handleThemeChange}>
+                {availableThemes.map((theme) => (
+                  <option key={theme.id} value={theme.id}>{theme.name}</option>
+                ))}
+              </select>
+              <span className="level-note">⚠️ Resets game</span>
+            </div>
+
+            {/* Temperature unit toggle */}
+            <button 
+              className="unit-toggle-button"
+              onClick={handleTemperatureUnitChange}
+              title={`Switch to ${temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius'}`}
+            >
+              🌡️ {temperatureUnit === 'C' ? '°C' : '°F'}
+            </button>
+          </>
+        )}
       </div>
 
       {/* 

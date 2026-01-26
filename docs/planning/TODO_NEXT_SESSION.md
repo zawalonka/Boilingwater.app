@@ -1,6 +1,13 @@
 # Next Session TODO - Image & Asset Overhaul
 
-- [ ] Confirm whether effects (steam, glowing fire, etc.) are defined within the theme folder structure; if not, add an optional `effects.json` schema/file to themes (document optionality, no placeholder effects required for simple themes)
+## ✅ Completed
+- [x] Effects system fully implemented (steam, flame glow, water stream)
+  - All effects disabled by default unless theme enables via `effects.json`
+  - Flame image always shows; glow/animation are optional effects
+  - Water stream is opt-in per theme
+  - Theme switching properly resets game (stage 0, force remount)
+  - Documentation updated in GOTCHAS.md
+- [x] Theme system locked down and extensible
 
 ## Priority 1: ComfyUI Workflows & SVG Conversion
 - [ ] Create ComfyUI workflows for all transparent images (pot-empty, pot-full, flame)
@@ -52,8 +59,9 @@
 - [ ] Document all extensible data formats (fluids, themes, physics params)
 
 ## Next Session Context
-- **Last work:** Image optimization (PNG → JPG backgrounds, compressed UI PNGs), CI workflow fix (skip rebuilds for docs-only changes)
+- **Last work:** Effects system implementation (all effects opt-in per theme), theme switching reset, game extensibility
 - **Dev server:** Running at http://localhost:3001/
-- **Branches:** All changes pushed to origin/main (prod) and dev/main (staging)
+- **Branches:** Changes ready to commit and push to dev/main (staging), then origin/main (prod)
 - **Image status:** JPG backgrounds (62KB), compressed PNGs (6-12KB) loaded successfully
-- **Theme system:** Fully functional; validator fixed, preloading working, CSS vars applied correctly
+- **Theme system:** ✅ Complete - validator fixed, effects opt-in, extensible, resets properly
+- **Effects system:** ✅ Complete - steam, flame glow, water stream all gated, default disabled

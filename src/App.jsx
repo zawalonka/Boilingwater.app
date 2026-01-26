@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import GameScene from './components/GameScene'
-import { initializeTheme, getAvailableThemes, preloadThemeImages } from './utils/themeLoader'
+import { initializeTheme, getThemesByLevel, preloadThemeImages } from './utils/themeLoader'
+import { LEVELS, EXPERIMENTS } from './constants/themes'
 import './styles/App.css'
 
 function App() {
@@ -10,16 +11,20 @@ function App() {
   const [themeLoaded, setThemeLoaded] = useState(false)
   const [activeView, setActiveView] = useState('game')  // game | about | docs | submit-issue | submit-theme
   const [gameInstanceKey, setGameInstanceKey] = useState(0)
+  const [activeLevel, setActiveLevel] = useState(1)  // Numeric level (1, 2, 3...)
+  const [activeExperiment, setActiveExperiment] = useState('boiling-water')  // Experiment ID within level
   const [activeThemeId, setActiveThemeId] = useState('alpha')
   const [availableThemes, setAvailableThemes] = useState([{ id: 'alpha', name: 'Alpha Theme' }])
   const [activeThemeData, setActiveThemeData] = useState(null)
+  const [hasBoiledBefore, setHasBoiledBefore] = useState(false)  // Track if user has boiled water once
+  const [showSelectors, setShowSelectors] = useState(false)  // Show level/theme selectors
 
   // Load available themes and apply default
   useEffect(() => {
     async function bootTheme() {
       try {
-        const list = await getAvailableThemes()
-        setAvailableThemes(list)
+        const levelThemes = await getThemesByLevel(activeLevel)
+        setAvailableThemes(levelThemes)
         const processed = await initializeTheme(activeThemeId, { apply: true })
         // Preload all theme images to prevent lag
         await preloadThemeImages(processed)
@@ -41,11 +46,46 @@ function App() {
       await preloadThemeImages(processed)
       setActiveThemeId(themeId)
       setActiveThemeData(processed)
-      // Force GameScene re-mount so per-theme visual state (effects, boiling) resets
+      // Reset game completely: stage back to 0, force GameScene re-mount
+      setGameStage(0)
       setGameInstanceKey((k) => k + 1)
     } catch (error) {
       console.error('Failed to change theme:', error)
     }
+  }
+
+  // Level change handler
+  // optionalNextExperimentId lets callers override the default first experiment for that level
+  const handleLevelChange = async (levelId, optionalNextExperimentId = null) => {
+    try {
+      const levelThemes = await getThemesByLevel(levelId)
+      setAvailableThemes(levelThemes)
+      setActiveLevel(levelId)
+      
+      // Switch to the first theme of the new level
+      const firstTheme = levelThemes && levelThemes.length > 0 ? levelThemes[0] : { id: 'alpha' }
+      const processed = await initializeTheme(firstTheme.id, { apply: true })
+      await preloadThemeImages(processed)
+      setActiveThemeId(firstTheme.id)
+      setActiveThemeData(processed)
+      
+      // Reset game and set default experiment for this level
+      const sortedExperiments = (EXPERIMENTS[levelId] || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0))
+      const defaultExperiment = optionalNextExperimentId || sortedExperiments?.[0]?.id || 'boiling-water'
+      setActiveExperiment(defaultExperiment)
+      setGameStage(0)
+      setGameInstanceKey((k) => k + 1)
+    } catch (error) {
+      console.error('Failed to change level:', error)
+    }
+  }
+
+  // Experiment change handler
+  const handleExperimentChange = (experimentId) => {
+    setActiveExperiment(experimentId)
+    setGameStage(0)
+    setGameInstanceKey((k) => k + 1)
+    // Location popup will be triggered in GameScene if this is Exp 2+
   }
 
   // Location will be requested when entering stage 2 (altitude-based lessons)
@@ -68,6 +108,35 @@ function App() {
       })
     }
   }, [gameStage])
+
+  // Handle skip tutorial button (fast-forward to altitude experiment)
+  const handleSkipTutorial = async () => {
+    setShowSelectors(true)
+    // Move directly to Level 1, Experiment 2 (Altitude's Effect)
+    await handleLevelChange(1, 'altitude-effect')
+  }
+
+  // Handle when user boils water on Level 0 (tutorial)
+  const handleWaterBoiled = () => {
+    if (activeLevel === 0 && !hasBoiledBefore) {
+      setHasBoiledBefore(true)
+      setShowSelectors(true)
+      // Modal stays visible until user clicks button
+    }
+  }
+
+  // Handle location changes (from GameScene location input)
+  const handleLocationChange = (locationData) => {
+    setUserLocation({
+      altitude: locationData.altitude,
+      zipCode: locationData.zipCode,
+      country: locationData.country,
+      name: locationData.name,
+      latitude: locationData.latitude,
+      longitude: locationData.longitude
+    })
+    console.log('✓ Location updated:', locationData.name, `(${locationData.altitude}m)`)
+  }
 
   const handleNavigate = (view) => {
     setActiveView(view)
@@ -141,6 +210,15 @@ function App() {
           themeLayout={activeThemeData?.layout}
           themeImages={activeThemeData?.images}
           themeEffects={activeThemeData?.effects}
+          activeLevel={activeLevel}
+          activeExperiment={activeExperiment}
+          showSelectors={showSelectors}
+          onWaterBoiled={handleWaterBoiled}
+          onSkipTutorial={handleSkipTutorial}
+          onLevelChange={handleLevelChange}
+          onExperimentChange={handleExperimentChange}
+          onLocationChange={handleLocationChange}
+          hasBoiledBefore={hasBoiledBefore}
         />
       </div>
     )
@@ -154,9 +232,17 @@ function App() {
             onNavigate={handleNavigate}
             onReload={handleReload}
             onThemeChange={handleThemeChange}
+            onLevelChange={handleLevelChange}
+            onExperimentChange={handleExperimentChange}
             activeThemeId={activeThemeId}
+            activeLevel={activeLevel}
+            activeExperiment={activeExperiment}
             availableThemes={availableThemes}
+            availableLevels={LEVELS}
+            availableExperiments={(EXPERIMENTS[activeLevel] || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0))}
             activeView={activeView}
+            showSelectors={showSelectors}
+            onSkipTutorial={handleSkipTutorial}
           />
           {renderView()}
         </>

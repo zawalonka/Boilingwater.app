@@ -1,20 +1,113 @@
 /**
  * Theme Constants & Configuration
  * 
- * Defines the theme system structure and available themes.
- * Themes can be workshop-level (applying to entire workshop) or single-level specific.
+ * NEW STRUCTURE: Levels → Themes
+ * Each level can have multiple themes. Themes define the visual style for that level.
+ * 
+ * HIERARCHY:
+ * ├── Level (e.g., "Boil Water", "Pressure Cooker")
+ *     ├── Theme 1 (e.g., "Alpha", "Alpha-Alt")
+ *     ├── Theme 2
+ *     └── ...
  * 
  * THEME STRUCTURE:
  * ├── id: Unique identifier for theme
  * ├── name: Display name
- * ├── scope: 'workshop' (applies to all levels) or 'level' (single level only)
- * ├── workshopId: (optional) Which workshop this theme belongs to
- * ├── levelId: (optional) Which specific level this theme is for
+ * ├── levelId: Which level this theme belongs to
  * ├── colors: Color scheme definitions
  * ├── images: Image asset paths
  * ├── typography: Font and text styling
  * └── metadata: Additional info (created date, author, description, etc.)
  */
+
+/**
+ * EXPERIMENT SYSTEM
+ * 
+ * Structure:
+ * Level 1: Core Experiments with boiling water
+ *   - Experiment 1: Boiling Water (Tutorial)
+ *   - Experiment 2: Altitude's Effect on Boiling Point
+ *   - Experiment 3: Pressure Effects (future)
+ *   - Experiment 4: Boiling Different Substances (future)
+ * Level 2+: Advanced experiments (future)
+ */
+
+export const EXPERIMENTS = {
+  // LEVEL 1: CORE EXPERIMENTS (Exp 1 is the tutorial)
+  1: [
+    {
+      id: 'boiling-water',
+      name: 'Boiling Water',
+      level: 1,
+      description: 'Learn the basics: what is boiling and how does temperature work?',
+      requiresLocation: false,
+      isTutorial: true,
+      order: 1
+    },
+    {
+      id: 'altitude-effect',
+      name: 'Altitude\'s Effect on Boiling Water',
+      level: 1,
+      description: 'Discover how altitude changes the boiling point of water',
+      requiresLocation: true,
+      isTutorial: false,
+      order: 2
+    },
+    {
+      id: 'pressure-effects',
+      name: 'Pressure Effects on Boiling',
+      level: 1,
+      description: 'See how pressure affects boiling point',
+      requiresLocation: false,
+      isTutorial: false,
+      order: 3
+    },
+    {
+      id: 'boiling-substances',
+      name: 'Boiling Different Substances',
+      level: 1,
+      description: 'Explore how different liquids behave when heated',
+      requiresLocation: false,
+      isTutorial: false,
+      order: 4
+    }
+  ],
+  
+  // LEVEL 2: ADVANCED
+  2: [
+    {
+      id: 'advanced-thermodynamics',
+      name: 'Advanced Thermodynamics',
+      level: 2,
+      description: 'Deep dive into heat transfer and phase transitions',
+      requiresLocation: false,
+      isTutorial: false,
+      order: 1
+    }
+  ]
+}
+
+// Available levels in the game
+export const LEVELS = [
+  {
+    id: 1,
+    name: 'Level 1',
+    description: 'Core experiments with boiling water',
+    order: 1
+  },
+  {
+    id: 2,
+    name: 'Level 2',
+    description: 'Advanced experiments (coming soon)',
+    order: 2
+  },
+  {
+    id: 3,
+    name: 'Level 3',
+    description: 'Professional laboratory conditions (coming soon)',
+    order: 3
+  }
+]
 
 // Standard game resolution for all themes - DO NOT CHANGE
 export const GAME_RESOLUTION = {

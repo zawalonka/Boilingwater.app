@@ -54,7 +54,7 @@ const DEFAULT_LAYOUT = {
   }
 }
 
-function GameScene({ stage, location, onStageChange, themeLayout, themeImages, themeEffects }) {
+function GameScene({ stage, location, onStageChange, themeLayout, themeImages, themeEffects, activeLevel, activeExperiment, showSelectors, onWaterBoiled, onSkipTutorial, onLevelChange, onExperimentChange, hasBoiledBefore = false, onLocationChange }) {
   const layout = themeLayout || DEFAULT_LAYOUT
   const backgroundImage = themeImages?.background || '/assets/images/game/background.png'
   const potEmptyImage = themeImages?.pot_empty || '/assets/images/game/pot-empty.png'
@@ -80,12 +80,16 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
       blurPx: 16,
       flickerMs: null,
       intensityByHeat: [0, 1, 1.08, 1.16]
+    },
+    waterStream: {
+      enabled: false
     }
   }
 
   const effects = {
     steam: { ...defaultEffects.steam, ...(themeEffects?.steam || {}) },
-    flameGlow: { ...defaultEffects.flameGlow, ...(themeEffects?.flameGlow || {}) }
+    flameGlow: { ...defaultEffects.flameGlow, ...(themeEffects?.flameGlow || {}) },
+    waterStream: { ...defaultEffects.waterStream, ...(themeEffects?.waterStream || {}) }
   }
   // ============================================================================
   // STATE VARIABLES: These change during gameplay
@@ -116,8 +120,20 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   // (This appears when water starts boiling)
   const [showHook, setShowHook] = useState(false)
 
+  // Time from when pot was placed over flame to boiling (for stats)
+  const [boilTime, setBoilTime] = useState(0)
+  
+  // Time at which pot was first placed over flame (to track boil duration)
+  const [timePotOnFlame, setTimePotOnFlame] = useState(null)
+
+  // Should we pause time flow while popup is visible?
+  const [pauseTime, setPauseTime] = useState(false)
+
   // How many seconds have elapsed since heat was turned on (used for time calculations)
   const [timeElapsed, setTimeElapsed] = useState(0)
+  
+  // Is the timer running? (user can start/stop manually)
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
 
   // Where is the pot positioned on the screen? Uses percentages (0-100%)
   // x: 0% = left edge, 100% = right edge
@@ -135,6 +151,51 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
 
   // The dimensions of the game window (theme-provided, default 1280x800)
   const [sceneDimensions, setSceneDimensions] = useState({ width: 0, height: 0 })
+
+  // ============================================================================
+  // LOCATION & ALTITUDE INPUT: For Level 2+ altitude effects experiment
+  // ============================================================================
+
+  // User's entered zip code (for location lookup)
+  const [userZipCode, setUserZipCode] = useState('')
+
+  // User's selected country (USA, UK, Australia, Canada)
+  const [userCountry, setUserCountry] = useState('USA')
+
+  // Manual altitude input (in meters) as fallback
+  const [manualAltitude, setManualAltitude] = useState('')
+  // Track if user has confirmed any location/altitude to avoid reopening popup
+  const [hasSetLocation, setHasSetLocation] = useState(false)
+
+  // Is location lookup currently in progress?
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+
+  // Location lookup error message
+  const [locationError, setLocationError] = useState(null)
+
+  // User's entered location display name (e.g., "Denver, USA")
+  const [locationName, setLocationName] = useState(null)
+  const [showLocationPopup, setShowLocationPopup] = useState(false)
+
+  // ============================================================================
+  // DERIVED STATE: Post-Tutorial Status
+  // ============================================================================
+
+  // Advanced mode is available after completing tutorial OR skipping it
+  // showSelectors indicates tutorial has been passed/skipped (selectors only appear then)
+  const isAdvancedModeAvailable = showSelectors && (hasBoiledBefore || activeLevel !== 0)
+  
+  // Check if current experiment requires location setup
+  const isLocationBasedExperiment = activeExperiment === 'altitude-effect'
+  // Altitude controls should be available once selectors are unlocked or when the experiment requires it
+  const showAltitudeControls = showSelectors || isLocationBasedExperiment
+  
+  // Trigger location popup when entering Exp 2+ (altitude-effect)
+  useEffect(() => {
+    if (isLocationBasedExperiment && !hasSetLocation && !showLocationPopup) {
+      setShowLocationPopup(true)
+    }
+  }, [activeExperiment, isLocationBasedExperiment, hasSetLocation, showLocationPopup])
 
   // Reset pot position when layout changes
   useEffect(() => {
@@ -248,6 +309,9 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
     
     // Start a repeating timer that runs every TIME_STEP milliseconds (e.g., every 100ms)
     simulationRef.current = setInterval(() => {
+      // Skip simulation if time is paused (e.g., popup visible)
+      if (pauseTime) return
+      
       // Calculate distance from pot center to flame center
       const deltaX = Math.abs(potPosition.x - flameX)
       const deltaY = Math.abs(potPosition.y - flameY)
@@ -265,6 +329,14 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
         // Map burner heat setting to watts: off=0, low=400W, med=1700W, high=2500W
         const heatLevels = [0, 400, 1700, 2500]
         heatInputWatts = heatLevels[burnerHeat]
+        
+        // Track when pot is first placed over flame with heat on
+        if (timePotOnFlame === null) {
+          setTimePotOnFlame(0)
+        }
+      } else if (timePotOnFlame !== null) {
+        // Reset if pot is removed from flame or heat is turned off
+        setTimePotOnFlame(null)
       }
       // If heat is off or pot is not over flame, heatInputWatts stays 0
       // Newton's Law of Cooling will handle the temperature decay automatically
@@ -295,13 +367,29 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
       // Update all the values returned from the physics simulation
       setTemperature(newState.temperature)      // Water is now hotter or cooler
       setWaterInPot(newState.waterMass)        // Water mass decreases if boiling (evaporation)
-      setTimeElapsed(prev => prev + deltaTime)  // Track elapsed time (accounts for speed)
+      
+      // Track elapsed time only if timer is running
+      if (isTimerRunning) {
+        setTimeElapsed(prev => prev + deltaTime)  // Track elapsed time (accounts for speed)
+      }
 
       // Check if water just started boiling
       // We only show "boiling" if it wasn't boiling before but is now boiling
       if (newState.isBoiling && !isBoiling) {
         setIsBoiling(true)   // Mark as boiling
         setShowHook(true)    // Show the educational message
+        setPauseTime(true)   // Pause time while popup is visible
+        // Calculate time it took to boil (from when pot was placed over flame)
+        if (timePotOnFlame !== null) {
+          const elapsedBoilTime = timePotOnFlame + deltaTime
+          setBoilTime(elapsedBoilTime)
+        }
+        onWaterBoiled?.()    // Notify parent that water has boiled
+      }
+      
+      // Stop boiling if temperature drops below boiling point (pot removed from heat)
+      if (newState.temperature < boilingPoint && isBoiling) {
+        setIsBoiling(false)
       }
     }, GAME_CONFIG.TIME_STEP)  // Repeat every TIME_STEP milliseconds
 
@@ -312,7 +400,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
         clearInterval(simulationRef.current)
       }
     }
-  }, [waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps, themeLayout])  // Re-run if any of these change
+  }, [waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps, themeLayout, isTimerRunning])  // Re-run if any of these change
 
   // ============================================================================
   // POT DRAGGING HANDLERS: Three functions handle the drag lifecycle
@@ -400,11 +488,13 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
       newXPercent <= layout.waterStream.xRange[1] &&
       newYPercent >= layout.waterStream.yRange[0] &&
       newYPercent <= layout.waterStream.yRange[1]
-    if (inWaterStream && waterInPot === 0) {
+    if (inWaterStream && waterInPot < 0.1) {  // Refill if nearly empty (< 0.1kg)
       // Auto-fill with the default water amount (1.0 kg)
       setWaterInPot(GAME_CONFIG.DEFAULT_WATER_MASS)
       // Reset temperature to room temp when filling with fresh water
       setTemperature(GAME_CONFIG.ROOM_TEMPERATURE)
+      // Reset boiling state
+      setIsBoiling(false)
     }
   }
 
@@ -430,7 +520,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   // ============================================================================
 
   /**
-   * Cycle through time speed options: 1x → 2x → 4x → 8x → 1x
+   * Cycle through time speed options: 1x → 2x → 4x → 8x → 1x (Basic Mode)
    */
   const handleSpeedUp = () => {
     setTimeSpeed(current => {
@@ -439,6 +529,34 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
       if (current === 4) return 8
       return 1  // Wrap back to 1x
     })
+  }
+
+  /**
+   * Double the time speed (Advanced Mode)
+   */
+  const handleSpeedDouble = () => {
+    setTimeSpeed(current => current * 2)
+  }
+
+  /**
+   * Halve the time speed (Advanced Mode)
+   */
+  const handleSpeedHalve = () => {
+    setTimeSpeed(current => Math.max(0.125, current / 2))  // Min 1/8x speed
+  }
+
+  /**
+   * Toggle timer (start/stop)
+   */
+  const handleTimerToggle = () => {
+    setIsTimerRunning(prev => !prev)
+  }
+  
+  /**
+   * Reset timer to zero
+   */
+  const handleTimerReset = () => {
+    setTimeElapsed(0)
   }
 
   /**
@@ -468,6 +586,125 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
    */
   const handleNextStage = () => {
     onStageChange(stage + 1)
+  }
+
+  // ============================================================================
+  // LOCATION & ALTITUDE HANDLERS
+  // ============================================================================
+
+  /**
+   * Handle location search - works worldwide (city names, landmarks, etc.)
+   */
+  const handleSearchLocation = async () => {
+    if (!userZipCode.trim()) {
+      setLocationError('Please enter a location (city, landmark, region, etc.)')
+      return
+    }
+
+    setIsLoadingLocation(true)
+    setLocationError(null)
+
+    try {
+      const { getAltitudeFromLocationName } = await import('../utils/locationUtils')
+      const result = await getAltitudeFromLocationName(userZipCode)
+      
+      // Update the location through parent component
+      onLocationChange?.({
+        altitude: result.altitude,
+        name: result.name,
+        fullName: result.fullName,
+        latitude: result.latitude,
+        longitude: result.longitude
+      })
+
+      setLocationName(result.name)
+      setLocationError(null)
+      setUserZipCode('')  // Clear input after successful search
+      setManualAltitude('')  // Clear manual input
+      setHasSetLocation(true)
+      setShowLocationPopup(false)  // Close popup after selection
+    } catch (error) {
+      setLocationError(error.message || 'Location not found. Try a city name like "Denver" or "Tokyo"')
+      console.error('Location search error:', error)
+    } finally {
+      setIsLoadingLocation(false)
+    }
+  }
+
+  /**
+   * Handle manual altitude entry
+   */
+  const handleSetManualAltitude = () => {
+    const altitudeNum = parseFloat(manualAltitude)
+    
+    if (isNaN(altitudeNum) || altitudeNum < 0) {
+      setLocationError('Please enter a valid altitude in meters')
+      return
+    }
+
+    onLocationChange?.({
+      altitude: altitudeNum,
+      latitude: null,
+      longitude: null
+    })
+
+    // Manual altitude entry clears location name (shows only altitude in panel)
+    setLocationName('')
+    setUserZipCode('')
+    setManualAltitude('')
+    setLocationError(null)
+    setHasSetLocation(true)
+    setShowLocationPopup(false)  // Close popup after selection
+  }
+
+  /**
+   * Handle browser geolocation
+   */
+  const handleFindMyLocation = async () => {
+    setIsLoadingLocation(true)
+    setLocationError(null)
+
+    try {
+      const { getUserLocation } = await import('../utils/locationUtils')
+      const result = await getUserLocation()
+      
+      onLocationChange?.({
+        altitude: result.altitude,
+        name: result.name,
+        latitude: result.latitude,
+        longitude: result.longitude
+      })
+
+      setLocationName(result.name)
+      setUserZipCode('')
+      setManualAltitude('')
+      setLocationError(null)
+      setHasSetLocation(true)
+      setShowLocationPopup(false)  // Close popup after selection
+    } catch (error) {
+      setLocationError(error.message || 'Could not access your location')
+      console.error('Geolocation error:', error)
+    } finally {
+      setIsLoadingLocation(false)
+    }
+  }
+
+  /**
+   * Reset location - show popup again to change location
+   */
+  const handleResetLocation = () => {
+    setLocationName(null)
+    setUserZipCode('')
+    setManualAltitude('')
+    setLocationError(null)
+    setHasSetLocation(false)
+    setShowLocationPopup(true)  // Show popup again for selection
+    onLocationChange?.({
+      altitude: 0,
+      name: null,
+      latitude: null,
+      longitude: null
+    })
   }
 
   // ============================================================================
@@ -518,11 +755,45 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   }
 
   // Check if pot is in the water stream area to show the pouring effect
-  const showWaterStream =
+  // Only show if theme has explicitly enabled waterStream effect
+  const showWaterStream = effects.waterStream.enabled &&
     potPosition.x >= layout.waterStream.xRange[0] &&
     potPosition.x <= layout.waterStream.xRange[1] &&
     potPosition.y >= layout.waterStream.yRange[0] &&
     potPosition.y <= layout.waterStream.yRange[1]
+
+  // Check if pot is positioned over the burner (for status display)
+  const heatActivationRadius = layout.flame.activationRadius
+  const deltaXToFlame = Math.abs(potPosition.x - flameX)
+  const deltaYToFlame = Math.abs(potPosition.y - flameY)
+  const distanceToFlameCenter = Math.sqrt(deltaXToFlame * deltaXToFlame + deltaYToFlame * deltaYToFlame)
+  const isPotOverFlame = distanceToFlameCenter <= heatActivationRadius
+
+  // Calculate expected time to boil (in real-world seconds)
+  // Q = m * c * ΔT  (energy needed)
+  // Time = Q / Power (in seconds)
+  const calculateExpectedBoilTime = () => {
+    if (!fluidProps || waterInPot === 0 || temperature >= boilingPoint) return null
+    const heatPowers = [0, 400, 1700, 2500]  // Watts per burner setting
+    const powerWatts = heatPowers[burnerHeat] || 0
+    if (powerWatts === 0) return null
+    
+    const specificHeat = fluidProps.specificHeat * 1000  // Convert kJ to J
+    const tempDelta = boilingPoint - temperature
+    const energyNeeded = waterInPot * specificHeat * tempDelta  // Joules
+    const timeSeconds = energyNeeded / powerWatts  // Seconds
+    return timeSeconds
+  }
+
+  const expectedBoilTime = calculateExpectedBoilTime()
+
+  // Format time in mm:ss
+  const formatTime = (seconds) => {
+    if (seconds === null || seconds === undefined) return '--:--'
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   // Drag boundaries: how far the pot center can move (in percentages)
   // These are conservative to keep the pot mostly on screen
@@ -608,15 +879,15 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
             minHeight: burnerHeat === 0 ? '0px' : `${layout.flame.minSizePxByHeat[burnerHeat]}px`
           }}
         >
-          {/* Show flame when burner is on (burnerHeat > 0) */}
+          {/* Show flame image when burner is on; glow/animation effects applied only if theme enables them */}
           {burnerHeat > 0 && (
             <img 
               src={flameImage}
               alt="Flame"
               className="flame-graphic"
               style={{
-                filter: flameFilter,
-                animationDuration: flameAnimationDuration
+                filter: effects.flameGlow.enabled ? flameFilter : 'none',
+                animationDuration: effects.flameGlow.enabled ? flameAnimationDuration : '0s'
               }}
             />
           )}
@@ -680,8 +951,8 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
             draggable={false}  // Disable browser's native drag for images
           />
           
-          {/* Show steam animation when water is actively boiling (theme-tunable, optional) */}
-          {steamConfig.enabled && isBoiling && (
+          {/* Show steam animation when water is actively boiling at/above boiling point (theme-tunable, optional) */}
+          {steamConfig.enabled && isBoiling && temperature >= boilingPoint && (
             <div className="steam-effect" style={steamStyle}>
               {steamConfig.asset ? (
                 <img
@@ -696,16 +967,14 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
             </div>
           )}
         </div>
+
         {/* 
-          ========== STATUS PANEL ==========
-          Combined info panel showing temperature, water status, burner setting, and game info
-          Located in the top-left corner
+          ========== FLOATING STATUS PANEL ==========
+          Combined info panel showing temperature, water status, and game info
+          Floats outside game scene, positioned top-right below header
+          No longer locked to game-scene-inner
         */}
         <div className="status-panel">
-          <div className="status-header">
-            <span className="burner-label">{['🔴 OFF', '🟡 LOW', '🟠 MED', '🔴 HIGH'][burnerHeat]}</span>
-          </div>
-          
           <div className="status-content">
             {/* Ambient/Room temperature */}
             <div className="status-item">
@@ -735,8 +1004,43 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
               </div>
             )}
             
-            {/* Game controls - speed button */}
-            {waterInPot > 0 && (
+            {/* Timer controls - prominent display with start/stop/reset (Advanced Mode Only) */}
+            {waterInPot > 0 && isAdvancedModeAvailable && (
+              <div className="timer-controls">
+                <div className="timer-display">
+                  <span className="timer-label">Timer:</span>
+                  <span className="timer-value">{formatTime(timeElapsed)}</span>
+                </div>
+                <div className="timer-buttons">
+                  <button 
+                    className="timer-button"
+                    onClick={handleTimerToggle}
+                    title={isTimerRunning ? "Pause timer" : "Start timer"}
+                  >
+                    {isTimerRunning ? '⏸' : '▶'}
+                  </button>
+                  <button 
+                    className="timer-button"
+                    onClick={handleTimerReset}
+                    title="Reset timer to zero"
+                  >
+                    ↻
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* Expected time to boil (environmental estimate) */}
+            {waterInPot > 0 && expectedBoilTime !== null && !isBoiling && (
+              <div className="status-item" title="Estimated time to reach boiling point at current burner setting">
+                <span className="label">Est. Time:</span>
+                <span className="value">{formatTime(expectedBoilTime)}</span>
+              </div>
+            )}
+            
+            
+            {/* Game controls - speed controls (Tutorial/Exp 1 only) */}
+            {waterInPot > 0 && activeExperiment === 'boiling-water' && (
               <button 
                 className="action-button speed-button status-button"
                 onClick={handleSpeedUp}
@@ -745,22 +1049,181 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
               </button>
             )}
             
-            {/* Heating status */}
-            {waterInPot > 0 && temperature < boilingPoint && (
-              <p className="status-text">Heating...</p>
+            {/* Advanced speed controls with arrows (Advanced Mode Only) */}
+            {waterInPot > 0 && isAdvancedModeAvailable && (
+              <div className="speed-controls-advanced">
+                <button 
+                  className="speed-arrow"
+                  onClick={handleSpeedHalve}
+                  title="Halve speed"
+                >
+                  ◀
+                </button>
+                <span className="speed-display">⚡ {timeSpeed}x</span>
+                <button 
+                  className="speed-arrow"
+                  onClick={handleSpeedDouble}
+                  title="Double speed"
+                >
+                  ▶
+                </button>
+              </div>
             )}
             
-            {/* Boiling status */}
-            {waterInPot > 0 && isBoiling && (
-              <p className="status-text boiling">Boiling! 🫖</p>
+            {/* Heating status with progress */}
+            {waterInPot > 0 && burnerHeat > 0 && isPotOverFlame && temperature < boilingPoint && (
+              <p className="status-text" title="Wait for water to boil, or speed up time with the speed controls above">
+                🔥 Heating: {formatTemperature(temperature)}°C → {formatTemperature(boilingPoint)}°C
+              </p>
+            )}
+            
+            {/* Cooling - pot is off the flame */}
+            {waterInPot > 0 && burnerHeat > 0 && !isPotOverFlame && temperature > GAME_CONFIG.ROOM_TEMPERATURE && (
+              <p className="status-text" title="Position pot over flame to heat water">
+                ❄️ Cooling: {formatTemperature(temperature)}°C → {GAME_CONFIG.ROOM_TEMPERATURE}°C (place pot over flame)
+              </p>
+            )}
+            
+            {/* Waiting to heat */}
+            {waterInPot > 0 && burnerHeat === 0 && temperature < boilingPoint && (
+              <p className="status-text">
+                💤 Turn on burner to heat water
+              </p>
+            )}
+            
+            {/* Boiling status with water level */}
+            {waterInPot > 0 && isBoiling && temperature >= boilingPoint && (
+              <p className="status-text boiling">
+                💨 Boiling at {formatTemperature(temperature)}°C! ({Math.round(waterInPot * 1000)}g remaining)
+              </p>
+            )}
+            
+            {/* Water boiled off - can refill */}
+            {waterInPot <= 0.1 && waterInPot > 0 && (
+              <p className="status-text warning">
+                ⚠️ Almost dry! Drag pot to tap to refill
+              </p>
             )}
             
             {/* Empty pot hint */}
             {waterInPot === 0 && (
-              <p className="hint-text">Fill pot at water tap</p>
+              <p className="hint-text">💧 Drag pot to water tap to fill</p>
+            )}
+            
+            {/* Location/Altitude display in status panel (enabled when selectors unlocked or experiment needs it) */}
+            {showAltitudeControls && (altitude !== null && altitude !== undefined) && (
+              <div className="status-item location-status">
+                {locationName ? (
+                  <>
+                    <span className="label">📍 Location:</span>
+                    <span className="value">{locationName} <span className="altitude-value">({Math.round(altitude)}m)</span></span>
+                  </>
+                ) : (
+                  <>
+                    <span className="label">📍 Altitude:</span>
+                    <span className="value">{Math.round(altitude)}m</span>
+                  </>
+                )}
+                <button 
+                  className="location-change-btn"
+                  onClick={handleResetLocation}
+                  title="Change location"
+                >
+                  ✏️
+                </button>
+              </div>
             )}
           </div>
         </div>
+
+        {/* 
+          ========== LOCATION SETUP POPUP (Exp 2+) ==========
+          Modal that appears when user enters an altitude-based experiment
+          User must select a location or altitude to proceed
+        */}
+        {showLocationPopup && isLocationBasedExperiment && (
+          <div className="location-panel">
+            <h3>📍 Set Your Location</h3>
+            <p className="location-subtitle">
+              Notice how the boiling point changes with altitude? Enter your location or altitude to test.
+            </p>
+
+            {locationError && (
+              <div className="location-error">
+                <span className="error-icon">⚠️</span>
+                <span className="error-text">{locationError}</span>
+              </div>
+            )}
+
+            <div className="location-section">
+              <label className="section-title">Search for a Location (Worldwide)</label>
+              <div className="location-inputs">
+                <input
+                  type="text"
+                  placeholder="Enter city, landmark, or region (e.g., Denver, Tokyo, Sydney)"
+                  value={userZipCode}
+                  onChange={(e) => {
+                    setUserZipCode(e.target.value)
+                    setLocationError(null)
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearchLocation()}
+                  disabled={isLoadingLocation}
+                  className="location-input location-search-input"
+                />
+                <button
+                  onClick={handleSearchLocation}
+                  disabled={isLoadingLocation || !userZipCode.trim()}
+                  className="location-button"
+                  title="Search worldwide"
+                >
+                  {isLoadingLocation ? '⏳' : '🔍'}
+                </button>
+              </div>
+            </div>
+
+            <div className="location-divider">or</div>
+
+            <div className="location-section">
+              <label className="section-title">Enter Altitude Manually</label>
+              <div className="altitude-inputs">
+                <input
+                  type="number"
+                  placeholder="Meters above sea level (0-10000)"
+                  value={manualAltitude}
+                  onChange={(e) => {
+                    setManualAltitude(e.target.value)
+                    setLocationError(null)
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSetManualAltitude()}
+                  disabled={isLoadingLocation}
+                  className="altitude-input"
+                  min="0"
+                  max="10000"
+                />
+                <button
+                  onClick={handleSetManualAltitude}
+                  disabled={isLoadingLocation || !manualAltitude.trim()}
+                  className="location-button"
+                >
+                  ✓
+                </button>
+              </div>
+            </div>
+
+            <div className="location-divider">or</div>
+
+            <div className="location-section">
+              <button
+                onClick={handleFindMyLocation}
+                disabled={isLoadingLocation}
+                className="location-button find-my-location"
+              >
+                {isLoadingLocation ? '⏳ Getting your location...' : '📍 Use My Current Location'}
+              </button>
+              <small className="location-help">Uses browser geolocation (needs permission)</small>
+            </div>
+          </div>
+        )}
 
         {/* 
           ========== EDUCATIONAL HOOK ==========
@@ -772,7 +1235,49 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
           If at altitude (not at sea level) and water is boiling:
           Show message that water boiled at a different temperature than 100°C
         */}
-        {showHook && altitude !== 0 && (
+
+        {/* Tutorial Completion Popup - Centered modal with stats */}
+        {showHook && activeExperiment === 'boiling-water' && (
+          <div className="boil-stats-overlay">
+            <div className="boil-stats-modal">
+              <h2>🎉 Congratulations!</h2>
+              <p className="modal-subtitle">You've successfully boiled water!</p>
+              
+              <div className="stats-grid">
+                <div className="stat-item">
+                  <span className="stat-label">Final Temperature:</span>
+                  <span className="stat-value">{formatTemperature(temperature)}°C</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Boiling Point:</span>
+                  <span className="stat-value">{formatTemperature(boilingPoint)}°C</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Time to Boil:</span>
+                  <span className="stat-value">{formatTime(boilTime)}</span>
+                </div>
+              </div>
+
+              <p className="modal-insight">
+                ⏱️ That wasn't too bad (thank goodness for time acceleration!). Let's see if it's any different at your location?
+              </p>
+
+              <button 
+                className="action-button continue-button"
+                onClick={() => {
+                  setShowHook(false)
+                  setPauseTime(false)
+                  onExperimentChange?.('altitude-effect')
+                }}
+              >
+                Continue to Altitude Experiment →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Educational message for altitude-based experiments */}
+        {showHook && isLocationBasedExperiment && altitude !== 0 && (
           <div className="hook-message">
             <p>💧 Your water boiled at {formatTemperature(boilingPoint)}°C (not 100°C!) ❗</p>
             <button 
@@ -785,10 +1290,10 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
         )}
 
         {/* 
-          If at sea level (altitude = 0) and water is boiling:
+          If at sea level (altitude = 0) and water is boiling (levels 2+):
           Confirm that water boiled at 100°C as expected
         */}
-        {showHook && altitude === 0 && (
+        {showHook && activeLevel !== 'level-1' && altitude === 0 && (
           <div className="hook-message">
             <p>💧 Your water boiled at exactly {formatTemperature(boilingPoint)}°C!</p>
             <button 
