@@ -41,6 +41,8 @@ function App() {
       await preloadThemeImages(processed)
       setActiveThemeId(themeId)
       setActiveThemeData(processed)
+      // Force GameScene re-mount so per-theme visual state (effects, boiling) resets
+      setGameInstanceKey((k) => k + 1)
     } catch (error) {
       console.error('Failed to change theme:', error)
     }

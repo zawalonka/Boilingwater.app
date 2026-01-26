@@ -43,6 +43,30 @@ When validating JSON structures, allow flexible field locations unless there's a
 - [`src/utils/themeLoader.js`](src/utils/themeLoader.js) - Validation logic
 - Theme JSON files in `public/assets/themes/`
 
+### Effects Bleed Between Themes (steam/flame persists)
+**Date Observed:** 2026-01-25  
+**Commit Attempt:** `cf208f9` (normalized effects to default-disabled)  
+**Status:** Still reproduces (steam/flame from alpha show on alpha-alt)
+
+**Issue:**
+- Switching from a theme with effects (alpha) to one without effects.json (alpha-alt) still shows steam/flame glow.
+- Effects should be opt-in per theme; themes without effects.json should have effects disabled.
+
+**What we tried:**
+- Added `normalizeEffects` in `processTheme` to default steam/flameGlow to `enabled: false` when a theme lacks `effects.json`.
+- Effects do **not** inherit from parent themes; child themes should start with effects disabled.
+
+**Hypotheses / Next Checks:**
+- Verify GameScene receives `themeEffects` as default-disabled after theme switch.
+- Ensure component re-renders/clears steam state on theme change (consider force-unmount/re-mount on theme switch).
+- Confirm no cached effects assets are being used when `enabled: false`.
+- Validate `effects.json` is absent in the target theme (alpha-alt) on the built/dev server.
+
+**Files to check:**
+- [src/utils/themeLoader.js](src/utils/themeLoader.js) - effects loading/normalization
+- [src/components/GameScene.jsx](src/components/GameScene.jsx) - steam/flame glow gating
+- [public/assets/themes/*/effects.json](public/assets/themes) - per-theme VFX opt-in
+
 ---
 
 ## How to Use This File
