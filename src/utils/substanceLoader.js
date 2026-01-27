@@ -45,13 +45,52 @@ function resolveCompoundPath(compoundId) {
  * @throws {Error} If compound file not found or invalid JSON
  */
 async function loadCompound(compoundId) {
-  const compoundPath = resolveCompoundPath(compoundId)
   try {
-    const data = await import(/* @vite-ignore */`../data/substances/compounds/${compoundPath}/info.json`, { assert: { type: 'json' } })
+    let data
+    switch (compoundId) {
+      case 'h2o':
+        data = await import('../data/substances/compounds/pure/water-h2o/info.json')
+        break
+      case 'saltwater-3pct':
+        data = await import('../data/substances/compounds/solutions/saltwater-3pct-nacl/info.json')
+        break
+      case 'ethanol':
+        data = await import('../data/substances/compounds/pure/ethanol-c2h5oh/info.json')
+        break
+      case 'ammonia':
+        data = await import('../data/substances/compounds/pure/ammonia-nh3/info.json')
+        break
+      case 'acetone':
+        data = await import('../data/substances/compounds/pure/acetone-c3h6o/info.json')
+        break
+      case 'acetic-acid':
+        data = await import('../data/substances/compounds/pure/acetic-acid-ch3cooh/info.json')
+        break
+      case 'hydrogen-peroxide':
+        data = await import('../data/substances/compounds/pure/hydrogen-peroxide-h2o2/info.json')
+        break
+      case 'methane':
+        data = await import('../data/substances/compounds/pure/methane-ch4/info.json')
+        break
+      case 'propane':
+        data = await import('../data/substances/compounds/pure/propane-c3h8/info.json')
+        break
+      case 'isopropyl-alcohol':
+        data = await import('../data/substances/compounds/pure/isopropyl-alcohol-c3h8o/info.json')
+        break
+      case 'glycerin':
+        data = await import('../data/substances/compounds/pure/glycerin-c3h8o3/info.json')
+        break
+      case 'sucrose':
+        data = await import('../data/substances/compounds/pure/sucrose-c12h22o11/info.json')
+        break
+      default:
+        throw new Error(`Unknown compound ID: ${compoundId}`)
+    }
     return data.default || data
   } catch (error) {
-    console.error(`Failed to load compound "${compoundId}" at path "${compoundPath}":`, error)
-    throw new Error(`Compound "${compoundId}" not found. Check src/data/substances/compounds/${compoundPath}/info.json`)
+    console.error(`Failed to load compound "${compoundId}":`, error)
+    throw new Error(`Compound "${compoundId}" not found. Check SUBSTANCE_CATALOG.`)
   }
 }
 
@@ -65,13 +104,28 @@ async function loadCompound(compoundId) {
  * @throws {Error} If phase file not found or invalid JSON
  */
 async function loadPhaseState(compoundId, phase) {
-  const compoundPath = resolveCompoundPath(compoundId)
   try {
-    const data = await import(/* @vite-ignore */`../data/substances/compounds/${compoundPath}/${phase}/state.json`, { assert: { type: 'json' } })
+    let data
+    const key = `${compoundId}-${phase}`
+    switch (key) {
+      // h2o phases
+      case 'h2o-solid':
+        data = await import('../data/substances/compounds/pure/water-h2o/solid/state.json')
+        break
+      case 'h2o-liquid':
+        data = await import('../data/substances/compounds/pure/water-h2o/liquid/state.json')
+        break
+      case 'h2o-gas':
+        data = await import('../data/substances/compounds/pure/water-h2o/gas/state.json')
+        break
+      // Add more substances/phases as needed
+      default:
+        throw new Error(`Phase "${phase}" for compound "${compoundId}" not mapped in loader`)
+    }
     return data.default || data
   } catch (error) {
-    console.error(`Failed to load phase "${phase}" for compound "${compoundId}" at path "${compoundPath}":`, error)
-    throw new Error(`Phase "${phase}" not found for "${compoundId}". Check src/data/substances/compounds/${compoundPath}/${phase}/state.json`)
+    console.error(`Failed to load phase "${phase}" for compound "${compoundId}":`, error)
+    throw new Error(`Phase "${phase}" not found for "${compoundId}". Check switch statement in substanceLoader.js`)
   }
 }
 

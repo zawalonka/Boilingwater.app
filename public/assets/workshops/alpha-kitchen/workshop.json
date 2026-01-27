@@ -6,7 +6,7 @@
   "minLevel": 1,
   "maxLevel": 1,
   "parentWorkshop": null,
-  "description": "Alpha-stage kitchen environment for Level 1 experiments.",
+  "description": "Modern alpha-stage kitchen environment for Level 1 experiments. Features refined artwork and expanded visual effects.",
   "_notes": {
     "layout": "Positions are percentages against layout.scene (1280x800). Export background at layout.scene size to avoid stretching.",
     "images": "Background as optimized JPG (no transparency). UI elements (pot, flame) as PNG for transparency. Paths can be absolute (/assets/workshops/alpha-kitchen/..) or './' relative to this folder.",
@@ -74,28 +74,56 @@
   "layout": {
     "scene": { "width": 1280, "height": 800 },
     "pot": {
-      "start": { "xPercent": 75, "yPercent": 45 },
+      "start": { "xPercent": 47.27, "yPercent": 63.5 },
+      "empty": { "xPercent": 47.27, "yPercent": 63.5 },
+      "full": { "xPercent": 47.27, "yPercent": 63.5 },
       "sizePercent": 36,
       "dragBounds": { "minX": 8, "maxX": 92, "minY": 8, "maxY": 92 }
     },
     "flame": {
-      "xPercent": 62.6,
-      "yPercent": 53.4,
+      "xPercent": 20.08,
+      "yPercent": 50.25,
       "activationRadius": 6.25,
-      "sizePercentByHeat": [35, 37, 40, 45],
-      "minSizePxByHeat": [180, 200, 220, 240]
-    },
-    "burnerKnob": {
-      "xPercent": 66.5,
-      "yPercent": 67.8,
-      "sizePercent": 5
+      "sizePercentByHeat": [35, 37, 40, 43, 45, 48, 50, 52, 54],
+      "minSizePxByHeat": [180, 200, 220, 230, 240, 255, 270, 285, 300]
     },
     "waterStream": {
-      "xRange": [26, 30],
-      "yRange": [44, 72],
-      "start": { "xPercent": 28.8, "yPercent": 44.0 },
-      "end": { "xPercent": 27.8, "yPercent": 70.7 },
-      "widthPercent": 2
+      "xRange": [79, 82],
+      "yRange": [45.625, 72.0],
+      "start": { "xPercent": 80.23, "yPercent": 45.625 },
+      "end": { "xPercent": 80.23, "yPercent": 72.0 },
+      "widthPercent": 1.5
+    },
+    "burnerControls": {
+      "type": "buttons",
+      "wattageDisplay": {
+        "xPercent": 7.34,
+        "yPercent": 70.625,
+        "widthPercent": 7.89,
+        "heightPercent": 5.25,
+        "borderPx": 2,
+        "borderColor": "#333333",
+        "backgroundColor": "#f0f0f0",
+        "textColor": "#000000"
+      },
+      "downButton": {
+        "label": "off",
+        "xPercent": 17.66,
+        "yPercent": 73.75,
+        "sizePercent": 4.5,
+        "shape": "circle",
+        "symbol": "↓"
+      },
+      "upButton": {
+        "label": "up",
+        "xPercent": 24.84,
+        "yPercent": 73.75,
+        "sizePercent": 4.5,
+        "shape": "circle",
+        "symbol": "↑"
+      },
+      "wattageSteps": [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000],
+      "description": "9-step wattage control in 500W intervals"
     }
   },
   "typography": {
@@ -112,11 +140,19 @@
   },
   "metadata": {
     "author": "BoilingWater Team",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "createdDate": "2026-01-26",
-    "updatedDate": "2026-01-26",
-    "tags": ["alpha", "kitchen", "level-1"],
+    "updatedDate": "2026-01-27",
+    "tags": ["alpha", "kitchen", "level-1", "modern", "refined"],
     "targetAudience": "educational",
-    "suitableFor": ["elementary", "middle-school", "high-school"]
+    "suitableFor": ["elementary", "middle-school", "high-school"],
+    "description": "A modern kitchen environment designed for teaching thermodynamics through interactive water boiling experiments. Features improved artwork with refined pot and flame illustrations, full visual effects (steam, flame glow, water streams), and precise physics simulation.",
+    "visuals": {
+      "style": "Modern flat design with realistic kitchen elements",
+      "colorScheme": "Warm, inviting tones with professional UI controls",
+      "animations": "Steam particles, flame flicker, water flow animations",
+      "accessibility": "High contrast controls, clear visual feedback"
+    },
+    "experiments": ["boiling-water", "altitude-effect", "different-fluids"]
   }
 }

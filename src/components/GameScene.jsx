@@ -15,7 +15,7 @@
  * - Stage 1 overlay with post-boil explainer and progression button
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { 
   calculateBoilingPoint,  // Calculates fluid's boiling point based on altitude
   simulateTimeStep,       // Runs one time step of physics (heating/cooling/boiling)
@@ -142,7 +142,17 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   // x: 0% = left edge, 100% = right edge
   // y: 0% = top edge, 100% = bottom edge
   // The pot's center is positioned at these coordinates
-  const [potPosition, setPotPosition] = useState({ x: layout.pot.start.xPercent, y: layout.pot.start.yPercent })
+  // Support both old (pot.start) and new (pot.empty) layout structures
+  const potStartPos = layout.pot.start || layout.pot.empty || { xPercent: 50, yPercent: 50 }
+  const [potPosition, setPotPosition] = useState({ x: potStartPos.xPercent, y: potStartPos.yPercent })
+
+  // Resolve heat steps (supports both knob 4-step and button 9-step layouts)
+  const wattageSteps = useMemo(() => {
+    const customSteps = workshopLayout?.burnerControls?.wattageSteps
+    if (customSteps && Array.isArray(customSteps) && customSteps.length > 0) return customSteps
+    return [0, 400, 1700, 2500]
+  }, [workshopLayout])
+  const maxHeatIndex = wattageSteps.length - 1
 
   // Is the user currently dragging the pot? (true = dragging, false = not dragging)
   const [isDragging, setIsDragging] = useState(false)
@@ -202,8 +212,16 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
 
   // Reset pot position when layout changes
   useEffect(() => {
-    setPotPosition({ x: layout.pot.start.xPercent, y: layout.pot.start.yPercent })
+    const potStartPos = layout.pot.start || layout.pot.empty || { xPercent: 50, yPercent: 50 }
+    setPotPosition({ x: potStartPos.xPercent, y: potStartPos.yPercent })
   }, [workshopLayout])
+
+  // Clamp burner heat to available steps when layout changes
+  useEffect(() => {
+    if (burnerHeat > maxHeatIndex) {
+      setBurnerHeat(maxHeatIndex)
+    }
+  }, [maxHeatIndex, burnerHeat])
 
   // ============================================================================
   // REFERENCES: Direct access to DOM elements (not state, just object references)
@@ -329,9 +347,8 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
       // 2. Pot is positioned over the flame
       let heatInputWatts = 0
       if (burnerHeat > 0 && potOverFlame) {
-        // Map burner heat setting to watts: off=0, low=400W, med=1700W, high=2500W
-        const heatLevels = [0, 400, 1700, 2500]
-        heatInputWatts = heatLevels[burnerHeat]
+        const heatLevels = wattageSteps
+        heatInputWatts = heatLevels[burnerHeat] || 0
         
         // Track when pot is first placed over flame with heat on
         if (timePotOnFlame === null) {
@@ -571,12 +588,15 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
    * 0=off, 1=low (400W), 2=med (1700W), 3=high (2500W)
    */
   const handleBurnerKnob = () => {
-    setBurnerHeat(current => {
-      if (current === 0) return 1
-      if (current === 1) return 2
-      if (current === 2) return 3
-      return 0  // Wrap back to off
-    })
+    setBurnerHeat(current => (current >= maxHeatIndex ? 0 : current + 1))
+  }
+
+  const handleHeatDown = () => {
+    setBurnerHeat(current => Math.max(0, current - 1))
+  }
+
+  const handleHeatUp = () => {
+    setBurnerHeat(current => Math.min(maxHeatIndex, current + 1))
   }
 
   /**
@@ -901,10 +921,10 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           style={{
             left: `${flameX}%`,
             top: `${flameY}%`,
-            width: burnerHeat === 0 ? '0%' : `${layout.flame.sizePercentByHeat[burnerHeat]}%`,
-            height: burnerHeat === 0 ? '0%' : `${layout.flame.sizePercentByHeat[burnerHeat]}%`,
-            minWidth: burnerHeat === 0 ? '0px' : `${layout.flame.minSizePxByHeat[burnerHeat]}px`,
-            minHeight: burnerHeat === 0 ? '0px' : `${layout.flame.minSizePxByHeat[burnerHeat]}px`
+            width: burnerHeat === 0 ? '0%' : `${(layout.flame.sizePercentByHeat?.[burnerHeat] ?? layout.flame.sizePercentByHeat?.at(-1) ?? 0)}%`,
+            height: burnerHeat === 0 ? '0%' : `${(layout.flame.sizePercentByHeat?.[burnerHeat] ?? layout.flame.sizePercentByHeat?.at(-1) ?? 0)}%`,
+            minWidth: burnerHeat === 0 ? '0px' : `${(layout.flame.minSizePxByHeat?.[burnerHeat] ?? layout.flame.minSizePxByHeat?.at(-1) ?? 0)}px`,
+            minHeight: burnerHeat === 0 ? '0px' : `${(layout.flame.minSizePxByHeat?.[burnerHeat] ?? layout.flame.minSizePxByHeat?.at(-1) ?? 0)}px`
           }}
         >
           {/* Show flame image when burner is on; glow/animation effects applied only if workshop enables them */}
@@ -921,31 +941,83 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           )}
         </div>
 
+        {/* Button-based burner controls (for workshops that replace the knob) */}
+        {layout.burnerControls?.type === 'buttons' && (
+          <>
+            <div
+              className="burner-wattage-display"
+              style={{
+                left: `${layout.burnerControls.wattageDisplay.xPercent}%`,
+                top: `${layout.burnerControls.wattageDisplay.yPercent}%`,
+                width: `${layout.burnerControls.wattageDisplay.widthPercent}%`,
+                height: `${layout.burnerControls.wattageDisplay.heightPercent}%`,
+                border: `${layout.burnerControls.wattageDisplay.borderPx || 1}px solid ${layout.burnerControls.wattageDisplay.borderColor || '#333'}`,
+                background: layout.burnerControls.wattageDisplay.backgroundColor || '#f0f0f0',
+                color: layout.burnerControls.wattageDisplay.textColor || '#000',
+              }}
+            >
+              {`${wattageSteps[burnerHeat] || 0} W`}
+            </div>
+
+            <button
+              className="burner-btn burner-btn-down"
+              style={{
+                left: `${layout.burnerControls.downButton.xPercent}%`,
+                top: `${layout.burnerControls.downButton.yPercent}%`,
+                width: `${layout.burnerControls.downButton.sizePercent}%`,
+                height: `${layout.burnerControls.downButton.sizePercent}%`,
+              }}
+              onClick={handleHeatDown}
+              aria-label="Burner down"
+              title="Decrease burner wattage"
+            >
+              {layout.burnerControls.downButton.symbol || '↓'}
+              <div className="burner-btn-label">{layout.burnerControls.downButton.label || 'down'}</div>
+            </button>
+
+            <button
+              className="burner-btn burner-btn-up"
+              style={{
+                left: `${layout.burnerControls.upButton.xPercent}%`,
+                top: `${layout.burnerControls.upButton.yPercent}%`,
+                width: `${layout.burnerControls.upButton.sizePercent}%`,
+                height: `${layout.burnerControls.upButton.sizePercent}%`,
+              }}
+              onClick={handleHeatUp}
+              aria-label="Burner up"
+              title="Increase burner wattage"
+            >
+              {layout.burnerControls.upButton.symbol || '↑'}
+              <div className="burner-btn-label">{layout.burnerControls.upButton.label || 'up'}</div>
+            </button>
+          </>
+        )}
+
         {/* 
           ========== BURNER KNOB (Heat Control) ==========
           Tiny dial control at the bottom of the stove
-          Click to cycle through: off → low → med → high → off
-          Top-left positioned at (681, 695) in the original 1024x1024 image
-          Centered using transform: translate(-50%, -50%)
+          Render only when the workshop provides burnerKnob layout
         */}
-        <div 
-          className="burner-knob"
-          style={{
-            left: `${layout.burnerKnob.xPercent}%`,
-            top: `${layout.burnerKnob.yPercent}%`,
-            width: `${layout.burnerKnob.sizePercent}%`,
-            height: `${layout.burnerKnob.sizePercent}%`,
-          }}
-          onClick={handleBurnerKnob}
-          title={`Burner: ${['OFF', 'LOW (400W)', 'MED (1700W)', 'HIGH (2500W)'][burnerHeat]}`}
-        >
-          {/* Outer knob rim */}
-          <div className="knob-rim"></div>
-          {/* Inner knob center */}
-          <div className="knob-center"></div>
-          {/* Indicator line showing current position */}
-          <div className="knob-pointer" style={{ transform: `rotate(${180 + burnerHeat * 90}deg)` }}></div>
-        </div>
+        {layout.burnerKnob && (
+          <div 
+            className="burner-knob"
+            style={{
+              left: `${layout.burnerKnob.xPercent}%`,
+              top: `${layout.burnerKnob.yPercent}%`,
+              width: `${layout.burnerKnob.sizePercent}%`,
+              height: `${layout.burnerKnob.sizePercent}%`,
+            }}
+            onClick={handleBurnerKnob}
+            title={`Burner: ${wattageSteps[burnerHeat] || 0} W`}
+          >
+            {/* Outer knob rim */}
+            <div className="knob-rim"></div>
+            {/* Inner knob center */}
+            <div className="knob-center"></div>
+            {/* Indicator line showing current position */}
+            <div className="knob-pointer" style={{ transform: `rotate(${180 + burnerHeat * 90}deg)` }}></div>
+          </div>
+        )}
 
         {/* 
           ========== DRAGGABLE POT ==========

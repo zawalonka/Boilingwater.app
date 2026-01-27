@@ -197,6 +197,51 @@
 }
 
 /* ========================================================================
+   BUTTON-BASED BURNER CONTROLS (Alpha Kitchen, etc.)
+   ======================================================================== */
+.burner-wattage-display {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 4px 6px;
+  z-index: 325; /* Above pot, below modal overlays */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.burner-btn {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--workshop-button-secondary, #2196F3);
+  background: var(--workshop-panel-background, rgba(255, 255, 255, 0.95));
+  color: var(--workshop-button-secondary-text, #0d3b66);
+  font-weight: 700;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  z-index: 330; /* Above display */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.burner-btn:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+.burner-btn-label {
+  font-size: 0.65rem;
+  margin-top: 2px;
+  color: var(--workshop-panel-text, #333);
+  line-height: 1;
+}
+
+/* ========================================================================
    DRAGGABLE POT
    ======================================================================== */
 /* The pot is the main interactive element—user drags it around the game area */
@@ -957,7 +1002,7 @@
   font-size: 0.9rem;
   max-height: 70vh;
   overflow-y: auto;
-  z-index: 50;
+  z-index: 1200; /* Ensure location selector sits above pot and controls */
 }
 
 .location-panel h3 {
