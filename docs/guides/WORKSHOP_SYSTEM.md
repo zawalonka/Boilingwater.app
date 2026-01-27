@@ -6,12 +6,12 @@
 
 ## Overview
 
-The Boiling Water game features a fully extensible Workshop system that allows creators to:
-- Create custom visual Workshops for workshops or individual levels
+The Boiling Water game features a fully extensible workshop system that allows creators to:
+- Create custom visual workshop skins for entire workshops or individual levels
 - Customize colors, typography, and imagery
-- Extend existing Workshops with parent Workshop inheritance
-- Support workshop-level Workshops (apply to all levels) or level-specific Workshops
-- Add new Workshops by simply dropping a JSON file into the Workshops directory
+- Extend existing skins with parent inheritance
+- Support workshop-level skins (apply to all levels) or level-specific skins
+- Add new workshops by placing a JSON file with assets under `public/assets/workshops/<id>/`
 
 ## Core Architecture
 
@@ -21,8 +21,7 @@ src/
 │   └── workshops.js        # Workshop configuration constants and metadata
 ├── utils/
 │   └── workshopLoader.js   # Runtime workshop loading, validation, application
-├── data/
-│   └── Workshops/             # Empty (workshop JSON now lives under public/assets/workshops/<id>/)
+├── data/                     # No workshop manifests here; see public/assets/workshops/<id>/
 └── styles/
   ├── index.css           # Global styles (uses Workshop CSS variables)
   ├── App.css
@@ -43,9 +42,9 @@ This resolution is non-negotiable and ensures consistent gameplay across all Wor
 
 ## Workshop File Structure
 
-Each Workshop is a JSON file defining colors, images, typography, and metadata.
+Each workshop skin is a JSON file defining colors, images, typography, and metadata.
 
-### Example Workshop: `classic.json`
+### Example Workshop: `classic`
 
 ```json
 {
@@ -109,7 +108,7 @@ Each Workshop is a JSON file defining colors, images, typography, and metadata.
 
 ### Optional Effects File (`effects.json`)
 
-- **Location:** `public/assets/workshops/<WorkshopId>/effects.json`
+- **Location:** `public/assets/workshops/<workshopId>/effects.json`
 - **Purpose:** Workshop-specific VFX tuning without bloating `workshop.json` (e.g., steam symbol/glow, flame glow blur/intensity). If the file is absent, the game falls back to built-in defaults.
 - **Example:**
 ```json
@@ -358,9 +357,9 @@ public/assets/workshops/dark-mode/
 └── flame.png
 ```
 
-### Step 3: Test Your Workshop
+### Step 3: Test Your workshop
 
-The game will automatically discover and load your Workshop. To verify:
+The game will automatically discover and load Your workshop. To verify:
 
 1. Build the project: `npm run build`
 2. Check browser console for Workshop loading messages
@@ -401,11 +400,16 @@ A workshop-level Workshop applies to all levels in a workshop.
 ### Directory Structure
 
 ```
-src/data/workshops/
-├── classic.json
-├── workshop_1.json          # Applies to all levels in Workshop 1
-├── workshop_2.json          # Applies to all levels in Workshop 2
-└── ...
+public/assets/workshops/
+├── classic/
+│   ├── workshop.json        # Applies to all levels in the classic workshop
+│   └── background.jpg
+├── workshop_1/
+│   ├── workshop.json        # Applies to all levels in Workshop 1
+│   └── background.jpg
+└── workshop_2/
+  ├── workshop.json        # Applies to all levels in Workshop 2
+  └── background.jpg
 ```
 
 ---
@@ -570,7 +574,7 @@ button { font-weight: var(--font-button-weight); }
 
 ### Workshop not found
 
-- Confirm JSON file exists in `src/data/workshops/`
+- Confirm `workshop.json` (or `workshop.json` for legacy) exists under `public/assets/workshops/<id>/`
 - Check JSON syntax is valid (use [JSON Linter](https://jsonlint.com/))
 - Check browser console for error messages
 
@@ -602,5 +606,7 @@ For issues or questions about the Workshop system:
 2. Review the classic Workshop as a reference
 3. Check browser console for error messages
 4. Examine `src/utils/workshopLoader.js` for implementation details
+
+
 
 

@@ -22,33 +22,33 @@ import { EXPERIMENTS } from '../constants/workshops'
  * 
  * Props:
  * - onMenuClick: Optional callback function to notify parent when menu is toggled
- * - onNavigate: Navigate to a given view (game, about, docs, issue, theme)
+ * - onNavigate: Navigate to a given view (game, about, docs, issue, workshop)
  * - onReload: Reload the current level/game view
- * - onThemeChange: Change the active workshop id
+ * - onWorkshopChange: Change the active workshop id
  * - onLevelChange: Change the active level id
  * - onExperimentChange: Change the active experiment id
  * - onSkipTutorial: Skip the tutorial and reveal level selectors
- * - activeThemeId: Currently selected theme id
+ * - activeWorkshopId: Currently selected workshop id
  * - activeLevel: Currently selected level (numeric: 0, 1, 2...)
  * - activeExperiment: Currently selected experiment id
- * - availableThemes: Array of workshop ids to choose from (filtered by level)
+ * - availableWorkshops: Array of workshop ids to choose from (filtered by level)
  * - availableLevels: Array of level objects with id, name, order
  * - availableExperiments: Array of experiment objects for current level
- * - activeView: Current active view (game, about, docs, submit-issue, submit-theme)
- * - showSelectors: Whether to show level/theme selector dropdowns
+ * - activeView: Current active view (game, about, docs, submit-issue, submit-workshop)
+ * - showSelectors: Whether to show level/workshop selector dropdowns
  */
 function Header({ 
   onMenuClick, 
   onNavigate, 
   onReload,
-  onThemeChange,
+  onWorkshopChange,
   onLevelChange,
   onExperimentChange,
   onSkipTutorial,
-  activeThemeId,
+  activeWorkshopId,
   activeLevel,
   activeExperiment,
-  availableThemes = [],
+  availableWorkshops = [],
   availableLevels = [],
   availableExperiments = [],
   activeView,
@@ -102,9 +102,9 @@ function Header({
   }
 
   // Workshop selector
-  const handleThemeChange = (e) => {
+  const handleWorkshopChange = (e) => {
     const next = e.target.value
-    onThemeChange?.(next)
+    onWorkshopChange?.(next)
   }
 
   // Level selector
@@ -199,9 +199,9 @@ function Header({
             {/* Workshop selector - Visual variant within current level */}
             <div className="workshop-selector">
               <label htmlFor="workshop-select" className="workshop-label">Workshop:</label>
-              <select id="workshop-select" value={activeThemeId} onChange={handleThemeChange}>
-                {availableThemes.map((theme) => (
-                  <option key={theme.id} value={theme.id}>{theme.name}</option>
+              <select id="workshop-select" value={activeWorkshopId} onChange={handleWorkshopChange}>
+                {availableWorkshops.map((workshop) => (
+                  <option key={workshop.id} value={workshop.id}>{workshop.name}</option>
                 ))}
               </select>
               <span className="level-note">⚠️ Resets game</span>
@@ -243,7 +243,7 @@ function Header({
             <li><button onClick={() => handleNavigate('about')} className="menu-link">About</button></li>
             <li><button onClick={() => handleNavigate('docs')} className="menu-link">Docs</button></li>
             <li><button onClick={() => handleNavigate('submit-issue')} className="menu-link">Submit Issue</button></li>
-            <li><button onClick={() => handleNavigate('submit-theme')} className="menu-link">Submit Theme</button></li>
+            <li><button onClick={() => handleNavigate('submit-workshop')} className="menu-link">Submit Workshop</button></li>
           </ul>
         </nav>
       )}

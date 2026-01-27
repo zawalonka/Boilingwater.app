@@ -1,2 +1,0 @@
-This folder is intentionally empty. Theme JSON now lives with its assets under public/assets/workshops/<themeId>/theme.json.
-Loader fetches theme JSON from /assets/workshops/<id>/theme.json, so keep data and images together in that folder.

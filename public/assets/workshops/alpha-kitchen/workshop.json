@@ -5,13 +5,13 @@
   "workshopId": null,
   "minLevel": 1,
   "maxLevel": 1,
-  "parentTheme": null,
+  "parentWorkshop": null,
   "description": "Alpha-stage kitchen environment for Level 1 experiments.",
   "_notes": {
     "layout": "Positions are percentages against layout.scene (1280x800). Export background at layout.scene size to avoid stretching.",
     "images": "Background as optimized JPG (no transparency). UI elements (pot, flame) as PNG for transparency. Paths can be absolute (/assets/workshops/alpha-kitchen/..) or './' relative to this folder.",
-    "colors": "Maps directly to CSS vars --theme-*. Keep rgba/hex values; gradients allowed where used today (status, sink).",
-    "parentTheme": "Keep null; this is a base palette/layout.",
+    "colors": "Maps directly to CSS vars --workshop-*. Keep rgba/hex values; gradients allowed where used today (status, sink).",
+    "parentWorkshop": "Keep null; this is a base palette/layout.",
     "placementTODO": "Pixel placement for objects needs to be adjusted by user later."
   },
   "colors": {

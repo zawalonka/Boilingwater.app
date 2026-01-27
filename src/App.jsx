@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import GameScene from './components/GameScene'
-import { initializeWorkshop, getWorkshopsByLevel, preloadWorkshopImages } from './utils/themeLoader'
+import { initializeWorkshop, getWorkshopsByLevel, preloadWorkshopImages } from './utils/workshopLoader'
 import { LEVELS, EXPERIMENTS } from './constants/workshops'
 import './styles/App.css'
 
@@ -9,7 +9,7 @@ function App() {
   const [gameStage, setGameStage] = useState(0)
   const [userLocation, setUserLocation] = useState(null)
   const [workshopLoaded, setWorkshopLoaded] = useState(false)
-  const [activeView, setActiveView] = useState('game')  // game | about | docs | submit-issue | submit-theme
+  const [activeView, setActiveView] = useState('game')  // game | about | docs | submit-issue | submit-workshop
   const [gameInstanceKey, setGameInstanceKey] = useState(0)
   const [activeLevel, setActiveLevel] = useState(1)  // Numeric level (1, 2, 3...)
   const [activeExperiment, setActiveExperiment] = useState('boiling-water')  // Experiment ID within level
@@ -17,11 +17,11 @@ function App() {
   const [availableWorkshops, setAvailableWorkshops] = useState([{ id: 'pre-alpha-kitchen-1', name: 'Pre Alpha Kitchen 1' }])
   const [activeWorkshopData, setActiveWorkshopData] = useState(null)
   const [hasBoiledBefore, setHasBoiledBefore] = useState(false)  // Track if user has boiled water once
-  const [showSelectors, setShowSelectors] = useState(false)  // Show level/theme selectors
+  const [showSelectors, setShowSelectors] = useState(false)  // Show level/workshop selectors
 
-  // Load available themes and apply default
+  // Load available workshops and apply default
   useEffect(() => {
-    async function bootTheme() {
+    async function bootWorkshop() {
       try {
         const levelWorkshops = await getWorkshopsByLevel(activeLevel)
         setAvailableWorkshops(levelWorkshops)
@@ -31,14 +31,14 @@ function App() {
         setActiveWorkshopData(processed)
         setWorkshopLoaded(true)
       } catch (error) {
-        console.error('Failed to load theme:', error)
+        console.error('Failed to load workshop:', error)
         setWorkshopLoaded(true)
       }
     }
-    bootTheme()
+    bootWorkshop()
   }, [])
 
-  // Theme change handler
+  // Workshop change handler
   const handleWorkshopChange = async (workshopId) => {
     try {
       const processed = await initializeWorkshop(workshopId, { apply: true })
@@ -62,7 +62,7 @@ function App() {
       setAvailableWorkshops(levelWorkshops)
       setActiveLevel(levelId)
       
-      // Switch to the first theme of the new level
+      // Switch to the first workshop of the new level
       const firstWorkshop = levelWorkshops && levelWorkshops.length > 0 ? levelWorkshops[0] : { id: 'pre-alpha-kitchen-1' }
       const processed = await initializeWorkshop(firstWorkshop.id, { apply: true })
       await preloadWorkshopImages(processed)
@@ -159,9 +159,9 @@ function App() {
       return (
         <div className="info-page">
           <h2>About Boiling Water</h2>
-          <p>Boiling Water is an educational physics and chemistry sandbox that shows how fluids heat, cool, and boil under different conditions. It uses real thermodynamics (specific heat, latent heat, altitude-based boiling points, and Newton&apos;s Law of Cooling) with extensible JSON-based fluid and theme systems.</p>
-          <p>Players can drag a pot, control burner heat, observe boiling changes with altitude, and swap themes to match different workshops or lessons. The project is pre-alpha, focused on accuracy and extensibility first, visuals second.</p>
-          <p>Built with React and Vite, the app separates data (fluids, themes) from simulation code so educators and modders can add new fluids, environments, and visuals without touching core code.</p>
+          <p>Boiling Water is an educational physics and chemistry sandbox that shows how fluids heat, cool, and boil under different conditions. It uses real thermodynamics (specific heat, latent heat, altitude-based boiling points, and Newton&apos;s Law of Cooling) with extensible JSON-based fluid and workshop systems.</p>
+          <p>Players can drag a pot, control burner heat, observe boiling changes with altitude, and swap workshop skins to match different lessons. The project is pre-alpha, focused on accuracy and extensibility first, visuals second.</p>
+          <p>Built with React and Vite, the app separates data (fluids, workshops) from simulation code so educators and modders can add new fluids, environments, and visuals without touching core code.</p>
         </div>
       )
     }
@@ -171,9 +171,9 @@ function App() {
         <div className="info-page">
           <h2>Project Docs (Concise)</h2>
           <p><strong>Core idea:</strong> Teach thermodynamics through interactive play. Heating uses power → temperature rise via specific heat; boiling uses latent heat; cooling uses Newton&apos;s Law of Cooling with altitude-adjusted boiling points.</p>
-          <p><strong>Data-first design:</strong> Fluids live in JSON (specific heat, latent heat, boiling point, cooling coefficient). Themes live in JSON (colors, images, layout). Add a file → get a new fluid or visual style.</p>
-          <p><strong>Key files:</strong> Substance data in <a href="/src/data/substances">src/data/substances</a>, theme files in <a href="/public/assets/workshops">public/assets/workshops</a>, physics in <a href="/src/utils/physics.js">src/utils/physics.js</a>, theme loader in <a href="/src/utils/themeLoader.js">src/utils/themeLoader.js</a>.</p>
-          <p><strong>What&apos;s next:</strong> More fluids (ethanol, oils), periodic table content, UI selectors for fluids, richer lesson stages, and additional themed environments.</p>
+          <p><strong>Data-first design:</strong> Fluids live in JSON (specific heat, latent heat, boiling point, cooling coefficient). Workshops live in JSON (colors, images, layout). Add a file → get a new fluid or visual style.</p>
+          <p><strong>Key files:</strong> Substance data in <a href="/src/data/substances">src/data/substances</a>, workshop files in <a href="/public/assets/workshops">public/assets/workshops</a>, physics in <a href="/src/utils/physics.js">src/utils/physics.js</a>, workshop loader in <a href="/src/utils/workshopLoader.js">src/utils/workshopLoader.js</a>.</p>
+          <p><strong>What&apos;s next:</strong> More fluids (ethanol, oils), periodic table content, UI selectors for fluids, richer lesson stages, and additional workshop environments.</p>
         </div>
       )
     }
@@ -188,7 +188,7 @@ function App() {
       )
     }
 
-    if (activeView === 'submit-theme') {
+    if (activeView === 'submit-workshop') {
       return (
         <div className="info-page">
           <h2>Submit a Workshop or Environment</h2>
@@ -207,9 +207,9 @@ function App() {
           stage={gameStage}
           location={userLocation}
           onStageChange={setGameStage}
-          themeLayout={activeWorkshopData?.layout}
-          themeImages={activeWorkshopData?.images}
-          themeEffects={activeWorkshopData?.effects}
+          workshopLayout={activeWorkshopData?.layout}
+          workshopImages={activeWorkshopData?.images}
+          workshopEffects={activeWorkshopData?.effects}
           activeLevel={activeLevel}
           activeExperiment={activeExperiment}
           showSelectors={showSelectors}
@@ -231,13 +231,13 @@ function App() {
           <Header
             onNavigate={handleNavigate}
             onReload={handleReload}
-            onThemeChange={handleWorkshopChange}
+            onWorkshopChange={handleWorkshopChange}
             onLevelChange={handleLevelChange}
             onExperimentChange={handleExperimentChange}
-            activeThemeId={activeWorkshopId}
+            activeWorkshopId={activeWorkshopId}
             activeLevel={activeLevel}
             activeExperiment={activeExperiment}
-            availableThemes={availableWorkshops}
+            availableWorkshops={availableWorkshops}
             availableLevels={LEVELS}
             availableExperiments={(EXPERIMENTS[activeLevel] || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0))}
             activeView={activeView}

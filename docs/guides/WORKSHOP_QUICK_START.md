@@ -56,7 +56,7 @@ Place your 4 images here:
 
 Build and run: `npm run build && npm run preview`
 
-That's it! Your Workshop is loaded automatically.
+That's it! Your workshop is loaded automatically.
 
 ---
 
@@ -190,7 +190,7 @@ img.save('output.png')
 
 ## File Checklist
 
-Before deploying your Workshop:
+Before deploying Your workshop:
 
 - [ ] JSON file created: `public/assets/workshops/[id]/workshop.json`
 - [ ] All required JSON fields present (id, name, colors, images, metadata)
@@ -229,5 +229,6 @@ Use these tools to generate color schemes:
 ## Support
 
 For bugs or questions, check the error console (F12) and review WORKSHOP_SYSTEM.md for detailed reference.
+
 
 

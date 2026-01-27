@@ -1,6 +1,6 @@
 /**
- * Aggressive image optimizer for theme assets (dev tooling only).
- * - Walks public/assets/themes/<themeId>/ for *.png images
+ * Aggressive image optimizer for workshop assets (dev tooling only).
+ * - Walks public/assets/workshops/<workshopId>/ for *.png images
  * - Backgrounds → convert to JPG (quality 75, no transparency needed)
  * - Pot/flame → keep PNG with heavy lossy compression
  * - Writes .optimized then renames to original filename
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const THEMES_DIR = join(__dirname, '..', 'public', 'assets', 'themes');
+const WORKSHOPS_DIR = join(__dirname, '..', 'public', 'assets', 'workshops');
 
 async function optimizeImage(imagePath) {
   const filename = imagePath.split(/[\\/]/).pop();
@@ -64,18 +64,18 @@ async function optimizeImage(imagePath) {
   }
 }
 
-async function optimizeThemeImages() {
-  const themes = await readdir(THEMES_DIR);
+async function optimizeWorkshopImages() {
+  const workshops = await readdir(WORKSHOPS_DIR);
   
-  for (const theme of themes) {
-    const themePath = join(THEMES_DIR, theme);
-    const files = await readdir(themePath);
+  for (const workshop of workshops) {
+    const workshopPath = join(WORKSHOPS_DIR, workshop);
+    const files = await readdir(workshopPath);
     
-    console.log(`\n📦 Theme: ${theme}`);
+    console.log(`\n📦 Workshop: ${workshop}`);
     
     for (const file of files) {
       if (file.endsWith('.png')) {
-        await optimizeImage(join(themePath, file));
+        await optimizeImage(join(workshopPath, file));
       }
     }
   }
@@ -83,4 +83,4 @@ async function optimizeThemeImages() {
   console.log('\n✨ All images optimized!');
 }
 
-optimizeThemeImages().catch(console.error);
+optimizeWorkshopImages().catch(console.error);

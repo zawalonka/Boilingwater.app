@@ -13,7 +13,7 @@
   display: flex;                /* Center children using flexbox */
   align-items: center;          /* Vertical center */
   justify-content: center;      /* Horizontal center */
-  background: var(--theme-panel-background, #000);             /* Letterbox area picks theme */
+  background: var(--workshop-panel-background, #000);             /* Letterbox area picks workshop */
   overflow: hidden;             /* Hide anything that extends beyond viewport */
 }
 
@@ -39,7 +39,7 @@
   background-size: 100% 100%;   /* Stretch to fill entire 1280x800 area */
   background-position: center;
   background-repeat: no-repeat;
-  border: 2px solid var(--theme-panel-border, rgba(0, 0, 0, 0.15));
+  border: 2px solid var(--workshop-panel-border, rgba(0, 0, 0, 0.15));
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);  /* Add depth with shadow */
 }
 
@@ -51,9 +51,9 @@
 /* Positioned as a clickable/touchable zone in the top-left corner */
 .sink {
   position: absolute;
-  background: var(--theme-sink-background, linear-gradient(135deg, #c0c0c0 0%, #808080 100%));
+  background: var(--workshop-sink-background, linear-gradient(135deg, #c0c0c0 0%, #808080 100%));
   border-radius: 8px;
-  border: 2px solid var(--theme-sink-border, #555);       /* Dark border for depth */
+  border: 2px solid var(--workshop-sink-border, #555);       /* Dark border for depth */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,7 +72,7 @@
 .sink-icon {
   font-size: 2rem;
   pointer-events: none;         /* Let clicks pass through to sink element */
-  color: var(--theme-panel-text, #e8f1ff);
+  color: var(--workshop-panel-text, #e8f1ff);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);  /* Add depth */
 }
 
@@ -85,12 +85,12 @@
   position: absolute;
   background: linear-gradient(
     to bottom,
-    var(--theme-water-highlight, rgba(100, 180, 255, 0.9)) 0%,
-    var(--theme-water-color, rgba(100, 180, 255, 0.8)) 50%,
-    var(--theme-water-deep, rgba(100, 180, 255, 0.7)) 100%
+    var(--workshop-water-highlight, rgba(100, 180, 255, 0.9)) 0%,
+    var(--workshop-water-color, rgba(100, 180, 255, 0.8)) 50%,
+    var(--workshop-water-deep, rgba(100, 180, 255, 0.7)) 100%
   );
   border-radius: 50% 50% 0 0 / 20% 20% 0 0;  /* Rounded top, straight bottom */
-  box-shadow: 0 0 10px var(--theme-water-color, rgba(100, 180, 255, 0.6));
+  box-shadow: 0 0 10px var(--workshop-water-color, rgba(100, 180, 255, 0.6));
   z-index: 100;                 /* Above background, below pot */
   animation: waterFlow 0.6s ease-in-out infinite;
   pointer-events: none;         /* Don't block interaction */
@@ -124,7 +124,7 @@
   width: 100%;                      /* Fill container width (30% of game window) */
   height: 100%;                     /* Fill container height (30% of game window) */
   object-fit: contain;              /* Scale image while preserving aspect ratio */
-  filter: drop-shadow(0 0 16px var(--theme-flame-glow, #ff3300));
+  filter: drop-shadow(0 0 16px var(--workshop-flame-glow, #ff3300));
   animation: flameFlicker 0.4s infinite alternate;  /* Continuous flicker effect */
 }
 
@@ -162,8 +162,8 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--theme-knob-rim, #e0e0e0), #606060);
-  border: 3px solid var(--theme-knob-border, #333);
+  background: radial-gradient(circle at 30% 30%, var(--workshop-knob-rim, #e0e0e0), #606060);
+  border: 3px solid var(--workshop-knob-border, #333);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4), 0 2px 3px rgba(0, 0, 0, 0.3);
 }
 
@@ -173,8 +173,8 @@
   width: 35%;
   height: 35%;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--theme-knob-center, #ffffff), #888888);
-  border: 2px solid var(--theme-knob-border, #333);
+  background: radial-gradient(circle at 30% 30%, var(--workshop-knob-center, #ffffff), #888888);
+  border: 2px solid var(--workshop-knob-border, #333);
   z-index: 2;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -184,7 +184,7 @@
   position: absolute;
   width: 16%;
   height: 45%;
-  background: linear-gradient(to bottom, var(--theme-knob-pointer, #ff3333), #cc0000);
+  background: linear-gradient(to bottom, var(--workshop-knob-pointer, #ff3333), #cc0000);
   border-radius: 2px;
   top: 5%;
   left: 50%;
@@ -309,8 +309,8 @@
   font-size: 1rem;
   border: none;
   border-radius: 8px;
-  background: var(--theme-button-primary, #4CAF50);
-  color: var(--theme-button-primary-text, white);
+  background: var(--workshop-button-primary, #4CAF50);
+  color: var(--workshop-button-primary-text, white);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s ease;    /* Smooth animation on state change */
@@ -319,30 +319,30 @@
 
 /* Hover state: brighten and lift button */
 .action-button:hover:not(:disabled) {
-  background: var(--theme-button-hover, #45a049);
+  background: var(--workshop-button-hover, #45a049);
   transform: translateY(-2px);  /* Lift slightly (depth effect) */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Primary action button: larger and orange (more prominent) */
 .action-button.primary {
-  background: var(--theme-panel-accent, #ff6600);
+  background: var(--workshop-panel-accent, #ff6600);
   font-size: 1.1rem;
   padding: 15px 30px;
 }
 
 .action-button.primary:hover {
-  background: var(--theme-button-active, #ff5500);
+  background: var(--workshop-button-active, #ff5500);
 }
 
 /* "Learn More" button: blue with pulsing animation to draw attention */
 .action-button.learn-more {
-  background: var(--theme-button-secondary, #2196F3);
+  background: var(--workshop-button-secondary, #2196F3);
   animation: pulse 2s infinite;  /* Pulse effect draws eye */
 }
 
 .action-button.learn-more:hover {
-  background: var(--theme-button-secondary-hover, #1976D2);
+  background: var(--workshop-button-secondary-hover, #1976D2);
   animation: none;              /* Stop pulsing on hover */
 }
 
@@ -362,7 +362,7 @@
   align-items: center;          /* Center items horizontally */
   gap: 10px;
   padding: 15px;
-  background: var(--theme-panel-background, rgba(0, 0, 0, 0.05));
+  background: var(--workshop-panel-background, rgba(0, 0, 0, 0.05));
   border-radius: 8px;
 }
 
@@ -377,33 +377,33 @@
 .temp-value {
   font-size: 2.5rem;            /* Large, prominent */
   font-weight: bold;
-  color: var(--theme-panel-accent, #ff6600);
+  color: var(--workshop-panel-accent, #ff6600);
 }
 
 /* Label below temperature (e.g., "Water Temperature") */
 .temp-label {
   font-size: 0.85rem;
-  color: var(--theme-panel-text, #666);                  /* Subdued gray */
+  color: var(--workshop-panel-text, #666);                  /* Subdued gray */
 }
 
 /* Status messages (e.g., "Water is heating up", "Water is boiling!") */
 .status-text {
   font-size: 1.1rem;
-  color: var(--theme-panel-text, #333);                  /* Dark gray for readability */
+  color: var(--workshop-panel-text, #333);                  /* Dark gray for readability */
   margin: 0;
   font-weight: 500;
 }
 
 /* Special styling when water reaches boiling point */
 .status-text.boiling {
-  color: var(--theme-panel-accent, #ff6600);               /* Orange: urgent/hot status */
+  color: var(--workshop-panel-accent, #ff6600);               /* Orange: urgent/hot status */
   font-weight: 700;             /* Extra bold: more dramatic */
 }
 
 /* Hint text at bottom of controls (e.g., "Drag the pot to the sink to refill") */
 .hint-text {
   font-size: 0.95rem;
-  color: var(--theme-panel-text, #666);
+  color: var(--workshop-panel-text, #666);
   text-align: center;
   margin: 10px 0 0 0;
   font-style: italic;           /* Italicized to distinguish from regular text */
@@ -431,12 +431,12 @@
 }
 
 .boil-stats-modal {
-  background: var(--theme-panel-background, #1a1a2e);
-  border: 2px solid var(--theme-header-accent, #ff6600);
+  background: var(--workshop-panel-background, #1a1a2e);
+  border: 2px solid var(--workshop-header-accent, #ff6600);
   border-radius: 15px;
   padding: 30px;
   max-width: 500px;
-  color: var(--theme-panel-text, #e8f1ff);
+  color: var(--workshop-panel-text, #e8f1ff);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   animation: popIn 0.4s ease;
   text-align: center;
@@ -445,7 +445,7 @@
 .boil-stats-modal h2 {
   margin: 0 0 5px 0;
   font-size: 2rem;
-  color: var(--theme-header-accent, #ff6600);
+  color: var(--workshop-header-accent, #ff6600);
 }
 
 .modal-subtitle {
@@ -481,7 +481,7 @@
 .stat-value {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--theme-header-accent, #ff6600);
+  color: var(--workshop-header-accent, #ff6600);
   font-family: 'Courier New', monospace;
 }
 
@@ -492,14 +492,14 @@
   opacity: 0.85;
   padding: 15px;
   background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--theme-header-accent, #ff6600);
+  border-left: 3px solid var(--workshop-header-accent, #ff6600);
   border-radius: 5px;
 }
 
 .continue-button {
-  background: var(--theme-header-accent, #ff6600) !important;
+  background: var(--workshop-header-accent, #ff6600) !important;
   color: white;
-  border: 2px solid var(--theme-header-accent, #ff6600);
+  border: 2px solid var(--workshop-header-accent, #ff6600);
   padding: 12px 24px;
   font-size: 1rem;
   font-weight: 600;
@@ -509,7 +509,7 @@
 }
 
 .continue-button:hover {
-  background: var(--theme-button-hover, #ff5500) !important;
+  background: var(--workshop-button-hover, #ff5500) !important;
   transform: scale(1.05);
 }
 
@@ -614,11 +614,11 @@
   position: fixed;
   top: 70px;
   right: 15px;
-  background: var(--theme-status-background, linear-gradient(135deg, rgba(60, 120, 180, 0.85), rgba(40, 100, 160, 0.85)));
-  color: var(--theme-status-text, #fff);
+  background: var(--workshop-status-background, linear-gradient(135deg, rgba(60, 120, 180, 0.85), rgba(40, 100, 160, 0.85)));
+  color: var(--workshop-status-text, #fff);
   padding: 12px 16px;
   border-radius: 8px;
-  border: 2px solid var(--theme-status-border, rgba(100, 180, 255, 0.6));
+  border: 2px solid var(--workshop-status-border, rgba(100, 180, 255, 0.6));
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-size: 0.9rem;
   z-index: 950;
@@ -634,7 +634,7 @@
   justify-content: center;
   padding-bottom: 8px;
   margin-bottom: 8px;
-  border-bottom: 2px solid var(--theme-status-divider, rgba(255, 255, 255, 0.3));
+  border-bottom: 2px solid var(--workshop-status-divider, rgba(255, 255, 255, 0.3));
   font-weight: bold;
   font-size: 0.95rem;
 }
@@ -642,7 +642,7 @@
 .burner-label {
   padding: 4px 10px;
   border-radius: 4px;
-  background: var(--theme-status-chip, rgba(0, 0, 0, 0.3));
+  background: var(--workshop-status-chip, rgba(0, 0, 0, 0.3));
 }
 
 .status-content {
@@ -661,11 +661,11 @@
 
 .status-item .label {
   font-weight: bold;
-  color: var(--theme-status-label, #b0d4ff);
+  color: var(--workshop-status-label, #b0d4ff);
 }
 
 .status-item .value {
-  color: var(--theme-status-value, #ffff99);
+  color: var(--workshop-status-value, #ffff99);
   font-weight: 600;
 }
 
@@ -680,11 +680,11 @@
   text-align: center;
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--theme-status-value, #ffff99);
+  color: var(--workshop-status-value, #ffff99);
 }
 
 .status-text.boiling {
-  color: var(--theme-status-boiling, #ff6666);
+  color: var(--workshop-status-boiling, #ff6666);
   font-size: 0.95rem;
   animation: pulse 0.8s infinite;
 }
@@ -705,7 +705,7 @@
   margin: 6px 0 0 0;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--theme-status-label, #b0d4ff);
+  color: var(--workshop-status-label, #b0d4ff);
   font-style: italic;
 }
 
@@ -731,7 +731,7 @@
 
 .timer-label {
   font-size: 0.85rem;
-  color: var(--theme-panel-text, #e8f1ff);
+  color: var(--workshop-panel-text, #e8f1ff);
   font-weight: 600;
 }
 
@@ -861,7 +861,7 @@
   text-align: center;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--theme-panel-text, #e8f1ff);
+  color: var(--workshop-panel-text, #e8f1ff);
   min-width: 60px;
 }
 
@@ -877,22 +877,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--theme-panel-background, rgba(14, 22, 35, 0.95));
+  background: var(--workshop-panel-background, rgba(14, 22, 35, 0.95));
   overflow-y: auto;
 }
 
 .info-content {
   max-width: 700px;
   padding: 40px;
-  background: var(--theme-panel-background, rgba(255, 255, 255, 0.95));
+  background: var(--workshop-panel-background, rgba(255, 255, 255, 0.95));
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  color: var(--theme-panel-text, #333);
+  color: var(--workshop-panel-text, #333);
 }
 
 .info-content h2 {
   margin-top: 0;
-  color: var(--theme-header-accent, #ff6600);
+  color: var(--workshop-header-accent, #ff6600);
   font-size: 2rem;
   text-align: center;
   margin-bottom: 20px;
@@ -914,8 +914,8 @@
 }
 
 .info-content .fun-fact {
-  background: var(--theme-status-chip, rgba(255, 165, 0, 0.1));
-  border-left: 4px solid var(--theme-header-accent, #ff6600);
+  background: var(--workshop-status-chip, rgba(255, 165, 0, 0.1));
+  border-left: 4px solid var(--workshop-header-accent, #ff6600);
   padding: 15px;
   margin: 20px 0;
   border-radius: 4px;
@@ -927,8 +927,8 @@
   width: 100%;
   padding: 15px 30px;
   font-size: 1.1rem;
-  background: var(--theme-button-primary, #4CAF50);
-  color: var(--theme-button-primary-text, white);
+  background: var(--workshop-button-primary, #4CAF50);
+  color: var(--workshop-button-primary-text, white);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -936,7 +936,7 @@
 }
 
 .next-stage-button:hover {
-  background: var(--theme-button-hover, #45a049);
+  background: var(--workshop-button-hover, #45a049);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -949,8 +949,8 @@
   bottom: 20px;
   left: 20px;
   max-width: 420px;
-  background: var(--theme-panel-background, rgba(255, 255, 255, 0.95));
-  border: 2px solid var(--theme-panel-border, #ccc);
+  background: var(--workshop-panel-background, rgba(255, 255, 255, 0.95));
+  border: 2px solid var(--workshop-panel-border, #ccc);
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -963,7 +963,7 @@
 .location-panel h3 {
   margin: 0 0 8px 0;
   font-size: 1.1rem;
-  color: var(--theme-panel-text, #333);
+  color: var(--workshop-panel-text, #333);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -972,7 +972,7 @@
 .location-subtitle {
   margin: 0 0 15px 0;
   font-size: 0.85rem;
-  color: var(--theme-panel-text, #666);
+  color: var(--workshop-panel-text, #666);
   line-height: 1.4;
 }
 
@@ -983,15 +983,15 @@
   gap: 8px;
   margin-top: 12px;
   padding: 8px 10px;
-  background: var(--theme-status-chip, rgba(76, 175, 80, 0.1));
-  border: 1px solid var(--theme-button-primary, #4CAF50);
+  background: var(--workshop-status-chip, rgba(76, 175, 80, 0.1));
+  border: 1px solid var(--workshop-button-primary, #4CAF50);
   border-radius: 4px;
 }
 
 .location-change-btn {
   background: none;
   border: none;
-  color: var(--theme-button-primary, #4CAF50);
+  color: var(--workshop-button-primary, #4CAF50);
   cursor: pointer;
   font-size: 0.95rem;
   padding: 2px 4px;
@@ -1009,7 +1009,7 @@
   margin-left: 4px;
   font-size: 0.9em;
   font-weight: 600;
-  color: var(--theme-button-primary, #4CAF50);
+  color: var(--workshop-button-primary, #4CAF50);
   opacity: 0.85;
 }
 
@@ -1050,13 +1050,13 @@
   font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 8px;
-  color: var(--theme-panel-text, #333);
+  color: var(--workshop-panel-text, #333);
 }
 
 /* Divider */
 .location-divider {
   text-align: center;
-  color: var(--theme-panel-text, #999);
+  color: var(--workshop-panel-text, #999);
   font-size: 0.85rem;
   margin: 12px 0;
   font-weight: 500;
@@ -1078,29 +1078,29 @@
 .altitude-input {
   flex: 1;
   padding: 8px 10px;
-  border: 1px solid var(--theme-panel-border, #ddd);
+  border: 1px solid var(--workshop-panel-border, #ddd);
   border-radius: 4px;
   font-size: 0.85rem;
   background: white;
-  color: var(--theme-panel-text, #333);
+  color: var(--workshop-panel-text, #333);
   font-family: inherit;
 }
 
 .location-input:focus,
 .altitude-input:focus {
   outline: none;
-  border-color: var(--theme-button-primary, #4CAF50);
+  border-color: var(--workshop-button-primary, #4CAF50);
   box-shadow: 0 0 3px rgba(76, 175, 80, 0.3);
 }
 
 .location-input::placeholder,
 .altitude-input::placeholder {
-  color: var(--theme-panel-text, #999);
+  color: var(--workshop-panel-text, #999);
 }
 
 .location-button {
   padding: 8px 12px;
-  background: var(--theme-button-primary, #4CAF50);
+  background: var(--workshop-button-primary, #4CAF50);
   color: white;
   border: none;
   border-radius: 4px;
@@ -1113,7 +1113,7 @@
 }
 
 .location-button:hover:not(:disabled) {
-  background: var(--theme-button-hover, #45a049);
+  background: var(--workshop-button-hover, #45a049);
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
@@ -1135,7 +1135,7 @@
 .location-help {
   display: block;
   font-size: 0.75rem;
-  color: var(--theme-panel-text, #999);
+  color: var(--workshop-panel-text, #999);
   margin-top: 4px;
   text-align: center;
 }

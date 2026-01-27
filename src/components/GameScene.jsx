@@ -2,7 +2,7 @@
  * GameScene Component
  * 
  * This is the main interactive game environment for the Boiling Water educational app.
- * It displays a theme-defined game window (default 1280x800) with a draggable pot, burner with flame,
+ * It displays a workshop-defined game window (default 1280x800) with a draggable pot, burner with flame,
  * sink for filling water, and physics simulation for heating/boiling water at different altitudes.
  * 
  * The component handles:
@@ -25,7 +25,7 @@ import { loadSubstance, parseSubstanceProperties, DEFAULT_SUBSTANCE } from '../u
 import { GAME_CONFIG } from '../constants/physics'
 import '../styles/GameScene.css'
 
-// Default layout values (used if theme layout not provided)
+// Default layout values (used if workshop layout not provided)
 const DEFAULT_LAYOUT = {
   scene: { width: 1280, height: 800 },
   pot: {
@@ -54,15 +54,15 @@ const DEFAULT_LAYOUT = {
   }
 }
 
-function GameScene({ stage, location, onStageChange, themeLayout, themeImages, themeEffects, activeLevel, activeExperiment, showSelectors, onWaterBoiled, onSkipTutorial, onLevelChange, onExperimentChange, hasBoiledBefore = false, onLocationChange }) {
-  const layout = themeLayout || DEFAULT_LAYOUT
-  const backgroundImage = themeImages?.background || '/assets/images/game/background.png'
-  const potEmptyImage = themeImages?.pot_empty || '/assets/images/game/pot-empty.png'
-  const potFullImage = themeImages?.pot_full || '/assets/images/game/pot-full.png'
-  const flameImage = themeImages?.flame || '/assets/images/game/flame.png'
-  // Theme-driven optional visual effects (steam, flame glow)
-  // Default: effects DISABLED unless theme provides effects.json
-  // This ensures simple themes have no VFX overhead; only showcase themes (like alpha) enable them
+function GameScene({ stage, location, onStageChange, workshopLayout, workshopImages, workshopEffects, activeLevel, activeExperiment, showSelectors, onWaterBoiled, onSkipTutorial, onLevelChange, onExperimentChange, hasBoiledBefore = false, onLocationChange }) {
+  const layout = workshopLayout || DEFAULT_LAYOUT
+  const backgroundImage = workshopImages?.background || '/assets/images/game/background.png'
+  const potEmptyImage = workshopImages?.pot_empty || '/assets/images/game/pot-empty.png'
+  const potFullImage = workshopImages?.pot_full || '/assets/images/game/pot-full.png'
+  const flameImage = workshopImages?.flame || '/assets/images/game/flame.png'
+  // Workshop-driven optional visual effects (steam, flame glow)
+  // Default: effects DISABLED unless workshop provides effects.json
+  // This ensures simple workshops have no VFX overhead; only showcase workshops (like alpha) enable them
   const defaultEffects = {
     steam: {
       enabled: false,
@@ -76,7 +76,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
     },
     flameGlow: {
       enabled: false,
-      color: null, // falls back to --theme-flame-glow
+      color: null, // falls back to --workshop-flame-glow
       blurPx: 16,
       flickerMs: null,
       intensityByHeat: [0, 1, 1.08, 1.16]
@@ -87,9 +87,9 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   }
 
   const effects = {
-    steam: { ...defaultEffects.steam, ...(themeEffects?.steam || {}) },
-    flameGlow: { ...defaultEffects.flameGlow, ...(themeEffects?.flameGlow || {}) },
-    waterStream: { ...defaultEffects.waterStream, ...(themeEffects?.waterStream || {}) }
+    steam: { ...defaultEffects.steam, ...(workshopEffects?.steam || {}) },
+    flameGlow: { ...defaultEffects.flameGlow, ...(workshopEffects?.flameGlow || {}) },
+    waterStream: { ...defaultEffects.waterStream, ...(workshopEffects?.waterStream || {}) }
   }
   // ============================================================================
   // STATE VARIABLES: These change during gameplay
@@ -152,7 +152,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   // Example: if user clicks 50 pixels left of pot center, dragOffset.x = -50
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
 
-  // The dimensions of the game window (theme-provided, default 1280x800)
+  // The dimensions of the game window (workshop-provided, default 1280x800)
   const [sceneDimensions, setSceneDimensions] = useState({ width: 0, height: 0 })
 
   // ============================================================================
@@ -203,7 +203,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   // Reset pot position when layout changes
   useEffect(() => {
     setPotPosition({ x: layout.pot.start.xPercent, y: layout.pot.start.yPercent })
-  }, [themeLayout])
+  }, [workshopLayout])
 
   // ============================================================================
   // REFERENCES: Direct access to DOM elements (not state, just object references)
@@ -264,7 +264,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
       }
     }
     initializeFluid()
-  }, [themeLayout])
+  }, [workshopLayout])
 
   // EFFECT 2: Initialize the game window dimensions (runs once on component load)
   // ============================================================================
@@ -305,7 +305,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
     // Now uses Newton's Law of Cooling for realistic temperature decay
     if (waterInPot <= 0 || !fluidProps) return  // Wait for fluid props to load
 
-    // Define the heat activation area around the flame (theme-driven)
+    // Define the heat activation area around the flame (workshop-driven)
     const flameX = layout.flame.xPercent
     const flameY = layout.flame.yPercent
     const heatActivationRadius = layout.flame.activationRadius
@@ -405,7 +405,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
         clearInterval(simulationRef.current)
       }
     }
-  }, [waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps, themeLayout, isTimerRunning])  // Re-run if any of these change
+  }, [waterInPot, temperature, altitude, boilingPoint, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps, workshopLayout, isTimerRunning])  // Re-run if any of these change
 
   // ============================================================================
   // POT DRAGGING HANDLERS: Three functions handle the drag lifecycle
@@ -727,7 +727,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   const scaleY = sceneDimensions.height / baseHeight
   const scale = Math.min(scaleX, scaleY)
 
-  // Flame position (theme-driven)
+  // Flame position (workshop-driven)
   const flameX = layout.flame.xPercent
   const flameY = layout.flame.yPercent
 
@@ -738,11 +738,11 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   const waterStreamEndY = layout.waterStream.end.yPercent
   const waterStreamHeight = waterStreamEndY - waterStreamStartY
 
-  // Theme-driven optional glow/steam tuning
+  // Workshop-driven optional glow/steam tuning
   const flameGlowConfig = effects.flameGlow
   const flameGlowIntensity = flameGlowConfig.intensityByHeat?.[burnerHeat] ?? 1
   const flameGlowBlur = (flameGlowConfig.blurPx ?? 16) * flameGlowIntensity
-  const flameGlowColor = flameGlowConfig.color || 'var(--theme-flame-glow, #ff3300)'
+  const flameGlowColor = flameGlowConfig.color || 'var(--workshop-flame-glow, #ff3300)'
   const flameFilter = flameGlowConfig.enabled
     ? `drop-shadow(0 0 ${flameGlowBlur}px ${flameGlowColor})`
     : undefined
@@ -762,7 +762,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
   }
 
   // Check if pot is in the water stream area to show the pouring effect
-  // Only show if theme has explicitly enabled waterStream effect
+  // Only show if workshop has explicitly enabled waterStream effect
   const showWaterStream = effects.waterStream.enabled &&
     potPosition.x >= layout.waterStream.xRange[0] &&
     potPosition.x <= layout.waterStream.xRange[1] &&
@@ -907,7 +907,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
             minHeight: burnerHeat === 0 ? '0px' : `${layout.flame.minSizePxByHeat[burnerHeat]}px`
           }}
         >
-          {/* Show flame image when burner is on; glow/animation effects applied only if theme enables them */}
+          {/* Show flame image when burner is on; glow/animation effects applied only if workshop enables them */}
           {burnerHeat > 0 && (
             <img 
               src={flameImage}
@@ -979,7 +979,7 @@ function GameScene({ stage, location, onStageChange, themeLayout, themeImages, t
             draggable={false}  // Disable browser's native drag for images
           />
           
-          {/* Show steam animation when water is actively boiling at/above boiling point (theme-tunable, optional) */}
+          {/* Show steam animation when water is actively boiling at/above boiling point (workshop-tunable, optional) */}
           {steamConfig.enabled && isBoiling && temperature >= boilingPoint && (
             <div className="steam-effect" style={steamStyle}>
               {steamConfig.asset ? (

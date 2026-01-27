@@ -20,7 +20,7 @@ Theme switching was failing because the validator required themes to have `metad
 - This wasn't obvious from reading the theme JSON files since some had top-level `name`
 
 **The Fix:**
-Changed validation in `src/utils/themeLoader.js` from:
+Changed validation in `src/utils/workshopLoader.js` from:
 ```javascript
 // ❌ Too strict
 if (!themeData.metadata.name) {
@@ -40,7 +40,7 @@ if (!themeData.name && (!themeData.metadata || !themeData.metadata.name)) {
 When validating JSON structures, allow flexible field locations unless there's a strong architectural reason not to. Themes can have `name` at root OR in `metadata.name`.
 
 **Files to check:**
-- [`src/utils/themeLoader.js`](src/utils/themeLoader.js) - Validation logic
+- [`src/utils/workshopLoader.js`](src/utils/workshopLoader.js) - Validation logic
 - Theme JSON files in `public/assets/workshops/`
 
 ### Effects Bleed Between Themes (steam/flame persists)
@@ -63,7 +63,7 @@ When validating JSON structures, allow flexible field locations unless there's a
 - Validate `effects.json` is absent in the target theme (alpha-alt) on the built/dev server.
 
 **Files to check:**
-- [src/utils/themeLoader.js](src/utils/themeLoader.js) - effects loading/normalization
+- [src/utils/workshopLoader.js](src/utils/workshopLoader.js) - effects loading/normalization
 - [src/components/GameScene.jsx](src/components/GameScene.jsx) - steam/flame glow gating
 - [public/assets/workshops/*/effects.json](public/assets/workshops) - per-theme VFX opt-in
 

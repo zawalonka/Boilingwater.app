@@ -33,7 +33,7 @@
 4. **Reorganized Documentation**
    - Root: AI_CONTEXT.md, GOTCHAS.md (critical for all AI)
    - `docs/architecture/` - CODEBASE_DOCUMENTATION.md, WATER_STATES_ARCHITECTURE.md, REFACTORING_SUMMARY.md
-   - `docs/guides/` - THEME_SYSTEM.md, THEME_QUICK_START.md, IMAGE_OPTIMIZATION.md, DEVELOPMENT.md, DEV_REPO_SETUP.md
+   - `docs/guides/` - WORKSHOP_SYSTEM.md, WORKSHOP_QUICK_START.md, IMAGE_OPTIMIZATION.md, DEVELOPMENT.md, DEV_REPO_SETUP.md
    - `docs/planning/` - BoilingWater_Full_Documentation.md, BoilingWater_OnePage_Pitch.md, TODO.md
    - All links updated (git mv preserves history)
 

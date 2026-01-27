@@ -1,4 +1,4 @@
-﻿# Project TODO  Periodic-Table-Driven Substance Architecture
+# Project TODO  Periodic-Table-Driven Substance Architecture
 
 ##  Completed (Session: 2026-01-27)
 - [x] Created ALL 118 periodic table elements with exhaustive detail (H through Og)
@@ -30,13 +30,13 @@
 - [x] Refactored substanceLoader.js to load compounds and phase states dynamically
 - [x] Integrated loader with physics engine (all substance values from JSON, no hardcoded constants)
 - [x] Removed legacy src/data/fluids/ folder
-- [x] Renamed fluidLoader.js → substanceLoader.js (future-proof for solids/gases/mixtures)
+- [x] Renamed fluidLoader.js ? substanceLoader.js (future-proof for solids/gases/mixtures)
 - [x] Added compatibility aliases for backward compatibility
 - [x] Updated all imports in GameScene to use new loader API
 - [x] Updated documentation refs across copilot-instructions.md, REFACTORING_SUMMARY.md, etc.
 - [x] Deleted duplicate TODO_NEXT_SESSION.md
-- [x] Effects system fully implemented (steam, flame glow, water stream) – all opt-in per theme
-- [x] Theme system locked down and extensible (workshop JSON structure with level filtering)
+- [x] Effects system fully implemented (steam, flame glow, water stream) � all opt-in per Workshop
+- [x] Workshop system locked down and extensible (workshop JSON structure with level filtering)
 - [x] Level 1 workshop system working (pre-alpha-kitchen-1, pre-alpha-kitchen-2, alpha-kitchen)
 - [x] Level 1 experiments structured (boiling-water, altitude-effect, different-fluids)
 
@@ -44,8 +44,11 @@
 
 ## CURRENT SPRINT: Expand Substance Library
 
+### Housekeeping
+- [x] Remove ComfyUI workflow JSONs from the repo (comfyui_workflows/*) and keep them local-only
+
 ### Priority 1: Complete Periodic Table (All 118 Elements)
-**Status:** ✅ COMPLETE (118/118 elements created)
+**Status:** ? COMPLETE (118/118 elements created)
 
 #### 1.1 Create Remaining Element JSON Files
 **Location:** `src/data/substances/periodic-table/`
@@ -70,14 +73,14 @@
 ---
 
 ### Priority 2: Add Common Household Chemical Compounds
-**Status:** ✅ COMPLETE (12/12 compounds with full phase data)
+**Status:** ? COMPLETE (12/12 compounds with full phase data)
 
 #### 2.1 Pure Household Chemicals
-**Rationale:** Educational value – students recognize these from daily life
+**Rationale:** Educational value � students recognize these from daily life
 
 **Compounds Completed (12/12):**
 
-1. **H₂O (Water)** - Ice, Liquid, Gas phases
+1. **H2O (Water)** - Ice, Liquid, Gas phases
    - Triple point, critical point, Antoine coefficients
    - All phase states with complete thermodynamic properties
    
@@ -85,93 +88,93 @@
    - Electrolyte properties, colligative effects
    - Boiling point elevation, freezing point depression
    
-3. **Ethanol (C₂H₅OH)** - Liquid, Gas phases
+3. **Ethanol (C2H5OH)** - Liquid, Gas phases
    - Alcoholic beverages, fuel, sanitizer
    - Full phase transition data
    
-4. **Ammonia (NH₃)** - Liquid, Gas phases
+4. **Ammonia (NH3)** - Liquid, Gas phases
    - Cleaning product, fertilizer, industrial chemical
    - Vapor pressure, latent heat of vaporization
    
-5. **Acetone (CH₃COCH₃)** - Liquid, Gas phases
+5. **Acetone (CH3COCH3)** - Liquid, Gas phases
    - Nail polish remover, solvent
    - Flammability, volatility data
    
-6. **Acetic Acid (CH₃COOH)** - Solid, Liquid, Gas phases
+6. **Acetic Acid (CH3COOH)** - Solid, Liquid, Gas phases
    - Vinegar (5% solution), industrial chemical
    - All phase transitions with complete data
    
-7. **Hydrogen Peroxide (H₂O₂)** - Liquid, Gas phases
+7. **Hydrogen Peroxide (H2O2)** - Liquid, Gas phases
    - Disinfectant, bleach, industrial oxidizer
    - Decomposition to water and oxygen
    
-8. **Methane (CH₄)** - Liquid, Gas phases
+8. **Methane (CH4)** - Liquid, Gas phases
    - Natural gas, biogas
    - Cryogenic properties (liquefied natural gas)
    
-9. **Propane (C₃H₈)** - Liquid, Gas phases
+9. **Propane (C3H8)** - Liquid, Gas phases
    - Cooking gas, barbecue fuel, heating
    - High flammability, pressure data
    
-10. **Isopropyl Alcohol (C₃H₈O)** - Liquid, Gas phases
+10. **Isopropyl Alcohol (C3H8O)** - Liquid, Gas phases
     - Rubbing alcohol, sanitizer, solvent
     - Flammable, vapor pressure data
     
-11. **Glycerin (C₃H₈O₃)** - Liquid phase
+11. **Glycerin (C3H8O3)** - Liquid phase
     - Skin moisturizer, food additive, viscous liquid
-    - High boiling point (290°C)
+    - High boiling point (290�C)
     
-12. **Sucrose (C₁₂H₂₂O₁₁)** - Solid, Liquid phases
+12. **Sucrose (C12H22O11)** - Solid, Liquid phases
     - Table sugar, food sweetener
-    - Melting at 186°C, caramelization at higher temps
+    - Melting at 186�C, caramelization at higher temps
 
    - Phases: liquid (most common), gas
-   - Boiling point: 78.37°C (lower than water)
+   - Boiling point: 78.37�C (lower than water)
 
-2. **Acetic Acid (Vinegar 5%)** - CH₃COOH
+2. **Acetic Acid (Vinegar 5%)** - CH3COOH
    - Use: cooking, cleaning
    - Phases: liquid (aqueous solution), pure liquid, gas
-   - Boiling point: 118°C (higher than water)
+   - Boiling point: 118�C (higher than water)
 
-3. **Ammonia (Cleaning Solution)** - NH₃
+3. **Ammonia (Cleaning Solution)** - NH3
    - Use: cleaning products, fertilizer
    - Phases: gas (at room temp), aqueous solution (ammonia water)
-   - Boiling point: -33°C (very low!)
+   - Boiling point: -33�C (very low!)
 
-4. **Hydrogen Peroxide** - H₂O₂
+4. **Hydrogen Peroxide** - H2O2
    - Use: disinfectant, bleach alternative
    - Phases: liquid (aqueous 3% solution), pure liquid
-   - Boiling point: 150°C (decomposes)
+   - Boiling point: 150�C (decomposes)
 
-5. **Methane (Natural Gas)** - CH₄
+5. **Methane (Natural Gas)** - CH4
    - Use: cooking fuel, heating
    - Phases: gas (standard), liquid (compressed)
-   - Boiling point: -161°C (cryogenic)
+   - Boiling point: -161�C (cryogenic)
 
-6. **Propane (Grill Gas)** - C₃H₈
+6. **Propane (Grill Gas)** - C3H8
    - Use: BBQ grills, portable stoves, heating
    - Phases: gas (at room temp), liquid (compressed in tanks)
-   - Boiling point: -42°C
+   - Boiling point: -42�C
 
-7. **Acetone (Nail Polish Remover)** - C₃H₆O
+7. **Acetone (Nail Polish Remover)** - C3H6O
    - Use: solvent, cleaning
    - Phases: liquid, gas
-   - Boiling point: 56°C (very volatile)
+   - Boiling point: 56�C (very volatile)
 
-8. **Isopropyl Alcohol (Rubbing Alcohol)** - C₃H₇OH
+8. **Isopropyl Alcohol (Rubbing Alcohol)** - C3H7OH
    - Use: disinfectant, cleaning electronics
    - Phases: liquid, gas
-   - Boiling point: 82.5°C
+   - Boiling point: 82.5�C
 
-9. **Glycerin/Glycerol** - C₃H₈O₃
+9. **Glycerin/Glycerol** - C3H8O3
    - Use: soaps, lotions, food sweetener
    - Phases: liquid (viscous)
-   - Boiling point: 290°C (very high, thick liquid)
+   - Boiling point: 290�C (very high, thick liquid)
 
-10. **Sucrose (Table Sugar)** - C₁₂H₂₂O₁₁
+10. **Sucrose (Table Sugar)** - C12H22O11
     - Use: sweetener, preservative
     - Phases: solid (crystals), aqueous solution
-    - Melting point: 186°C (caramelizes), no boiling point (decomposes)
+    - Melting point: 186�C (caramelizes), no boiling point (decomposes)
 
 **Implementation Plan:**
 - [ ] Create info.json for each compound with element references
@@ -192,7 +195,7 @@
   "type": "compound",
   "name": "Water",
   "aliases": ["Oxidane", "Hydrogen Oxide"],
-  "chemicalFormula": "H₂O",
+  "chemicalFormula": "H2O",
   "explicitSmiles": "O",
   "molarMass": 18.015,
   "deltaHf": -285.83,
@@ -247,19 +250,19 @@
   },
   "specificHeat": {
     "value": 2.05,
-    "unit": "J/(g·°C)",
+    "unit": "J/(g��C)",
     "temperature": 0,
     "source": "measured"
   },
   "thermalConductivity": {
     "value": 2.24,
-    "unit": "W/(m·K)",
+    "unit": "W/(m�K)",
     "temperature": 0
   },
   "latentHeatOfFusion": {
     "value": 334,
     "unit": "kJ/kg",
-    "note": "Energy required to melt ice to water at 0°C"
+    "note": "Energy required to melt ice to water at 0�C"
   },
   "volumetricExpansionCoefficient": {
     "value": 0.000050,
@@ -298,19 +301,19 @@
   },
   "specificHeat": {
     "value": 4.186,
-    "unit": "J/(g·°C)",
+    "unit": "J/(g��C)",
     "temperature": 20,
     "source": "measured"
   },
   "thermalConductivity": {
     "value": 0.6,
-    "unit": "W/(m·K)",
+    "unit": "W/(m�K)",
     "temperature": 20
   },
   "latentHeatOfVaporization": {
     "value": 2257,
     "unit": "kJ/kg",
-    "note": "Energy required to boil water to steam at 100°C"
+    "note": "Energy required to boil water to steam at 100�C"
   },
   "compressibility": {
     "value": 0.000450,
@@ -324,7 +327,7 @@
     "TminC": 1,
     "TmaxC": 100,
     "formula": "log10(Pvap) = A - B/(C + T)",
-    "unit": "Pressure in mmHg, Temperature in °C",
+    "unit": "Pressure in mmHg, Temperature in �C",
     "note": "Predicts vapor pressure of liquid water (used for boiling at altitude)"
   },
   "electricalConductivity": {
@@ -354,19 +357,19 @@
   "idealGasLaw": {
     "molarMass": 18.015,
     "unit": "g/mol",
-    "formula": "ρ = (P × M) / (R × T)",
+    "formula": "? = (P � M) / (R � T)",
     "gasConstant": 8.314,
     "note": "For any T/P, calculate density dynamically instead of storing table"
   },
   "specificHeat": {
     "value": 2.0,
-    "unit": "J/(g·°C)",
+    "unit": "J/(g��C)",
     "temperature": 100,
     "note": "Cp at constant pressure"
   },
   "thermalConductivity": {
     "value": 0.024,
-    "unit": "W/(m·K)",
+    "unit": "W/(m�K)",
     "temperature": 100
   },
   "antoineCoefficients": null,
@@ -474,3 +477,6 @@
 - Universal constants in src/constants/physics.js
 - Physics engine agnostic to data source; consumes fluidProps from loader
 - First implementation: HO only; extend to other fluids after validation
+
+
+

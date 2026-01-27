@@ -1,19 +1,19 @@
 /**
- * Theme Constants & Configuration
+ * Workshop Visual Configuration
  * 
- * NEW STRUCTURE: Levels → Themes
- * Each level can have multiple themes. Themes define the visual style for that level.
+ * NEW STRUCTURE: Levels → Workshops
+ * Each level can have multiple workshops. Workshops define the visual style for that level.
  * 
  * HIERARCHY:
  * ├── Level (e.g., "Boil Water", "Pressure Cooker")
- *     ├── Theme 1 (e.g., "Pre Alpha Kitchen 1", "Alpha Kitchen")
- *     ├── Theme 2
+ *     ├── Workshop 1 (e.g., "Pre Alpha Kitchen 1", "Alpha Kitchen")
+ *     ├── Workshop 2
  *     └── ...
  * 
- * THEME STRUCTURE:
- * ├── id: Unique identifier for theme
+ * WORKSHOP STRUCTURE:
+ * ├── id: Unique identifier for the workshop skin
  * ├── name: Display name
- * ├── levelId: Which level this theme belongs to
+ * ├── levelId: Which level this workshop belongs to
  * ├── colors: Color scheme definitions
  * ├── images: Image asset paths
  * ├── typography: Font and text styling
@@ -109,13 +109,13 @@ export const LEVELS = [
   }
 ]
 
-// Standard game resolution for all themes - DO NOT CHANGE
+// Standard game resolution for all workshops - DO NOT CHANGE
 export const GAME_RESOLUTION = {
   width: 1280,
   height: 800
 }
 
-// Image specifications for theme assets
+// Image specifications for workshop assets
 export const IMAGE_SPECS = {
   background: {
     width: 1280,
@@ -143,9 +143,9 @@ export const IMAGE_SPECS = {
   }
 }
 
-// Base theme configuration
+// Base workshop configuration
 export const WORKSHOP_CONFIG = {
-  // All themes must have these required properties
+  // All workshops must have these required properties
   requiredFields: [
     'id',
     'name',
@@ -155,7 +155,7 @@ export const WORKSHOP_CONFIG = {
     'metadata'
   ],
   
-  // All themes must define these color properties
+  // All workshops must define these color properties
   requiredColors: [
     'header_background',
     'header_text',
@@ -167,7 +167,7 @@ export const WORKSHOP_CONFIG = {
     'panel_border'
   ],
   
-  // All themes must include these image assets
+  // All workshops must include these image assets
   requiredImages: [
     'background',
     'pot_empty',
@@ -175,14 +175,14 @@ export const WORKSHOP_CONFIG = {
     'flame'
   ],
   
-  // Default theme to load if no theme specified
-  defaultTheme: 'pre-alpha-kitchen-1',
+  // Default workshop to load if none is specified
+  defaultWorkshop: 'pre-alpha-kitchen-1',
   
-  // Themes directory relative to src/data/
-  themesDirectory: 'workshops'
+  // Workshops directory relative to src/data/
+    workshopsDirectory: 'workshops'
 }
 
-// Color palette categories (helps organize theme colors)
+// Color palette categories (helps organize workshop colors)
 export const COLOR_CATEGORIES = {
   header: [
     'header_background',
@@ -223,35 +223,35 @@ export const COLOR_CATEGORIES = {
 }
 
 /**
- * Scope types - determines where theme can be applied
+ * Scope types - determines where a workshop skin can be applied
  */
-export const THEME_SCOPE = {
+export const WORKSHOP_SCOPE = {
   WORKSHOP: 'workshop',      // Applies to entire workshop (1-N levels)
   LEVEL: 'level'             // Applies only to a single level
 }
 
 /**
- * Standard metadata fields for all themes
+ * Standard metadata fields for all workshops
  */
 export const WORKSHOP_METADATA_TEMPLATE = {
   id: '',                    // Internal identifier (e.g., 'classic', 'dark', 'workshop_1')
   name: '',                  // Display name (e.g., 'Classic Kitchen')
-  description: '',           // What makes this theme unique
-  author: '',                // Who created/designed the theme
-  version: '1.0.0',          // Theme version
+  description: '',           // What makes this workshop unique
+  author: '',                // Who created/designed the workshop
+  version: '1.0.0',          // Workshop version
   createdDate: '',           // ISO date string (YYYY-MM-DD)
   updatedDate: '',           // ISO date string
   scope: 'workshop',         // 'workshop' or 'level'
   workshopId: null,          // Workshop ID if workshop-scoped
   levelId: null,             // Level ID if level-scoped
-  parentTheme: null,         // ID of theme this extends/overrides
+  parentWorkshop: null,      // ID of workshop this extends/overrides
   tags: []                   // Categories: 'professional', 'playful', 'minimal', 'colorful', etc.
 }
 
 /**
- * Available themes list
- * This is a manifest of all themes that can be loaded.
- * Populated dynamically from theme JSON files in public/assets/workshops/
+ * Available workshop skins list
+ * This is a manifest of all workshops that can be loaded.
+ * Populated dynamically from workshop.json files in public/assets/workshops/
  */
 export const AVAILABLE_WORKSHOPS = {
   'pre-alpha-kitchen-1': {

@@ -4,14 +4,14 @@ This folder contains original design assets and sketches from early development.
 
 ## Folders
 
-### `beta-theme-assets/`
-Original theme artwork created during initial development:
+### `beta-Workshop-assets/`
+Original Workshop artwork created during initial development:
 - `Background lvl 1.png` - First game background design
 - `Empty Pot.png` - Empty pot sprite
 - `Full Pot.png` - Full pot sprite  
 - `Flame.png` - Flame/burner sprite
 
-**Status:** Archived. Current themes use modernized assets in `public/assets/workshops/`.
+**Status:** Archived. Current Workshops use modernized assets in `public/assets/workshops/`.
 
 ### `layout-sketches/`
 Design sketches and layout reference materials:
@@ -24,6 +24,9 @@ Design sketches and layout reference materials:
 These assets are no longer used in production. They're kept here for:
 - Design history reference
 - Understanding early design decisions
-- Potential inspiration for future themes
+- Potential inspiration for future Workshops
 
-Current theme assets are located in `public/assets/workshops/`.
+Current Workshop assets are located in `public/assets/workshops/`.
+
+
+
