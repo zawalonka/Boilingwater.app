@@ -69,6 +69,44 @@ When validating JSON structures, allow flexible field locations unless there's a
 
 ---
 
+## UI State & Flow
+
+### Tutorial Completion Did Not Unlock Selectors
+**Date Fixed:** 2026-01-27  
+**Commit:** (pending)  
+**Tokens to Debug:** Medium  
+
+**Issue:**  
+After completing the tutorial boil, level/workshop selectors and advanced controls were not unlocked. The logic in `App.jsx` checked `activeLevel === 0` to detect tutorial completion, but Level 0 does not exist in the current architecture. Tutorial is represented by `activeExperiment === 'boiling-water'` within Level 1.
+
+**What happened:**
+- `handleWaterBoiled` used `activeLevel === 0 && !hasBoiledBefore` → condition never true.
+- `showSelectors` stayed false; advanced mode gating in `GameScene.jsx` remained disabled.
+
+**The Fix:**
+Changed `handleWaterBoiled` in [src/App.jsx](src/App.jsx) from:
+```
+if (activeLevel === 0 && !hasBoiledBefore) {
+  setHasBoiledBefore(true)
+  setShowSelectors(true)
+}
+```
+to:
+```
+if (activeExperiment === 'boiling-water' && !hasBoiledBefore) {
+  setHasBoiledBefore(true)
+  setShowSelectors(true)
+}
+```
+
+**Key Lesson:**  
+Align tutorial gating with the experiment system, not a non-existent Level 0. Use `activeExperiment === 'boiling-water'` for tutorial-completion logic.
+
+**Files to check:**
+- [src/App.jsx](src/App.jsx#L1-L300) - `handleWaterBoiled` tutorial gating
+- [src/components/GameScene.jsx](src/components/GameScene.jsx#L1-L200) - `isAdvancedModeAvailable` depends on `showSelectors`
+- [src/constants/workshops.js](src/constants/workshops.js#L1-L120) - experiment definitions (tutorial flag)
+
 ## How to Use This File
 
 **When adding a gotcha:**

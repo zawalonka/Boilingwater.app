@@ -116,9 +116,9 @@ function App() {
     await handleLevelChange(1, 'altitude-effect')
   }
 
-  // Handle when user boils water on Level 0 (tutorial)
+  // Handle when user completes the tutorial boil (Experiment: boiling-water)
   const handleWaterBoiled = () => {
-    if (activeLevel === 0 && !hasBoiledBefore) {
+    if (activeExperiment === 'boiling-water' && !hasBoiledBefore) {
       setHasBoiledBefore(true)
       setShowSelectors(true)
       // Modal stays visible until user clicks button
@@ -172,7 +172,7 @@ function App() {
           <h2>Project Docs (Concise)</h2>
           <p><strong>Core idea:</strong> Teach thermodynamics through interactive play. Heating uses power → temperature rise via specific heat; boiling uses latent heat; cooling uses Newton&apos;s Law of Cooling with altitude-adjusted boiling points.</p>
           <p><strong>Data-first design:</strong> Fluids live in JSON (specific heat, latent heat, boiling point, cooling coefficient). Themes live in JSON (colors, images, layout). Add a file → get a new fluid or visual style.</p>
-          <p><strong>Key files:</strong> Fluid data in <a href="/src/data/fluids">src/data/fluids</a>, theme files in <a href="/public/assets/workshops">public/assets/workshops</a>, physics in <a href="/src/utils/physics.js">src/utils/physics.js</a>, theme loader in <a href="/src/utils/themeLoader.js">src/utils/themeLoader.js</a>.</p>
+          <p><strong>Key files:</strong> Substance data in <a href="/src/data/substances">src/data/substances</a>, theme files in <a href="/public/assets/workshops">public/assets/workshops</a>, physics in <a href="/src/utils/physics.js">src/utils/physics.js</a>, theme loader in <a href="/src/utils/themeLoader.js">src/utils/themeLoader.js</a>.</p>
           <p><strong>What&apos;s next:</strong> More fluids (ethanol, oils), periodic table content, UI selectors for fluids, richer lesson stages, and additional themed environments.</p>
         </div>
       )
