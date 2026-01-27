@@ -16,6 +16,27 @@
  * 4. Use: const props = await loadSubstancePhase('h2o', 'liquid')
  */
 
+// Catalog maps logical ids to categorized folder paths and labels
+export const SUBSTANCE_CATALOG = {
+  h2o: { path: 'pure/water-h2o', category: 'pure', displayName: 'Water', chemicalName: 'H2O' },
+  'saltwater-3pct': { path: 'solutions/saltwater-3pct-nacl', category: 'solution', displayName: 'Saltwater (3% NaCl)', chemicalName: 'NaCl in H2O' },
+  ethanol: { path: 'pure/ethanol-c2h5oh', category: 'pure', displayName: 'Ethanol', chemicalName: 'C2H5OH' },
+  ammonia: { path: 'pure/ammonia-nh3', category: 'pure', displayName: 'Ammonia', chemicalName: 'NH3' },
+  acetone: { path: 'pure/acetone-c3h6o', category: 'pure', displayName: 'Acetone', chemicalName: 'C3H6O' },
+  'acetic-acid': { path: 'pure/acetic-acid-ch3cooh', category: 'pure', displayName: 'Acetic Acid', chemicalName: 'CH3COOH' },
+  'hydrogen-peroxide': { path: 'pure/hydrogen-peroxide-h2o2', category: 'pure', displayName: 'Hydrogen Peroxide', chemicalName: 'H2O2' },
+  methane: { path: 'pure/methane-ch4', category: 'pure', displayName: 'Methane', chemicalName: 'CH4' },
+  propane: { path: 'pure/propane-c3h8', category: 'pure', displayName: 'Propane', chemicalName: 'C3H8' },
+  'isopropyl-alcohol': { path: 'pure/isopropyl-alcohol-c3h8o', category: 'pure', displayName: 'Isopropyl Alcohol', chemicalName: 'C3H8O' },
+  glycerin: { path: 'pure/glycerin-c3h8o3', category: 'pure', displayName: 'Glycerin', chemicalName: 'C3H8O3' },
+  sucrose: { path: 'pure/sucrose-c12h22o11', category: 'pure', displayName: 'Sucrose', chemicalName: 'C12H22O11' }
+}
+
+function resolveCompoundPath(compoundId) {
+  const entry = SUBSTANCE_CATALOG[compoundId]
+  return entry?.path || compoundId
+}
+
 /**
  * Load a compound's complete metadata (info.json)
  * 
@@ -24,12 +45,13 @@
  * @throws {Error} If compound file not found or invalid JSON
  */
 async function loadCompound(compoundId) {
+  const compoundPath = resolveCompoundPath(compoundId)
   try {
-    const data = await import(/* @vite-ignore */`../data/substances/compounds/${compoundId}/info.json`, { assert: { type: 'json' } })
+    const data = await import(/* @vite-ignore */`../data/substances/compounds/${compoundPath}/info.json`, { assert: { type: 'json' } })
     return data.default || data
   } catch (error) {
-    console.error(`Failed to load compound "${compoundId}":`, error)
-    throw new Error(`Compound "${compoundId}" not found. Check src/data/substances/compounds/${compoundId}/info.json`)
+    console.error(`Failed to load compound "${compoundId}" at path "${compoundPath}":`, error)
+    throw new Error(`Compound "${compoundId}" not found. Check src/data/substances/compounds/${compoundPath}/info.json`)
   }
 }
 
@@ -43,12 +65,13 @@ async function loadCompound(compoundId) {
  * @throws {Error} If phase file not found or invalid JSON
  */
 async function loadPhaseState(compoundId, phase) {
+  const compoundPath = resolveCompoundPath(compoundId)
   try {
-    const data = await import(/* @vite-ignore */`../data/substances/compounds/${compoundId}/${phase}/state.json`, { assert: { type: 'json' } })
+    const data = await import(/* @vite-ignore */`../data/substances/compounds/${compoundPath}/${phase}/state.json`, { assert: { type: 'json' } })
     return data.default || data
   } catch (error) {
-    console.error(`Failed to load phase "${phase}" for compound "${compoundId}":`, error)
-    throw new Error(`Phase "${phase}" not found for "${compoundId}". Check src/data/substances/compounds/${compoundId}/${phase}/state.json`)
+    console.error(`Failed to load phase "${phase}" for compound "${compoundId}" at path "${compoundPath}":`, error)
+    throw new Error(`Phase "${phase}" not found for "${compoundId}". Check src/data/substances/compounds/${compoundPath}/${phase}/state.json`)
   }
 }
 
@@ -155,21 +178,7 @@ export function parseSubstanceProperties(substanceData) {
  * @returns {Array<string>} Array of compound IDs
  */
 export function getAvailableSubstances() {
-  // Hardcoded list; in future, could scan manifest or directory
-  return [
-    'h2o',
-    'saltwater-3pct',
-    'ethanol',
-    'ammonia',
-    'acetone',
-    'acetic-acid',
-    'hydrogen-peroxide',
-    'methane',
-    'propane',
-    'isopropyl-alcohol',
-    'glycerin',
-    'sucrose'
-  ]
+  return Object.keys(SUBSTANCE_CATALOG)
 }
 
 /**
