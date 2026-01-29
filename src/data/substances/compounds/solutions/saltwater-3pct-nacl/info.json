@@ -2,15 +2,18 @@
   "id": "saltwater-3pct",
   "type": "mixture",
   "name": "Saltwater (3% NaCl by mass)",
-  "aliases": ["Brackish Water", "Salt Solution", "Saline"],
+  "aliases": [
+    "Brackish Water",
+    "Salt Solution",
+    "Saline"
+  ],
   "description": "Homogeneous aqueous solution of sodium chloride",
   "concentration": {
     "solute": "NaCl",
     "soluteSmiles": "[Na+].[Cl-]",
-    "percentByMass": 3.0,
+    "percentByMass": 3,
     "molarConcentration": 0.513
   },
-  
   "components": [
     {
       "id": "h2o",
@@ -29,15 +32,13 @@
       "reference": "compounds/nacl/info.json"
     }
   ],
-  
   "effectOfDissolution": {
     "boilingPointElevation": 0.16,
-    "meltingPointDepression": -0.10,
+    "meltingPointDepression": -0.1,
     "osmioticPressure": "increases with concentration"
   },
-  
   "phaseTransitions": {
-    "meltingPoint": -0.10,
+    "meltingPoint": -0.1,
     "boilingPoint": 100.16,
     "triplePoint": {
       "temperature": -0.05,
@@ -45,17 +46,18 @@
       "note": "Approximation; actual value depends on solute concentration"
     },
     "criticalPoint": {
-      "temperature": 374.0,
+      "temperature": 374,
       "pressure": 220.7,
       "note": "Nearly identical to pure water; dissolved ions have minimal effect"
     }
   },
-  
   "phases": {
     "liquid": "saltwater"
   },
-  "states": ["liquid"],
+  "states": [
+    "liquid"
+  ],
   "note": "At standard conditions, saltwater only exists as liquid. Freezing/boiling involves phase separation.",
-  "lastUpdated": "2026-01-27"
+  "lastUpdated": "2026-01-27",
+  "educationalNotes": "Demonstrates colligative properties - dissolved salt raises boiling point (+0.16°C) and lowers freezing point (-0.10°C). This is why ocean water doesn't freeze as easily as freshwater and why we add salt to icy roads in winter! Seawater is ~3.5% salt by mass (mostly NaCl). Saltwater conducts electricity (electrolyte) while pure water doesn't - dissolved Na⁺ and Cl⁻ ions carry charge. Osmosis: cells in saltwater shrivel as water leaves to dilute the salty solution outside."
 }
-

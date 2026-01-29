@@ -2,13 +2,15 @@
   "id": "h2o",
   "type": "compound",
   "name": "Water",
-  "aliases": ["Oxidane", "Hydrogen Oxide"],
+  "aliases": [
+    "Oxidane",
+    "Hydrogen Oxide"
+  ],
   "chemicalFormula": "H₂O",
   "explicitSmiles": "O",
   "molarMass": 18.015,
   "deltaHf": -285.83,
   "deltaGf": -237.13,
-  
   "elements": [
     {
       "symbol": "H",
@@ -23,7 +25,6 @@
       "reference": "periodic-table/008_O_nonmetal.json"
     }
   ],
-  
   "phaseTransitions": {
     "meltingPoint": 0,
     "boilingPoint": 100,
@@ -37,8 +38,11 @@
       "density": 0.322
     }
   },
-  
-  "states": ["solid", "liquid", "gas"],
-  "lastUpdated": "2026-01-27"
+  "states": [
+    "solid",
+    "liquid",
+    "gas"
+  ],
+  "lastUpdated": "2026-01-27",
+  "educationalNotes": "Most important molecule on Earth! Unique property: solid ice FLOATS (9% less dense than liquid) - if ice sank, lakes would freeze from bottom up and kill all aquatic life. Boils at 100°C at sea level but lower at altitude (87°C at Denver, 72°C on Mt. Everest). Universal solvent - dissolves more substances than any other liquid. Highest specific heat of common liquids (4.186 J/g°C) - oceans regulate Earth's climate. Human body is ~60% water by weight. Bent molecule shape (104.5° angle) creates polarity, enabling hydrogen bonding."
 }
-

@@ -1,0 +1,15 @@
+{
+  "_META": {
+    "description": "Educational notes library for substance data enrichment",
+    "purpose": "Add or update educational notes in substance JSON files via update-educational-notes.js script",
+    "instructions": "Add entries below using substance ID (directory name). Script will ONLY update files referenced here.",
+    "examples": {
+      "compound": "\"water-h2o\": \"Note about water molecule...\"",
+      "element": "\"001_H\": \"Note about hydrogen...\""
+    }
+  },
+  "compounds": {
+  },
+  "elements": {
+  }
+}
