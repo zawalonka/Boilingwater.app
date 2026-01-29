@@ -21,7 +21,7 @@ import {
   simulateTimeStep,       // Runs one time step of physics (heating/cooling/boiling)
   formatTemperature       // Formats temperature numbers for display (e.g., 98.5°C)
 } from '../utils/physics'
-import { loadSubstance, parseSubstanceProperties, DEFAULT_SUBSTANCE } from '../utils/substanceLoader'
+import { loadSubstance, parseSubstanceProperties, DEFAULT_SUBSTANCE, getAvailableSubstances } from '../utils/substanceLoader'
 import { GAME_CONFIG } from '../constants/physics'
 import '../styles/GameScene.css'
 
@@ -111,6 +111,12 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
 
   // Track fluid loading errors instead of falling back to hardcoded defaults
   const [fluidLoadError, setFluidLoadError] = useState(null)
+
+  // Active fluid selection (for Level 3+)
+  const [activeFluid, setActiveFluid] = useState(DEFAULT_SUBSTANCE)
+
+  // Available fluids for dropdown
+  const [availableFluids, setAvailableFluids] = useState([])
 
   // Burner heat setting: 0=off, 1=low, 2=med, 3=high
   // Controls the output power of the gas burner
@@ -267,12 +273,17 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   // EFFECT 1: Load substance properties (runs once on component load)
   // ============================================================================
 
+  // Load available fluids for dropdown (Level 3+)
   useEffect(() => {
-    // Load the current substance's properties from JSON
-    // For now, we always load water, but this makes it easy to add selection later
+    const fluids = getAvailableSubstances()
+    setAvailableFluids(fluids)
+  }, [])
+
+  // Load the current substance's properties from JSON
+  useEffect(() => {
     async function initializeFluid() {
       try {
-        const substanceData = await loadSubstance(DEFAULT_SUBSTANCE)  // 'water'
+        const substanceData = await loadSubstance(activeFluid)
         const props = parseSubstanceProperties(substanceData)
         setFluidProps(props)
         setFluidLoadError(null)
@@ -286,7 +297,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
       }
     }
     initializeFluid()
-  }, [workshopLayout])
+  }, [activeFluid, workshopLayout])
 
   // EFFECT 2: Initialize the game window dimensions (runs once on component load)
   // ============================================================================
@@ -436,6 +447,20 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   // ============================================================================
   // POT DRAGGING HANDLERS: Three functions handle the drag lifecycle
   // ============================================================================
+
+  /**
+   * handleFluidChange - Called when user selects a different fluid from dropdown
+   * Resets pot and loads new fluid properties
+   */
+  const handleFluidChange = (e) => {
+    const newFluid = e.target.value
+    setActiveFluid(newFluid)
+    // Reset pot state when switching fluids
+    setWaterInPot(0)
+    setTemperature(GAME_CONFIG.ROOM_TEMPERATURE)
+    setIsBoiling(false)
+    setShowHook(false)
+  }
 
   /**
    * handlePointerDown - Called when user presses pointer (mouse/touch/pen) on pot
@@ -1186,6 +1211,26 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
             )}
             
             
+            {/* Fluid selector (Level 3+ for advanced experiments) */}
+            {activeLevel >= 3 && availableFluids.length > 0 && (
+              <div className="fluid-selector">
+                <label htmlFor="fluid-select">Fluid:</label>
+                <select 
+                  id="fluid-select"
+                  value={activeFluid}
+                  onChange={handleFluidChange}
+                  className="fluid-dropdown"
+                  title="Select which fluid to boil"
+                >
+                  {availableFluids.map(fluidId => (
+                    <option key={fluidId} value={fluidId}>
+                      {fluidId.charAt(0).toUpperCase() + fluidId.slice(1).replace(/-/g, ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Game controls - speed controls (Tutorial/Exp 1 only) */}
             {liquidMass > 0 && activeExperiment === 'boiling-water' && (
               <button 
