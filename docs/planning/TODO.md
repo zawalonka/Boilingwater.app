@@ -3,14 +3,16 @@
 ## Current Sprint
 
 ### Priority 4: Code Refactoring - Extract ControlPanel Component (Big Refactor)
-**Status:** Pre-work checkpoint committed
-**Why now:** GameScene.jsx is 1552 lines (unwieldy). Better to refactor while stable before adding Level 2 features.
+**Status:** ✅ COMPLETED
+**Result:** GameScene.jsx reduced from 1552 → 1158 lines (-394 lines)
 
 #### 4.1 Extract ControlPanel Component from GameScene.jsx
-- [ ] Separate control panel UI logic (~400 lines) into dedicated ControlPanel.jsx component
-- [ ] Identify and extract ~20 required props (temperature, status, controls, callbacks)
-- [ ] Reduce GameScene.jsx from 1552 lines to ~1150 lines
-- [ ] Maintain all existing functionality and state management
+✅ Separated control panel UI logic (~385 lines) into dedicated ControlPanel.jsx component
+✅ Extracted ~45 required props (game state, UI state, config)
+✅ Extracted ~15 callbacks (heat, timer, speed, location, etc.)
+✅ Reduced GameScene.jsx from 1552 lines to 1158 lines
+✅ Maintained all existing functionality and state management
+✅ Dev server tested and working without errors
 
 #### 4.2 Audit Other Functions for Separation & Refactoring
 - [ ] Review GameScene.jsx for additional extraction opportunities (physics loop, dragging logic, etc.)
