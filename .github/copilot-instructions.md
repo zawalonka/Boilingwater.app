@@ -28,40 +28,49 @@ An educational physics game teaching thermodynamics through interactive water bo
 
 ## 📋 SYSTEM & ENVIRONMENT
 
-
-**Workshop System Work:**
-- `GOTCHAS.md` → Workshop validation section
-1. **Check:** [`GOTCHAS.md`](../GOTCHAS.md) - Known issues that cost debugging time
+**Before starting work:**
+1. **Check:** [GOTCHAS.md](../GOTCHAS.md) - Known issues that cost debugging time
 2. **Read:** Task-specific docs below
 3. **Run locally before commit/push:** `npm run dev` and check console for errors
 4. **Test workshop switching** - Common failure point
 
 ---
-4. **Test workshop switching** - Common failure point
+
 ## 🎨 PROJECT ESSENTIALS
 
 - **Game window:** Fixed 1280×800px (never scale)
 - **Physics:** Real equations only (Newton's Law of Cooling, etc.)
-
- Workshop JSONs are small (<10KB)
+- **Workshop JSONs:** Small files (<10KB)
 
 ## 📁 FILE LOCATIONS & STRUCTURE
-- `src/App.jsx` - Main app, workshop management, state
-
-
-- `src/utils/workshopLoader.js` - Workshop loading, validation, CSS application
-- `src/constants/workshops.js` - Workshop configuration metadata
-- `public/assets/workshops/*/` - Workshop JSON files and per-workshop assets
-├── App.jsx, main.jsx
-├── components/ (GameScene, Header)
-├── utils/ (physics.js, workshopLoader.js, substanceLoader.js)
-├── constants/ (physics.js, workshops.js)
-├── data/fluids/ (h2o.json, water.json, ice.json, steam.json)
+```
+src/
+├── App.jsx - Main app, workshop & level management, state
+├── main.jsx - React entry point
+├── components/
+│   ├── GameScene.jsx - ALL gameplay (pot, heating, dragging, physics)
+│   └── Header.jsx - Navigation (minimal)
+├── utils/
+│   ├── workshopLoader.js - Workshop loading, validation, CSS application
+│   ├── substanceLoader.js - Substance/fluid loading (replaces fluidLoader)
+│   ├── physics.js - Physics engine
+│   ├── locationUtils.js - Location/altitude lookup
+│   └── unitUtils.js - Unit conversion utilities
+├── constants/
+│   ├── physics.js - Physics constants (NOTE: fluid properties now loaded from JSON)
+│   └── workshops.js - Workshop config, LEVELS array, EXPERIMENTS object
+├── data/
+│   └── substances/
+│       ├── compounds/ (H2O, ethanol, acetone, etc. with phase states)
+│       └── periodic-table/ (001_H_nonmetal.json through 118_Og_nonmetal.json)
 └── styles/ (index.css, App.css, GameScene.css, Header.css)
 
 public/assets/
-├── images/
-└── workshops/ (workshop.json + background.jpg per workshop)
+└── workshops/ (workshop.json + effects.json per workshop)
+   ├── alpha-kitchen/
+   ├── level-2-placeholder/
+   ├── pre-alpha-kitchen-1/
+   └── pre-alpha-kitchen-2/
 ```
 
 ---
@@ -85,30 +94,38 @@ public/assets/
 ---
 ## ⚠️ CRITICAL GOTCHAS (READ BEFORE CODING)
 
+### Theme Validation
+- **Issue:** Theme validation was too strict (required `metadata.name`, but top-level `name` is also valid)
+- **Status:** Fixed in commit `96f1e72`
+- **See:** [GOTCHAS.md](../GOTCHAS.md) → Theme Validation section
 
-### Workshop Validation
-
-### Workshop Effects Bleed
-- **Issue:** Steam/flame from one workshop persist when switching to workshop without effects
+### Effects Bleed Between Themes
+- **Issue:** Steam/flame from one theme persist when switching to theme without effects
 - **Status:** Under investigation
-- **See:** GOTCHAS.md → Effects Bleed Between Workshops section
+- **See:** [GOTCHAS.md](../GOTCHAS.md) → Effects Bleed Between Themes section
+
+### Tutorial Completion Did Not Unlock Selectors
+- **Issue:** Tutorial gating logic checked non-existent `activeLevel === 0`
+- **Status:** Fixed to use `activeExperiment === 'boiling-water'`
+- **See:** [GOTCHAS.md](../GOTCHAS.md) → Tutorial Completion section
 
 ### Image Optimization
 - Backgrounds: Use **JPG** (smaller file size)
 - UI elements: Use **PNG** (transparency needed)
 - All images preloaded to eliminate lag
 
-
 ## 🚧 COMMON TASKS - QUICK REFERENCE
 
-3. Workshop auto-discovered on app load
-
 ### Modifying Physics
-1. Check constants in `src/constants/physics.js`
-- **GameScene.jsx** - Handles ALL gameplay (pot, heating, dragging)
-- **Header.jsx** - Navigation (minimal)
+1. Check universal constants in `src/constants/physics.js` only
+2. Load substance-specific properties via `substanceLoader.js` from `src/data/substances/`
+3. Review `src/utils/physics.js` for the engine implementation
+4. **GameScene.jsx** - Handles ALL gameplay (pot, heating, dragging, substance selection)
+5. **Header.jsx** - Navigation and view switching (minimal)
 
 ### Debugging
+Check GOTCHAS.md and browser console for errors. Use `npm run dev` to see live compilation errors.
+
 ---
 ## 📌 QUICK COMMAND REFERENCE
 
@@ -126,9 +143,10 @@ git remote -v
 
 # Git - Push operations (CRITICAL - see deployment section)
 git push dev main       # Push to dev.boilingwater.app
----
+git push origin main    # Push to production
+```
 
-
+**Git Remotes:**
 - **`dev`** = https://github.com/zawalonka/dev.boilingwater.app.git (testing)
 - **`origin`** = https://github.com/zawalonka/Boilingwater.app.git (production)
 
@@ -139,6 +157,8 @@ git push dev main       # Push to dev.boilingwater.app
 **Explicit Commands REQUIRED:**
 ```bash
 git push dev main       # Testing repo (ALWAYS FIRST)
+```
+
 **Tool Compatibility:**
 - ❌ `mcp_gitkraken_git_push` - Cannot specify remote → defaults to origin (WRONG)
 - ✅ `run_in_terminal` - Can specify explicit remote → correct operation (RIGHT)
@@ -172,29 +192,39 @@ git push dev main       # Testing repo (ALWAYS FIRST)
 - ✅ Use `run_in_terminal` for all git push operations
 - ✅ Specify remote explicitly (dev or origin)
 - ❌ Never push directly to production
+
 ### Task-Specific Documents
 
 **Workshop System Work:**
-- `docs/guides/WORKSHOP_QUICK_START.md` - Quick guide for creating new workshops
-- `GOTCHAS.md` → Workshop validation section
+- [WORKSHOP_QUICK_START.md](../docs/guides/WORKSHOP_QUICK_START.md) - Quick guide for creating new workshops
+- [GOTCHAS.md](../GOTCHAS.md) → Theme Validation section (themes must be flexible with name field location)
 
 **Physics/Gameplay Work:**
-- `docs/architecture/WATER_STATES_ARCHITECTURE.md` - Water state system (ice/water/steam)
-- `docs/architecture/CODEBASE_DOCUMENTATION.md` → Physics Engine section
-- `src/utils/physics.js`, `src/data/fluids/*.json`
-- `docs/architecture/REFACTORING_SUMMARY.md` - Major architectural decisions
-- `docs/planning/TODO.md` - Current work plan
+- [WATER_STATES_ARCHITECTURE.md](../docs/architecture/WATER_STATES_ARCHITECTURE.md) - Phase change system (ice/water/steam)
+- [CODEBASE_DOCUMENTATION.md](../docs/architecture/CODEBASE_DOCUMENTATION.md) → Physics Engine section
+- `src/utils/physics.js`, `src/utils/substanceLoader.js`, `src/data/substances/**/*.json`
+- [REFACTORING_SUMMARY.md](../docs/architecture/REFACTORING_SUMMARY.md) - Major architectural decisions
+- [TODO.md](../docs/planning/TODO.md) - Current work plan
 - `scripts/optimize-images.js` - Image processing automation
 
+**Substance System Work:**
+- All 118 periodic table elements in `src/data/substances/periodic-table/` (001_H_nonmetal.json through 118_Og_nonmetal.json)
+- 12+ household compounds in `src/data/substances/compounds/` with full thermodynamic data
+- Use `substanceLoader.getAvailableSubstances()` to load and access substances
 
 ---
 
+## 📝 BEST PRACTICES
+
 ### When Editing Code
+1. **Check this file first** - Read relevant sections above
+2. **Understand file context** - Look at related files to understand architecture
 3. **Check git history** - Workshop fixes are well-documented in commits
-5. **Run locally before commit/push** - `npm run dev` and watch console for errors
+4. **Run locally before commit/push** - `npm run dev` and watch console for errors
+5. **Test workshop switching** - Common failure point
 
 ### When You Find a New Gotcha
-1. Add it to `GOTCHAS.md` immediately
+1. Add it to [GOTCHAS.md](../GOTCHAS.md) immediately
 2. Include commit hash, date, and WHY it was hard to spot
 3. Show before/after code
 
@@ -203,7 +233,7 @@ git push dev main       # Testing repo (ALWAYS FIRST)
 - **Show results** - Confirm what happened after execution
 - **Be specific** - Name the tool/operation and what it accomplishes
 
-
+### Performance Notes
 - Background images are large (optimized to ~200KB each)
 - Workshop JSONs are small (<10KB)
 - Don't read entire image files into context
@@ -223,16 +253,19 @@ Recent work: Level/experiment system refactor, location display, altitude integr
 - ✅ Pot dragging with physics
 - ✅ Water stream from faucet
 - ✅ Burner controls (on/off, power adjustment)
-- ✅ Real thermodynamics simulation
-- ✅ Extensible workshop system with dropdown switching
-- ✅ Three water states (ice, water, steam) with phase changes
+- ✅ Real thermodynamics simulation (Newton's Law of Cooling, Q = mcΔT)
+- ✅ Multiple substance support (water, ethanol, acetone, ammonia, etc.)
+- ✅ All 118 periodic table elements with educational data
+- ✅ Extensible workshop system with dropdown switching (4 workshops available)
+- ✅ Multiple phase states (ice, water, steam) with accurate phase transitions
+- ✅ Level/experiment hierarchical system (Level 1 with 3+ experiments)
 - ✅ Pre-Alpha badge and status display
 - ✅ Image optimization and preloading
 - ✅ Location/altitude system with worldwide search
-- ✅ Level/experiment hierarchical system
+- ✅ Effects system (steam, flame glow) - opt-in per workshop
 
 ---
 
-**Last Updated:** 2026-01-26  
+**Last Updated:** 2026-01-29  
 **Codebase Version:** Pre-Alpha  
 **Primary Developer:** zawalonka
