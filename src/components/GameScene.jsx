@@ -1211,8 +1211,8 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
             )}
             
             
-            {/* Fluid selector (Level 3+ for advanced experiments) */}
-            {activeLevel >= 3 && availableFluids.length > 0 && (
+            {/* Fluid selector (for different-fluids experiment) */}
+            {activeExperiment === 'different-fluids' && availableFluids.length > 0 && (
               <div className="fluid-selector">
                 <label htmlFor="fluid-select">Fluid:</label>
                 <select 
