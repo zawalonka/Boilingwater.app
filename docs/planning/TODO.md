@@ -1,5 +1,29 @@
 # Project TODO - Boiling Water App
 
+## Known Issues (To Be Fixed Later)
+
+### Bug 1: Alpha Kitchen Flame Icon Scaling
+**Status:** Noted for later fix
+**Description:** Alpha kitchen flame icon grows when it should not compared to other workshops. Flame sizing logic may have different scaling factors or the workshop layout values differ.
+**Affected:** Alpha kitchen workshop, Level 1+
+**Priority:** Low (visual only, doesn't affect gameplay)
+
+### Bug 2: Saltwater Boiling Temperature Calculation
+**Status:** Noted for later fix
+**Description:** Temperature for boiling saltwater does not properly calculate (appears to use plain water values). Likely broken logic defaulting to water properties instead of using the selected substance's properties.
+**Affected:** Level 3 (different-fluids experiment), when saltwater is selected
+**Priority:** Medium (affects educational accuracy)
+**Location:** Likely in GameScene.jsx physics loop or ControlPanel substance handling
+
+### Bug 3: Level 3 Pause on Complete - No Unpause
+**Status:** Noted for later fix
+**Description:** Game pauses when level 3 is complete with no way to unpause. May be related to showHook state or tutorial completion logic that doesn't provide unpause button.
+**Affected:** Level 3 (different-fluids experiment) when boiling is achieved
+**Priority:** Medium (blocks further gameplay)
+**Location:** Likely in GameScene.jsx boil-stats-modal or related completion handlers
+
+---
+
 ## Current Sprint
 
 ### Priority 4: Code Refactoring - Extract ControlPanel Component (Big Refactor)
