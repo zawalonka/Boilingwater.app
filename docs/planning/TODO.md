@@ -35,7 +35,7 @@
 - [x] Updated all imports in GameScene to use new loader API
 - [x] Updated documentation refs across copilot-instructions.md, REFACTORING_SUMMARY.md, etc.
 - [x] Deleted duplicate TODO_NEXT_SESSION.md
-- [x] Effects system fully implemented (steam, flame glow, water stream) – all opt-in per Workshop
+- [x] Effects system fully implemented (steam, flame glow, water stream) ï¿½ all opt-in per Workshop
 - [x] Workshop system locked down and extensible (workshop JSON structure with level filtering)
 - [x] Level 1 workshop system working (pre-alpha-kitchen-1, pre-alpha-kitchen-2, alpha-kitchen)
 - [x] Level 1 experiments structured (boiling-water, altitude-effect, different-fluids)
@@ -76,7 +76,7 @@
 **Status:** ? COMPLETE (12/12 compounds with full phase data)
 
 #### 2.1 Pure Household Chemicals
-**Rationale:** Educational value – students recognize these from daily life
+**Rationale:** Educational value ï¿½ students recognize these from daily life
 
 **Compounds Completed (12/12):**
 
@@ -122,59 +122,59 @@
     
 11. **Glycerin (C3H8O3)** - Liquid phase
     - Skin moisturizer, food additive, viscous liquid
-    - High boiling point (290°C)
+    - High boiling point (290ï¿½C)
     
 12. **Sucrose (C12H22O11)** - Solid, Liquid phases
     - Table sugar, food sweetener
-    - Melting at 186°C, caramelization at higher temps
+    - Melting at 186ï¿½C, caramelization at higher temps
 
    - Phases: liquid (most common), gas
-   - Boiling point: 78.37°C (lower than water)
+   - Boiling point: 78.37ï¿½C (lower than water)
 
 2. **Acetic Acid (Vinegar 5%)** - CH3COOH
    - Use: cooking, cleaning
    - Phases: liquid (aqueous solution), pure liquid, gas
-   - Boiling point: 118°C (higher than water)
+   - Boiling point: 118ï¿½C (higher than water)
 
 3. **Ammonia (Cleaning Solution)** - NH3
    - Use: cleaning products, fertilizer
    - Phases: gas (at room temp), aqueous solution (ammonia water)
-   - Boiling point: -33°C (very low!)
+   - Boiling point: -33ï¿½C (very low!)
 
 4. **Hydrogen Peroxide** - H2O2
    - Use: disinfectant, bleach alternative
    - Phases: liquid (aqueous 3% solution), pure liquid
-   - Boiling point: 150°C (decomposes)
+   - Boiling point: 150ï¿½C (decomposes)
 
 5. **Methane (Natural Gas)** - CH4
    - Use: cooking fuel, heating
    - Phases: gas (standard), liquid (compressed)
-   - Boiling point: -161°C (cryogenic)
+   - Boiling point: -161ï¿½C (cryogenic)
 
 6. **Propane (Grill Gas)** - C3H8
    - Use: BBQ grills, portable stoves, heating
    - Phases: gas (at room temp), liquid (compressed in tanks)
-   - Boiling point: -42°C
+   - Boiling point: -42ï¿½C
 
 7. **Acetone (Nail Polish Remover)** - C3H6O
    - Use: solvent, cleaning
    - Phases: liquid, gas
-   - Boiling point: 56°C (very volatile)
+   - Boiling point: 56ï¿½C (very volatile)
 
 8. **Isopropyl Alcohol (Rubbing Alcohol)** - C3H7OH
    - Use: disinfectant, cleaning electronics
    - Phases: liquid, gas
-   - Boiling point: 82.5°C
+   - Boiling point: 82.5ï¿½C
 
 9. **Glycerin/Glycerol** - C3H8O3
    - Use: soaps, lotions, food sweetener
    - Phases: liquid (viscous)
-   - Boiling point: 290°C (very high, thick liquid)
+   - Boiling point: 290ï¿½C (very high, thick liquid)
 
 10. **Sucrose (Table Sugar)** - C12H22O11
     - Use: sweetener, preservative
     - Phases: solid (crystals), aqueous solution
-    - Melting point: 186°C (caramelizes), no boiling point (decomposes)
+    - Melting point: 186ï¿½C (caramelizes), no boiling point (decomposes)
 
 **Implementation Plan:**
 - [ ] Create info.json for each compound with element references
@@ -250,19 +250,19 @@
   },
   "specificHeat": {
     "value": 2.05,
-    "unit": "J/(g·°C)",
+    "unit": "J/(gï¿½ï¿½C)",
     "temperature": 0,
     "source": "measured"
   },
   "thermalConductivity": {
     "value": 2.24,
-    "unit": "W/(m·K)",
+    "unit": "W/(mï¿½K)",
     "temperature": 0
   },
   "latentHeatOfFusion": {
     "value": 334,
     "unit": "kJ/kg",
-    "note": "Energy required to melt ice to water at 0°C"
+    "note": "Energy required to melt ice to water at 0ï¿½C"
   },
   "volumetricExpansionCoefficient": {
     "value": 0.000050,
@@ -301,19 +301,19 @@
   },
   "specificHeat": {
     "value": 4.186,
-    "unit": "J/(g·°C)",
+    "unit": "J/(gï¿½ï¿½C)",
     "temperature": 20,
     "source": "measured"
   },
   "thermalConductivity": {
     "value": 0.6,
-    "unit": "W/(m·K)",
+    "unit": "W/(mï¿½K)",
     "temperature": 20
   },
   "latentHeatOfVaporization": {
     "value": 2257,
     "unit": "kJ/kg",
-    "note": "Energy required to boil water to steam at 100°C"
+    "note": "Energy required to boil water to steam at 100ï¿½C"
   },
   "compressibility": {
     "value": 0.000450,
@@ -327,7 +327,7 @@
     "TminC": 1,
     "TmaxC": 100,
     "formula": "log10(Pvap) = A - B/(C + T)",
-    "unit": "Pressure in mmHg, Temperature in °C",
+    "unit": "Pressure in mmHg, Temperature in ï¿½C",
     "note": "Predicts vapor pressure of liquid water (used for boiling at altitude)"
   },
   "electricalConductivity": {
@@ -357,19 +357,19 @@
   "idealGasLaw": {
     "molarMass": 18.015,
     "unit": "g/mol",
-    "formula": "? = (P × M) / (R × T)",
+    "formula": "? = (P ï¿½ M) / (R ï¿½ T)",
     "gasConstant": 8.314,
     "note": "For any T/P, calculate density dynamically instead of storing table"
   },
   "specificHeat": {
     "value": 2.0,
-    "unit": "J/(g·°C)",
+    "unit": "J/(gï¿½ï¿½C)",
     "temperature": 100,
     "note": "Cp at constant pressure"
   },
   "thermalConductivity": {
     "value": 0.024,
-    "unit": "W/(m·K)",
+    "unit": "W/(mï¿½K)",
     "temperature": 100
   },
   "antoineCoefficients": null,
@@ -465,18 +465,22 @@
 
 ---
 
-## Next Session Context
-- **Renamed:** fluidLoader.js  substanceLoader.js (backward compatible)
-- **Dev server:** Ready at http://localhost:3000/
-- **Architecture:** Hybrid  precomputed shortcuts + optional element-driven derivation
-- **Upcoming:** Periodic-table integration, extended thermodynamic properties, Antoine vapor pressure
-- **Note:** TODO_NEXT_SESSION.md was duplicate; deleted
+### Priority 7: Code Refactoring & Readability (Future Sprint)
+**Status:** Not started
 
-## Session Notes
-- SMILES stored for reference/validation; composition explicit (no SMILES parsing required)
-- Universal constants in src/constants/physics.js
-- Physics engine agnostic to data source; consumes fluidProps from loader
-- First implementation: HO only; extend to other fluids after validation
+#### 7.1 Extract ControlPanel Component from GameScene.jsx
+- [ ] Separate control panel UI logic (~400 lines) into dedicated ControlPanel.jsx component
+- [ ] Identify and extract ~20 required props (temperature, status, controls, callbacks)
+- [ ] Reduce GameScene.jsx from 1552 lines to ~1150 lines
+- [ ] Maintain all existing functionality and state management
+- [ ] **Priority:** Lower (nice-to-have, not blocking gameplay)
+
+#### 7.2 Audit Other Functions for Separation & Refactoring
+- [ ] Review GameScene.jsx for additional extraction opportunities (physics loop, dragging logic, etc.)
+- [ ] Identify other components that could benefit from modularization
+- [ ] Document candidate functions/sections in REFACTORING_SUMMARY.md
+- [ ] Prioritize by impact on readability and accessibility
+- [ ] **Priority:** Lower (ongoing improvement)
 
 
 
