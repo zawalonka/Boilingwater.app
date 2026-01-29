@@ -8,6 +8,40 @@ Versioning standard is evolving organically as the project matures.
 
 ---
 
+## [0.1.3] - 2026-01-29
+
+### Major Refactoring
+- **Extracted ControlPanel component** from GameScene.jsx for better separation of concerns
+  - GameScene.jsx reduced from 1552 → 1158 lines (25% reduction)
+  - ControlPanel.jsx created as dedicated presentational component (385 lines)
+  - All UI controls now modular and reusable
+
+### Added
+- Educational notes for all 118 periodic table elements (discovery, etymology, real-world uses, interesting facts)
+- Educational notes for water (H2O) and saltwater (3% NaCl) compounds
+- Batch update script (update-educational-notes.js) for future substance content updates
+- scripts/temp-data/ folder for script-specific data (extensible for future tools)
+- GAMESCENE_REFACTOR_PLAN.md documentation of refactoring strategy
+
+### Documentation
+- Reorganized docs structure: WATER_STATES_ARCHITECTURE.md → guides/SUBSTANCE_SYSTEM_GUIDE.md
+- Cleaned up TODO.md (487 → ~100 lines, removed completed items)
+- Deleted EDUCATIONAL_NOTES_TODO.md (project complete)
+- Documented 3 known bugs for future fixing (flame scaling, saltwater calc, level 3 pause)
+
+### Code Quality
+- Better separation of concerns: GameScene focuses on physics/state, ControlPanel handles UI
+- Improved readability and maintainability
+- All 120 substances now have comprehensive educational content
+- Dev server tested and working without errors
+
+### Known Issues (Noted for Future Fixes)
+- Alpha kitchen flame icon scaling differs from other workshops
+- Saltwater boiling point calculation uses plain water values (Level 3)
+- Level 3 pause on completion with no unpause option
+
+---
+
 ## [0.1.2] - 2026-01-29
 
 ### Changed
