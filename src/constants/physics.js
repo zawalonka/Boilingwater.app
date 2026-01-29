@@ -3,10 +3,10 @@
  * All values use SI units (meters, kilograms, seconds, Celsius, Joules) unless otherwise specified
  * 
  * These constants represent universal physical laws and atmospheric properties.
- * Fluid-specific properties (like water, ethanol, etc.) are now loaded from src/data/fluids/
+ * Substance-specific properties (water, ethanol, etc.) are now loaded from src/data/substances/
  * 
- * NOTE: WATER_CONSTANTS has been DEPRECATED and moved to src/data/fluids/water.json
- * This allows easy extension to other fluids like ethanol, saltwater, oils, etc.
+ * NOTE: WATER_CONSTANTS has been DEPRECATED and moved to src/data/substances/compounds/water-h2o/
+ * This allows easy extension to other substances like ethanol, saltwater, oils, etc.
  */
 
 // =====================================================================
