@@ -23,6 +23,7 @@ import {
 } from '../utils/physics'
 import { loadSubstance, loadSubstanceInfo, parseSubstanceProperties, DEFAULT_SUBSTANCE, getAvailableSubstances } from '../utils/substanceLoader'
 import { GAME_CONFIG } from '../constants/physics'
+import { LEVELS, EXPERIMENTS } from '../constants/workshops'
 import ControlPanel from './ControlPanel'
 import '../styles/GameScene.css'
 
@@ -145,6 +146,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
 
   // Should we pause time flow while popup is visible?
   const [pauseTime, setPauseTime] = useState(false)
+  const [showNextLevelButton, setShowNextLevelButton] = useState(false)
 
   // How many seconds have elapsed since heat was turned on (used for time calculations)
   const [timeElapsed, setTimeElapsed] = useState(0)
@@ -316,6 +318,10 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
     loadFluids()
   }, [])
 
+  useEffect(() => {
+    setShowNextLevelButton(false)
+  }, [activeExperiment, activeLevel])
+
   // Load the current substance's properties from JSON
   useEffect(() => {
     async function initializeFluid() {
@@ -452,6 +458,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
         setIsBoiling(true)   // Mark as boiling
         setShowHook(true)    // Show the educational message
         setPauseTime(true)   // Pause time while popup is visible
+        setShowNextLevelButton(Boolean(getNextProgression()))
         // Calculate time it took to boil (from when pot was placed over flame)
         if (timePotOnFlame !== null) {
           const elapsedBoilTime = timePotOnFlame + deltaTime
@@ -479,7 +486,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
         clearInterval(simulationRef.current)
       }
     }
-  }, [waterInPot, liquidMass, residueMass, temperature, altitude, boilingPoint, canBoil, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps, workshopLayout, isTimerRunning])  // Re-run if any of these change
+  }, [waterInPot, liquidMass, residueMass, temperature, altitude, boilingPoint, canBoil, isBoiling, timeSpeed, potPosition, burnerHeat, fluidProps, workshopLayout, isTimerRunning, pauseTime])  // Re-run if any of these change
 
   // ============================================================================
   // POT DRAGGING HANDLERS: Three functions handle the drag lifecycle
@@ -622,10 +629,20 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
    */
   const handleSpeedUp = () => {
     setTimeSpeed(current => {
+      // From fractional speeds, go to pause (0)
+      if (current < 1) return 0
+      // From pause, go to 1x
+      if (current === 0) return 1
+      // Normal progression
       if (current === 1) return 2
       if (current === 2) return 4
       if (current === 4) return 8
-      return 1  // Wrap back to 1x
+      if (current === 8) return 16
+      if (current === 16) return 32
+      if (current === 32) return 64
+      if (current === 64) return 128
+      if (current === 128) return 256
+      return 256  // Stay at 256x (no wrap)
     })
   }
 
@@ -633,14 +650,41 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
    * Double the time speed (Advanced Mode)
    */
   const handleSpeedDouble = () => {
-    setTimeSpeed(current => current * 2)
+    setTimeSpeed(current => {
+      // Handle pause state: 0 -> 1x
+      if (current === 0) return 1
+      const doubled = current * 2
+      return doubled <= 256 ? doubled : 256  // Cap at 256x
+    })
   }
 
   /**
    * Halve the time speed (Advanced Mode)
+   * Progression: 1x -> 0 (pause) -> 1/2x -> 1/4x -> ... -> 1/256x
    */
   const handleSpeedHalve = () => {
-    setTimeSpeed(current => Math.max(0.125, current / 2))  // Min 1/8x speed
+    const minSpeed = 1 / 256  // 1/256x as slowest
+    setTimeSpeed(current => {
+      // At 1x, go to pause (0)
+      if (current === 1) return 0
+      // At pause, go to 1/2x
+      if (current === 0) return 0.5
+      // Normal halving
+      const halved = current / 2
+      return halved >= minSpeed ? halved : minSpeed  // Min 1/256x speed
+    })
+  }
+
+  /**
+   * Quick pause button - toggle between current speed and 0 (pause)
+   */
+  const handleQuickPause = () => {
+    setTimeSpeed(current => {
+      // If already paused, return to 1x
+      if (current === 0) return 1
+      // Otherwise pause
+      return 0
+    })
   }
 
   /**
@@ -680,6 +724,53 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
     // Call the parent component callback to change the game stage
     // This transitions from Stage 0 (gameplay) to Stage 1 (educational content)
     onStageChange(1)
+  }
+
+  const getNextExperimentInLevel = () => {
+    // Get all experiments for current level, sorted by order
+    const levelExperiments = EXPERIMENTS[activeLevel]?.slice().sort((a, b) => (a.order || 0) - (b.order || 0)) || []
+    const currentIndex = levelExperiments.findIndex((exp) => exp.id === activeExperiment)
+    const nextExp = currentIndex >= 0 ? levelExperiments[currentIndex + 1] : null
+    return nextExp?.id ?? null
+  }
+
+  const getNextLevelId = () => {
+    const sortedLevels = LEVELS.slice().sort((a, b) => (a.order || 0) - (b.order || 0))
+    const currentIndex = sortedLevels.findIndex((level) => level.id === activeLevel)
+    const nextLevel = currentIndex >= 0 ? sortedLevels[currentIndex + 1] : null
+    return nextLevel?.id ?? null
+  }
+
+  const getNextProgression = () => {
+    // Check for next experiment in current level first
+    const nextExp = getNextExperimentInLevel()
+    if (nextExp) {
+      return { type: 'experiment', id: nextExp }
+    }
+    // If no next experiment, check for next level
+    const nextLevel = getNextLevelId()
+    if (nextLevel) {
+      // Get first experiment of next level
+      const firstExp = EXPERIMENTS[nextLevel]?.[0]?.id
+      return { type: 'level', levelId: nextLevel, experimentId: firstExp }
+    }
+    return null
+  }
+
+  const handleNextProgression = () => {
+    const progression = getNextProgression()
+    if (!progression) return
+
+    setShowHook(false)
+    setPauseTime(false)
+    setShowNextLevelButton(false)
+
+    if (progression.type === 'experiment') {
+      onExperimentChange?.(progression.id)
+    } else if (progression.type === 'level') {
+      onLevelChange?.(progression.levelId)
+      onExperimentChange?.(progression.experimentId)
+    }
   }
 
   /**
@@ -939,28 +1030,6 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   // ============================================================================
   // RENDER: Build and return the UI
   // ============================================================================
-
-  // Stage 1: Educational info screen after first boil
-  if (stage === 1) {
-    return (
-      <div className="info-screen">
-        <div className="info-content">
-          <h2>🎓 How Boiling Works</h2>
-          <p>You just boiled {fluidName.toLowerCase()}! Here's what happened:</p>
-          <ul>
-            <li><strong>Heat Transfer:</strong> The burner transferred thermal energy to the fluid molecules</li>
-            <li><strong>Temperature Rise:</strong> As molecules gained energy, they moved faster, increasing temperature</li>
-            <li><strong>Phase Change:</strong> At {boilingPointSeaLevel !== null ? `${formatTemperature(boilingPointSeaLevel)}°C` : 'its boiling point'} (sea level), molecules gained enough energy to escape as vapor</li>
-            <li><strong>Boiling Point:</strong> This temperature depends on atmospheric pressure—it changes with altitude!</li>
-          </ul>
-          <p className="fun-fact">🏔️ <strong>Fun Fact:</strong> At the top of Mount Everest, water boils at only 68°C (154°F) because of the lower air pressure!</p>
-          <button className="action-button next-stage-button" onClick={handleNextStage}>
-            Continue Exploring →
-          </button>
-        </div>
-      </div>
-    )
-  }
 
   if (!hasRequiredImages) {
     return (
@@ -1231,6 +1300,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           userZipCode={userZipCode}
           manualAltitude={manualAltitude}
           editableAltitude={editableAltitude}
+          showNextLevelButton={showNextLevelButton}
           
           // Config
           burnerHeat={burnerHeat}
@@ -1243,7 +1313,10 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           handleSpeedUp={handleSpeedUp}
           handleSpeedDouble={handleSpeedDouble}
           handleSpeedHalve={handleSpeedHalve}
+          handleQuickPause={handleQuickPause}
           handleFluidChange={handleFluidChange}
+          handleNextProgression={handleNextProgression}
+          nextProgressionType={getNextProgression()?.type}
           handleSearchLocation={handleSearchLocation}
           handleSetManualAltitude={handleSetManualAltitude}
           handleFindMyLocation={handleFindMyLocation}
@@ -1269,13 +1342,13 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           Show message that water boiled at a different temperature than 100°C
         */}
 
-        {/* Tutorial Completion Popup - Centered modal with stats */}
-        {showHook && activeExperiment === 'boiling-water' && (
+        {/* Scorecard Popup - Centered modal with stats and explanation */}
+        {showHook && (
           <div className="boil-stats-overlay">
             <div className="boil-stats-modal">
-              <h2>🎉 Congratulations!</h2>
-              <p className="modal-subtitle">You've successfully boiled {fluidName.toLowerCase()}!</p>
-              
+              <h2>📋 Scorecard</h2>
+              <p className="modal-subtitle">You just boiled {fluidName.toLowerCase()}!</p>
+
               <div className="stats-grid">
                 <div className="stat-item">
                   <span className="stat-label">Final Temperature:</span>
@@ -1297,53 +1370,28 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
                 )}
               </div>
 
-              <p className="modal-insight">
-                ⏱️ That wasn't too bad (thank goodness for time acceleration!). Let's see if it's any different at your location?
-              </p>
+              <div className="info-content">
+                <h3>🎓 How Boiling Works</h3>
+                <p>You just boiled {fluidName.toLowerCase()}! Here's what happened:</p>
+                <ul>
+                  <li><strong>Heat Transfer:</strong> The burner transferred thermal energy to the fluid molecules</li>
+                  <li><strong>Temperature Rise:</strong> As molecules gained energy, they moved faster, increasing temperature</li>
+                  <li><strong>Phase Change:</strong> At {boilingPointSeaLevel !== null ? `${formatTemperature(boilingPointSeaLevel)}°C` : 'its boiling point'} (sea level), molecules gained enough energy to escape as vapor</li>
+                  <li><strong>Boiling Point:</strong> This temperature depends on atmospheric pressure—it changes with altitude!</li>
+                </ul>
+                <p className="fun-fact">🏔️ <strong>Fun Fact:</strong> At the top of Mount Everest, water boils at only 68°C (154°F) because of the lower air pressure!</p>
+              </div>
 
-              <button 
+              <button
                 className="action-button continue-button"
                 onClick={() => {
                   setShowHook(false)
                   setPauseTime(false)
-                  onExperimentChange?.('altitude-effect')
                 }}
               >
-                Continue to Altitude Experiment →
+                Close Scorecard
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Educational message for altitude-based experiments */}
-        {showHook && isLocationBasedExperiment && altitude !== 0 && (
-          <div className="hook-message">
-            <p>
-              💧 Your {fluidName.toLowerCase()} boiled at {formatTemperature(boilingPoint)}°C
-              {boilingPointSeaLevel !== null ? ` (not ${formatTemperature(boilingPointSeaLevel)}°C!)` : '!'}
-            </p>
-            <button 
-              className="action-button learn-more"
-              onClick={handleLearnMore}
-            >
-              🤔 Curious why? Learn more
-            </button>
-          </div>
-        )}
-
-        {/* 
-          If at sea level (altitude = 0) and water is boiling (levels 2+):
-          Confirm that water boiled at 100°C as expected
-        */}
-        {showHook && activeLevel !== 'level-1' && altitude === 0 && (
-          <div className="hook-message">
-            <p>💧 Your {fluidName.toLowerCase()} boiled at exactly {formatTemperature(boilingPoint)}°C!</p>
-            <button 
-              className="action-button learn-more"
-              onClick={handleLearnMore}
-            >
-              📚 Learn more
-            </button>
           </div>
         )}
       </div>

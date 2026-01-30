@@ -43,6 +43,7 @@ function ControlPanel({
   userZipCode,
   manualAltitude,
   editableAltitude,
+  showNextLevelButton,
   
   // Config
   burnerHeat,
@@ -55,7 +56,10 @@ function ControlPanel({
   handleSpeedUp,
   handleSpeedDouble,
   handleSpeedHalve,
+  handleQuickPause,
   handleFluidChange,
+  handleNextProgression,
+  nextProgressionType,
   handleSearchLocation,
   handleSetManualAltitude,
   handleFindMyLocation,
@@ -75,6 +79,19 @@ function ControlPanel({
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // Format speed display (handle fractional speeds like 1/2, 1/4, etc.)
+  const formatSpeed = (speed) => {
+    if (speed === 0) {
+      return '⏸ Pause'
+    }
+    if (speed >= 1) {
+      return `${Math.round(speed)}x`
+    }
+    // For fractional speeds, show as 1/N
+    const denominator = Math.round(1 / speed)
+    return `1/${denominator}x`
   }
 
   return (
@@ -184,7 +201,7 @@ function ControlPanel({
               className="action-button speed-button status-button"
               onClick={handleSpeedUp}
             >
-              ⚡ Speed: {timeSpeed}x
+              ⚡ Speed: {formatSpeed(timeSpeed)}
             </button>
           )}
           
@@ -198,7 +215,14 @@ function ControlPanel({
               >
                 ◀
               </button>
-              <span className="speed-display">⚡ {timeSpeed}x</span>
+              <button 
+                className="speed-arrow"
+                onClick={handleQuickPause}
+                title={timeSpeed === 0 ? "Resume" : "Pause"}
+              >
+                {timeSpeed === 0 ? '▶' : '⏸'}
+              </button>
+              <span className="speed-display">⚡ {formatSpeed(timeSpeed)}</span>
               <button 
                 className="speed-arrow"
                 onClick={handleSpeedDouble}
@@ -259,6 +283,15 @@ function ControlPanel({
             <p className="status-text warning">
               🧪 Residue remaining: {Math.round(residueMass * 1000)}g
             </p>
+          )}
+
+          {showNextLevelButton && (
+            <button
+              className="action-button continue-button"
+              onClick={handleNextProgression}
+            >
+              {nextProgressionType === 'level' ? 'Next Level →' : 'Next Experiment →'}
+            </button>
           )}
 
           {/* Altitude control (Exp 2+: altitude-effect and beyond) - bottom of panel */}
