@@ -1,4 +1,4 @@
-# Antoine Equation & Substance Loader Refactor
+# Antoine Equation & Zero-Hardcoding Substance System
 
 ## Summary
 
@@ -37,68 +37,40 @@ All 12+ compounds and their phase states now include `antoineCoefficients`:
 }
 ```
 
-### 2. Substance Loader Refactored ✅
-**Split into 3 modular files:**
+### 2. Zero-Hardcoding Substance Catalog ✅
+**Auto-generated catalog + loaders:**
 
-#### A. `src/utils/substanceCatalog.js` (127 lines)
-**Purpose:** Central registry of all substances
-- Single source of truth: `SUBSTANCE_CATALOG` object
-- Maps logical IDs (e.g., 'h2o') to file paths
-- Includes metadata: displayName, chemicalName, available states
-- Helper functions: `getAvailableSubstances()`, `getSubstanceInfo()`, etc.
+#### A. `scripts/generateSubstanceCatalog.js`
+**Purpose:** Filesystem scan → generated catalog
+- Scans `src/data/substances/compounds/**/info.json`
+- Scans `src/data/substances/periodic-table/*.json`
+- Emits `src/generated/substanceCatalog.js`
 
-**Why separate?**
-- Easier to add new substances (just add one line to catalog)
-- No file loading logic mixed in
-- Can be used for UI dropdowns without loading files
+#### B. `src/generated/substanceCatalog.js` (AUTO-GENERATED)
+**Purpose:** Lazy import registry
+- Single source of truth for loaders and metadata
+- Maps IDs (e.g., `water`, `ethanol`, `O`) to import paths
+- Includes `compoundLoaders`, `elementLoaders`, and metadata maps
 
-#### B. `src/utils/substanceLoader.js` (281 lines)
-**Purpose:** File loading and merging
-- `loadCompound(id)` - Loads metadata from info.json
-- `loadPhaseState(id, phase)` - Loads thermodynamic data from state.json
-- `loadSubstance(id, phase)` - Merges compound + phase
-- `loadSubstancePhase(id, phase)` - Load + parse in one call
-- Re-exports `parseSubstanceProperties` and `getAvailableSubstances` for convenience
+#### C. `src/utils/substanceLoader.js`
+**Purpose:** File loading and convenience API
+- `loadSubstance(id, phase)` - Loads element or compound + phase
+- `loadSubstancePhase(id, phase)` - Loads + parses for physics
+- `loadSubstanceInfo(id)` - Lightweight info-only load
+- `getAvailableSubstances()` - Returns `{ compounds, elements, all }`
 
-**Why separate?**
-- Keeps file I/O localized
-- Clean separation: loading vs. parsing
-- Switch statements easy to read (one per concern)
-
-#### C. `src/utils/substanceParser.js` (NEW, 217 lines)
-**Purpose:** Data transformation (pure function, no I/O)
+#### D. `src/utils/substanceParser.js`
+**Purpose:** Pure data transformation
 - `parseSubstanceProperties(data)` - Extracts physics-ready values
-- Handles nested object structures: `{ value: 1.0, unit: 'kg/L' }`
-- Returns 25+ properties in physics-engine format
-- Includes Antoine coefficients and all advanced properties
-
-**Why separate?**
-- Pure function (easy to test, no side effects)
-- Reusable for different loading strategies
-- Clear responsibility: data extraction
+- Handles nested object structures: `{ value, unit }`
+- Includes Antoine coefficients and advanced properties
 
 ## File Size Analysis
 
-### Before Refactor
-- substanceLoader.js: **347 lines** (all in one file)
-- Future estimate with all 4 states + all 118 elements: **2000+ lines**
-
-### After Refactor
-- substanceCatalog.js: **127 lines** (just mappings)
-- substanceLoader.js: **281 lines** (file loading)
-- substanceParser.js: **217 lines** (data transformation)
-- **Total: 625 lines (distributed across 3 focused files)**
-
-### Future with 4th State (Plasma)
-If we add plasmas + all 118 elements:
-- substanceCatalog.js: **~300 lines** (scalable, just mappings)
-- substanceLoader.js: Would split into:
-  - `substanceLoaderCompound.js` - Just compound loading
-  - `substanceLoaderPhase.js` - Just phase loading
-  - (Each would stay ~150-200 lines)
-- substanceParser.js: **~300 lines** (always same complexity)
-
-**Result:** Even at scale, each file stays <300 lines and focused.
+### Scalability Notes
+- The generated catalog grows with data, not code
+- Runtime loads are lazy (Vite code-splits each JSON)
+- Adding a new substance is just adding JSON files
 
 ## Data Volume
 
@@ -131,11 +103,14 @@ The refactor is transparent to consumers (all exports re-exported for convenienc
 **In GameScene:**
 ```javascript
 // Load water liquid
-const waterProps = await loadSubstancePhase('h2o', 'liquid')
+const waterProps = await loadSubstancePhase('water', 'liquid')
 // Now: boilingPointSeaLevel uses Antoine equation automatically!
 
 // Get available substances
-const list = getAvailableSubstances()  // ['h2o', 'ethanol', ...]
+const list = getAvailableSubstances()  // { compounds, elements, all }
+
+// Info-only load (lightweight)
+const info = await loadSubstanceInfo('water')
 ```
 
 **Future (element loading):**
@@ -173,9 +148,10 @@ const hydrogenIce = await loadSubstancePhase('H', 'solid')  // Loads 001_H_nonme
 ## Files Changed
 
 - ✅ `src/utils/physics.js` - Added Antoine solver, updated boiling point logic
-- ✅ `src/utils/substanceLoader.js` - Refactored, now imports from other modules
-- ✅ `src/utils/substanceCatalog.js` - NEW (central catalog)
-- ✅ `src/utils/substanceParser.js` - NEW (pure parser function)
+- ✅ `scripts/generateSubstanceCatalog.js` - Generates catalog from filesystem
+- ✅ `src/generated/substanceCatalog.js` - Auto-generated catalog
+- ✅ `src/utils/substanceLoader.js` - Loader API
+- ✅ `src/utils/substanceParser.js` - Pure parser
 
 ---
 

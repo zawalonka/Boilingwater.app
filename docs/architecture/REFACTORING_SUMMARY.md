@@ -1,29 +1,38 @@
-# Physics Refactoring & Extensible Fluid System
+# Physics Refactoring & Extensible Substance System
 
 ## Overview
-Refactored the Boiling Water physics engine to support multiple fluids and implemented Newton's Law of Cooling for realistic temperature decay.
+Refactored the Boiling Water physics engine to support multiple substances and implemented Newton's Law of Cooling for realistic temperature decay.
 
 ## Key Changes
 
-### 1. **Extensible Fluid Architecture** 
-The game is now prepared to support different fluids (water, ethanol, oils, saltwater, glycerin, etc.) without modifying core game code.
+### 1. **Extensible Substance Architecture** 
+The game is now prepared to support different substances (water, ethanol, acetone, saltwater, glycerin, etc.) without modifying core game code.
 
 #### File Structure
 ```
-src/data/fluids/
-├── water.json              # Water properties (H₂O)
-├── ethanol.json           # (Future)
-├── saltwater.json         # (Future)
-└── ... other fluids
+src/data/substances/
+├── compounds/
+│   ├── pure/
+│   │   └── water-h2o/
+│   │       ├── info.json
+│   │       ├── liquid/state.json
+│   │       └── ... other phases
+│   └── solutions/
+│       └── saltwater-3pct-nacl/
+│           ├── info.json
+│           └── liquid/state.json
+└── periodic-table/
+  ├── 001_H_nonmetal.json
+  └── ... 118 elements
 ```
 
-#### How to Add a New Fluid
-1. Create `src/data/fluids/{fluidName}.json` with the same structure as `water.json`
-2. Include all required properties (specific heat, boiling point, vaporization heat, cooling coefficient)
-3. In the future, add a UI selector to choose the fluid
+#### How to Add a New Substance
+1. Create `src/data/substances/compounds/pure/{compound-name}/info.json`
+2. Add phase state files under `{phase}/state.json`
+3. Run `npm run dev` or `npm run build` to regenerate the catalog
 4. No code changes needed!
 
-### 2. **Fluid Properties Separation**
+### 2. **Substance Properties Separation**
 
 **Before:** All fluid properties hardcoded in `src/constants/physics.js`
 ```javascript
@@ -34,11 +43,12 @@ export const WATER_CONSTANTS = {
 }
 ```
 
-**After:** Fluid-specific properties in JSON, universal constants separate
+**After:** Substance-specific properties in JSON, universal constants separate
 ```
-src/data/fluids/water.json    ← Specific to H₂O
-src/constants/physics.js       ← Universal constants only
-src/utils/substanceLoader.js   ← Dynamic fluid loading
+src/data/substances/**          ← Substance data
+src/generated/substanceCatalog.js ← Auto-generated catalog
+src/constants/physics.js        ← Universal constants only
+src/utils/substanceLoader.js    ← Dynamic substance loading
 ```
 
 ### 3. **Realistic Cooling Model**
@@ -63,7 +73,7 @@ Where:
 
 ### 4. **Physics Functions Updated**
 
-All physics functions now accept `fluidProps` parameter:
+All physics functions now accept a substance properties object (`fluidProps` in code):
 
 #### `calculateBoilingPoint(altitude, fluidProps)`
 ```javascript
@@ -101,12 +111,12 @@ if (currentTemp > AMBIENT_TEMP && heatInputWatts <= 0) {
 
 ### 5. **GameScene.jsx Updates**
 
-#### New: Fluid Loading on Mount
+#### New: Substance Loading on Mount
 ```javascript
 useEffect(() => {
   async function initializeFluid() {
-    const fluidData = await loadFluid(DEFAULT_FLUID)  // 'water'
-    const props = parseFluidProperties(fluidData)
+    const substanceData = await loadSubstance('water', 'liquid')
+    const props = parseSubstanceProperties(substanceData)
     setFluidProps(props)
   }
   initializeFluid()
@@ -132,20 +142,20 @@ const boilingPoint = calculateBoilingPoint(altitude)
 const boilingPoint = fluidProps ? calculateBoilingPoint(altitude, fluidProps) : 100
 ```
 
-### 6. **New Utility: substanceLoader.js**
+### 6. **Substance Loader API**
 
 ```javascript
-// Load a fluid by ID
-const fluidData = await loadFluid('water')
+// Load a substance by ID + phase
+const substanceData = await loadSubstance('water', 'liquid')
 
 // Parse JSON to physics-engine format
-const props = parseFluidProperties(fluidData)
+const props = parseSubstanceProperties(substanceData)
 
-// Get available fluids list
-const fluids = getAvailableFluids()  // ['water', ...]
+// Get available substances list
+const list = getAvailableSubstances()  // { compounds, elements, all }
 
-// Validate fluid data
-validateFluidData(fluidData)  // Throws if missing required properties
+// Load info only (no phase files)
+const info = await loadSubstanceInfo('O')
 ```
 
 ## Physics Accuracy
@@ -167,8 +177,10 @@ validateFluidData(fluidData)  // Throws if missing required properties
 
 | File | Change | Impact |
 |------|--------|--------|
-| `src/data/fluids/water.json` | NEW | Fluid properties storage |
-| `src/utils/substanceLoader.js` | NEW | Fluid loading utility |
+| `src/data/substances/**` | NEW | Substance data storage (compounds + elements) |
+| `src/generated/substanceCatalog.js` | NEW | Auto-generated catalog |
+| `scripts/generateSubstanceCatalog.js` | NEW | Catalog generator |
+| `src/utils/substanceLoader.js` | NEW | Substance loading utility |
 | `src/constants/physics.js` | REFACTORED | Removed WATER_CONSTANTS, kept ATMOSPHERE/UNIVERSAL |
 | `src/utils/physics.js` | UPDATED | All functions accept fluidProps, Newton's Law added |
 | `src/components/GameScene.jsx` | UPDATED | Loads fluid on mount, passes to physics functions |
@@ -176,41 +188,42 @@ validateFluidData(fluidData)  // Throws if missing required properties
 ## Future Enhancements
 
 ### Easy to Add
-1. **New Fluids** - Just add JSON files to `src/data/fluids/`
-2. **Fluid Selector UI** - Dropdown to choose fluid
-3. **Fluid-Specific Visuals** - Different colors/opacity from JSON
-4. **Custom Cooling** - Different heat transfer coefficients per fluid
+1. **New Substances** - Just add JSON files under `src/data/substances/`
+2. **Fluid Selector UI** - Dropdown to choose substance
+3. **Substance-Specific Visuals** - Different colors/opacity from JSON
+4. **Custom Cooling** - Different heat transfer coefficients per substance
 5. **Temperature-Dependent Cooling** - More complex cooling models
 
-### Examples for Future Fluids
+### Examples for Future Substances
 ```json
-// ethanol.json
+// info.json (compound metadata)
 {
   "id": "ethanol",
-  "name": "Ethanol (C₂H₆O)",
-  "properties": {
-    "specificHeatLiquid": { "value": 2.44 },
-    "heatOfVaporization": { "value": 838 },  // Much lower than water!
-    "boilingPoint": { "seaLevel": 78.4 },    // Boils at 78.4°C, not 100°C
-    ...
+  "type": "compound",
+  "name": "Ethanol",
+  "chemicalFormula": "C₂H₆O",
+  "phaseTransitions": {
+    "meltingPoint": -114.14,
+    "boilingPoint": 78.37
   },
-  "coolingModel": {
-    "heatTransferCoefficient": 0.0018
-  },
-  "visualProperties": {
-    "color": "#FFD700",   // Different color
-    "opacity": 0.6
-  }
+  "states": ["liquid", "gas"]
 }
 ```
 
-## Commit Information
+```json
+// liquid/state.json (phase data)
+{
+  "compoundId": "ethanol",
+  "phase": "liquid",
+  "specificHeat": { "value": 2.44, "unit": "J/(g·°C)" },
+  "latentHeatOfVaporization": { "value": 838, "unit": "kJ/kg" }
+}
+```
 
-- **Commit**: `b66c216`
-- **Files Changed**: 5 files
-- **Lines Added**: 392
-- **Lines Removed**: 162
-- **Message**: "Implement extensible fluid system with Newton's Law of Cooling"
+## Status
+
+- **Updated:** January 29, 2026
+- **Scope:** Zero-hardcoding substance system + physics refactor
 
 ## Testing Recommendations
 

@@ -54,15 +54,18 @@ src/
 ├── utils/
 │   ├── workshopLoader.js - Workshop loading, validation, CSS application
 │   ├── substanceLoader.js - Substance/fluid loading (replaces fluidLoader)
+│   ├── substanceParser.js - Pure parser for substance physics properties
 │   ├── physics.js - Physics engine
 │   ├── locationUtils.js - Location/altitude lookup
 │   └── unitUtils.js - Unit conversion utilities
 ├── constants/
 │   ├── physics.js - Physics constants (NOTE: fluid properties now loaded from JSON)
 │   └── workshops.js - Workshop config, LEVELS array, EXPERIMENTS object
+├── generated/
+│   └── substanceCatalog.js - Auto-generated substance catalog (do not edit)
 ├── data/
 │   └── substances/
-│       ├── compounds/ (H2O, ethanol, acetone, etc. with phase states)
+│       ├── compounds/ (pure + solutions with phase states)
 │       └── periodic-table/ (001_H_nonmetal.json through 118_Og_nonmetal.json)
 └── styles/ (index.css, App.css, GameScene.css, Header.css)
 
@@ -212,6 +215,8 @@ git push dev main       # Testing repo (ALWAYS FIRST)
 - `scripts/optimize-images.js` - Image processing automation
 
 **Substance System Work:**
+- [SUBSTANCE_SYSTEM_GUIDE.md](../docs/guides/SUBSTANCE_SYSTEM_GUIDE.md) - Substance system architecture and usage
+- [SUBSTANCE_FILE_TEMPLATE.md](../docs/guides/SUBSTANCE_FILE_TEMPLATE.md) - JSON templates for new substances
 - All 118 periodic table elements in `src/data/substances/periodic-table/` (001_H_nonmetal.json through 118_Og_nonmetal.json)
 - 12+ household compounds in `src/data/substances/compounds/` with full thermodynamic data
 - Use `substanceLoader.getAvailableSubstances()` to load and access substances

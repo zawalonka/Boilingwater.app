@@ -302,7 +302,7 @@ src/data/substances/
 ### info.json
 ```json
 {
-  "id": "h2o",
+  "id": "water",
   "type": "compound",
   "name": "Water",
   "aliases": ["Oxidane", "Hydrogen Oxide"],
