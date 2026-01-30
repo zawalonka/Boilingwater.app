@@ -181,8 +181,14 @@
 }
 
 .level-selector select option {
-  background: var(--workshop-panel-background, #0e1623);
-  color: var(--workshop-panel-text, #e8f1ff);
+  background: rgba(240, 240, 240, 0.95);
+  color: #333333;
+}
+
+.level-selector select option:hover,
+.level-selector select option:checked {
+  background: rgba(100, 100, 100, 0.95) !important;
+  color: white !important;
 }
 
 .level-selector select:focus {
@@ -214,8 +220,14 @@
 }
 
 .experiment-selector select option {
-  background: var(--workshop-panel-background, #0e1623);
-  color: var(--workshop-panel-text, #e8f1ff);
+  background: rgba(240, 240, 240, 0.95);
+  color: #333333;
+}
+
+.experiment-selector select option:hover,
+.experiment-selector select option:checked {
+  background: rgba(100, 100, 100, 0.95) !important;
+  color: white !important;
 }
 
 .experiment-selector select:focus {
@@ -255,8 +267,14 @@
 
 /* Ensure dropdown options stay legible across workshops */
 .workshop-selector select option {
-  background: var(--workshop-panel-background, #0e1623);
-  color: var(--workshop-panel-text, #e8f1ff);
+  background: rgba(240, 240, 240, 0.95);
+  color: #333333;
+}
+
+.workshop-selector select option:hover,
+.workshop-selector select option:checked {
+  background: rgba(100, 100, 100, 0.95) !important;
+  color: white !important;
 }
 
 .workshop-selector select:focus {

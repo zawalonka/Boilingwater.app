@@ -48,13 +48,26 @@
 
 ## Backlog
 
-### Priority 1: Fix Level 2 Workshop Dropdown (Blocking - After Refactor)
-**Status:** Root cause identified, JSON needs structural fix
+### Priority 1: Fix Level 2 Workshop Dropdown
+**Status:** ✅ FIXED (Needs Runtime Testing)
 
-- [x] Debug blank dropdown on Level 2 selection → **Found:** Invalid JSON structure
-- [x] Verify getWorkshopsByLevel(2) returns level-2-placeholder → **Confirmed:** Function works
-- [ ] **Fix level-2-placeholder workshop.json** - `scope` and `metadata` fields are currently nested UNDER `colors` object (lines 12-23) instead of at root level
-- [ ] Test filtering logic after JSON fix
+- ✅ Debug blank dropdown on Level 2 selection → **Found:** Invalid JSON structure
+- ✅ Verify getWorkshopsByLevel(2) returns level-2-placeholder → **Confirmed:** Function works
+- ✅ **Fixed level-2-placeholder workshop.json** - Moved `scope` and `metadata` to root level (was nested under `colors`)
+- [ ] **Runtime test:** Complete tutorial → Select Level 2 → Verify "Level 2 Placeholder" appears in dropdown
+
+**Expected Behavior:**
+1. User completes tutorial (boil water once)
+2. Level/workshop selectors appear
+3. Select "Level 2" from level dropdown
+4. Workshop dropdown shows: **"Level 2 Placeholder"**
+5. Selecting it applies grayscale theme with placeholder background
+
+**How It Works:**
+- `getWorkshopsByLevel(2)` scans all workshops
+- Filters by `minLevel` (2) and `maxLevel` (defaults to 999)
+- Returns workshops where `2 >= minLevel && 2 <= maxLevel`
+- `level-2-placeholder` has `minLevel: 2` → passes filter
 
 ---
 
@@ -77,44 +90,44 @@ See [ROOM_ENVIRONMENT_SYSTEM.md](../docs/planning/ROOM_ENVIRONMENT_SYSTEM.md) fo
 
 ---
 
-### Priority 2: Extend substanceLoader.js (Optional Advanced Feature)
-**Status:** ✅ COMPLETED (Core element loading + ambient-boiling visual)
+### Priority 2: Filesystem-Based Substance Discovery
+**Status:** 🟡 Partial (Core loading works, catalog file needs removal)
 
-#### 2.1 Add Element Loading
-- ✅ loadElement(elementSymbol) loads from periodic-table/ using symbol-to-filename mapping
+**Architecture Decision:** Substance loader should use **filesystem as catalog** - no hardcoded catalog file needed. System discovers substances by scanning `src/data/substances/` folders, making it infinitely extensible without code changes.
+
+#### 2.1 Remove Hardcoded Catalog (NEXT STEP)
+- ✅ Element loading works via filesystem scanning (001_H_nonmetal.json → 118_Og_nonmetal.json)
+- ✅ Compound loading works via explicit paths (compounds/pure/, compounds/solutions/)
+- [ ] **Remove substanceCatalog.js** - replace with filesystem discovery functions
+- [ ] **Add getAvailableElements()** - scans periodic-table/ for XXX_Symbol_Category.json files
+- [ ] **Add getAvailableCompounds()** - scans compounds/ subfolders for info.json files
+- [ ] **Add getSubstanceMetadata(id)** - extracts display name, color, states from JSON without full load
+- [ ] Update UI dropdowns to use filesystem discovery instead of catalog
+
+#### 2.2 Filesystem Discovery Functions (NEW)
+- [ ] `scanPeriodicTable()` → returns array of { symbol, atomicNumber, category, filePath }
+- [ ] `scanCompounds(subfolder)` → returns array of { id, displayName, category, filePath }
+- [ ] `getSubstanceColor(id, phase)` → extracts color from JSON for visuals (cached)
+- [ ] Add file caching to avoid repeated reads (performance optimization)
+
+#### 2.3 Core Loading (COMPLETED)
+- ✅ loadElement(elementSymbol) loads from periodic-table/ using filename pattern
+- ✅ loadCompound(compoundId) loads info.json from compounds/ paths
 - ✅ Element detection via `/^[A-Z][a-z]?$/` regex in loadSubstance()
-- ✅ 8 initial elements mapped (H, He, N, O, F, Ne, Cl, Ar) - expandable to all 118
-- ✅ Creates phaseState wrapper from nist/iupac data for parser compatibility
-- [ ] Add caching to avoid re-reading (performance optimization, low priority)
-
-#### 2.2 Add Compound Assembly Logic
-- ✅ loadCompound(compoundId) loads info.json (via explicit mapping in catalog)
-- [ ] Calls loadElement() for each element; validates SMILES string (future enhancement)
-- [ ] Add composition validation (future enhancement)
-
-#### 2.3 Add Phase-Specific Property Assembly
-- ✅ loadSubstance(compoundId, phase) loads phase state file and merges
-- ✅ Element parsing extracts from nist/iupac objects (boilingPoint, meltingPoint, atomicMass, etc.)
+- ✅ Element parsing extracts from nist/iupac objects (boilingPoint, meltingPoint, etc.)
+- ✅ Compound parsing merges info.json + phase/state.json
 - ✅ Returns physics-ready format with isElement flag, atomicNumber, educational notes
-- [ ] Add loadSubstancePhase() alias (optional)
 
-#### 2.4 Update Validation Schema
-- [ ] Extend validateSubstanceData() for new thermodynamic fields (optional)
-- [ ] Make electronegativity, entropy, Antoine coeff optional (optional)
+#### 2.4 Visual Integration (COMPLETED)
+- ✅ Ambient-boiling visual: Detects substances with boilingPoint ≤ 20°C (room temp)
+- ✅ Upward steam effect: Shows colored gas rising for elements like H, O, N
+- ✅ CSS animation: Steam rises upward with fade and blur effects (2s loop)
+- ✅ Antoine vapor-pressure solver: ±0.5°C accuracy for boiling point calculations
 
-#### 2.5 Integrate with Physics Engine & Visuals
-- ✅ Ensure compatibility with existing fluidProps object
-- ✅ Update GameScene to use loadSubstance()/parseSubstanceProperties()
-- ✅ **Ambient-boiling visual:** Detects substances with boilingPoint ≤ 20°C (room temp)
-- ✅ **Upward steam effect:** Shows colored gas rising instead of water stream for elements like H, O, N
-- ✅ **Element-specific colors:** Uses color from catalog (H: pale blue, O: light blue, N: gray-blue)
-- ✅ **CSS animation:** Steam rises upward with fade and blur effects (2s loop)
-- ✅ **CRITICAL: Implemented Antoine vapor-pressure solver** (coefficients present in all phase JSON files; calculateBoilingPoint() now uses Antoine equation with ±0.5°C accuracy)
-- ✅ Test phase transitions with proper data (build succeeds, ready for runtime testing)
-- [x] Ensure compatibility with existing fluidProps object
-- [x] Update GameScene to use loadSubstance()/parseSubstanceProperties()
-- [ ] **CRITICAL: Implement Antoine vapor-pressure solver** (coefficients present in all phase JSON files but NOT used in calculateBoilingPoint()—still uses linear model)
-- [x] Test phase transitions with proper data
+#### 2.5 Future Enhancements
+- [ ] Calls loadElement() for each element in compound; validates SMILES string
+- [ ] Add composition validation for compounds
+- [ ] Extend validation schema for new thermodynamic fields
 
 ---
 
