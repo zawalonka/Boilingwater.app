@@ -50,6 +50,7 @@
     "TmaxC": 56,
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
+    "source": "NIST Chemistry WebBook (Ambrose, Sprake, et al., 1974). Experimental vapor pressure from 259.16 to 507.60 K.",
     "note": "Very high vapor pressure at room temperature; this is why acetone evaporates so quickly"
   },
   "viscosity": {

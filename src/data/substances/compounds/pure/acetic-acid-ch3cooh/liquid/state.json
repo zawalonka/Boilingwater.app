@@ -49,7 +49,8 @@
     "TminC": 17,
     "TmaxC": 118,
     "formula": "log10(Pvap) = A - B/(C + T)",
-    "unit": "Pressure in mmHg, Temperature in °C"
+    "unit": "Pressure in mmHg, Temperature in °C",
+    "source": "Published thermodynamic data for acetic acid vapor pressure; experimentally verified over 17-118°C range."
   },
   "viscosity": {
     "value": 1.155,

@@ -34,14 +34,15 @@
     "note": "Slightly less compressible than pure water due to dissolved ions"
   },
   "antoineCoefficients": {
-    "A": 8.08386,
-    "B": 1750.286,
-    "C": 235.0,
+    "A": 8.07131,
+    "B": 1730.63,
+    "C": 233.426,
     "TminC": 0,
-    "TmaxC": 110,
+    "TmaxC": 100,
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
-    "note": "Modified Antoine curve; salt **lowers** vapor pressure (Raoult's Law). Boiling point elevated by ~0.16°C at 3% concentration."
+    "source": "Based on pure water coefficients from NIST Chemistry WebBook (Bridgeman and Aldrich, 1964). Boiling point elevation (declared as 0.16°C in info.json) is a colligative property of the 3% NaCl solution and is accurately modeled by the declared boilingPointElevation field rather than by separate Antoine coefficients.",
+    "note": "Uses pure water's experimentally-verified Antoine equation. Salt **lowers** vapor pressure (Raoult's Law). Boiling point at sea level: 100.16°C (100°C water + 0.16°C elevation from dissolved salt)."
   },
   "ionicStrength": {
     "value": 0.513,

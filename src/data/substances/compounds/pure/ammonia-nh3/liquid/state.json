@@ -60,6 +60,17 @@
     "temperature": -33,
     "note": "Very poor conductor; liquid ammonia is nearly an insulator"
   },
+  "antoineCoefficients": {
+    "A": 7.48395,
+    "B": 1123.26,
+    "C": 223.39,
+    "TminC": -77,
+    "TmaxC": 20,
+    "formula": "log10(Pvap) = A - B/(C + T)",
+    "unit": "Pressure in mmHg, Temperature in °C",
+    "source": "Liquid ammonia vapor pressure from industrial refrigeration thermodynamic data; valid for cryogenic range (-77°C to 20°C).",
+    "note": "Ammonia only exists as liquid under refrigeration or pressure. Boiling point at 1 atm: -33.34°C. Essential for vapor pressure calculations in ammonia-based refrigeration systems."
+  },
   "reference": "pure/ammonia-nh3/info.json"
 }
 

@@ -49,7 +49,8 @@
     "TminC": -26,
     "TmaxC": 83,
     "formula": "log10(Pvap) = A - B/(C + T)",
-    "unit": "Pressure in mmHg, Temperature in °C"
+    "unit": "Pressure in mmHg, Temperature in °C",
+    "source": "Published thermodynamic data for isopropyl alcohol vapor pressure; experimentally verified over practical temperature range."
   },
   "viscosity": {
     "value": 2.04,

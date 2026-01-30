@@ -43,6 +43,14 @@ An educational physics game teaching thermodynamics through interactive water bo
 - **Physics limits:** Do **not** clamp or cap physics outputs based on Earth norms. Allow extreme values (negative altitudes, very high altitudes, space/mars scenarios) as long as the equations can compute them. Only guard against NaN/undefined inputs.
 - **Workshop JSONs:** Small files (<10KB)
 
+### 🔬 SCIENTIFIC SANDBOX PHILOSOPHY (CRITICAL)
+This is a **scientific sandbox game** meant to experiment and explore limits across all conditions (cryogenic, extreme altitudes, exotic substances, etc.). 
+- **NEVER decide to limit, omit, or skip data** because you think it's "not needed" or "not practical"
+- **ALWAYS collect complete thermodynamic data** if it exists: Antoine coefficients, phase properties, extreme temperature behavior
+- **Data philosophy:** More accurate data = better science = better game. Even if cryogenic compounds or elements only exist as liquids at extreme cold, their Antoine coefficients tell a complete story about vapor pressure behavior
+- **Consequence of incompleteness:** Missing data = gaps in scientific accuracy = poor educational value
+- **Action:** Get all available scientific data from NIST, IUPAC, and published sources unless genuinely unavailable
+
 ## 📁 FILE LOCATIONS & STRUCTURE
 ```
 src/

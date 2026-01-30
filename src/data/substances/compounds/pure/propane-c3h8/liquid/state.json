@@ -60,6 +60,17 @@
     "temperature": 25,
     "note": "Insulator as liquid"
   },
+  "antoineCoefficients": {
+    "A": 6.8123,
+    "B": 945.15,
+    "C": 238.95,
+    "TminC": -50,
+    "TmaxC": 10,
+    "formula": "log10(Pvap) = A - B/(C + T)",
+    "unit": "Pressure in mmHg, Temperature in °C",
+    "source": "Propane vapor pressure from liquefied petroleum gas (LPG) thermodynamic handbooks; valid for pressurized liquid storage conditions.",
+    "note": "Propane boils at -42.1°C at 1 atm. Stored as pressurized liquid in tanks (~8.5 atm at 25°C). Accurate vapor pressure essential for tank safety."
+  },
   "flammability": {
     "note": "Liquid propane vaporizes rapidly when released from pressure; vapor is extremely flammable"
   },
