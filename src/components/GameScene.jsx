@@ -199,7 +199,10 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   // Editable altitude input for different-fluids experiment
   const [editableAltitude, setEditableAltitude] = useState(null)
   // Track if user has confirmed any location/altitude to avoid reopening popup
-  const [hasSetLocation, setHasSetLocation] = useState(false)
+  // Initialize based on whether location prop already has data
+  const [hasSetLocation, setHasSetLocation] = useState(
+    () => Boolean(location?.altitude !== 0 || location?.name)
+  )
 
   // Is location lookup currently in progress?
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
@@ -208,7 +211,8 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   const [locationError, setLocationError] = useState(null)
 
   // User's entered location display name (e.g., "Denver, USA")
-  const [locationName, setLocationName] = useState(null)
+  // Initialize from location prop if available
+  const [locationName, setLocationName] = useState(() => location?.name || null)
   const [showLocationPopup, setShowLocationPopup] = useState(false)
 
   // ============================================================================
@@ -841,7 +845,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
       setHasSetLocation(true)
       setShowLocationPopup(false)  // Close popup after selection
     } catch (error) {
-      setLocationError(error.message || 'Location not found. Try a city name like "Denver" or "Tokyo"')
+      setLocationError(error.message || 'Location not found. Try a city, landmark, or geographic feature.')
       console.error('Location search error:', error)
     } finally {
       setIsLoadingLocation(false)
@@ -854,8 +858,9 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   const handleSetManualAltitude = () => {
     const altitudeNum = parseFloat(manualAltitude)
     
-    if (isNaN(altitudeNum) || altitudeNum < 0) {
-      setLocationError('Please enter a valid altitude in meters')
+    // Allow any number (negative for below sea level: Death Valley -86m, Dead Sea -430m)
+    if (isNaN(altitudeNum)) {
+      setLocationError('Please enter a valid altitude in meters (negative for below sea level)')
       return
     }
 

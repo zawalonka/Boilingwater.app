@@ -34,6 +34,8 @@
     "C": 240.17,
     "TminC": -68,
     "TmaxC": -33,
+    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated (smooth curve continues, but accuracy may degrade).",
+    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: The Antoine coefficients were experimentally validated up to this temperature. Calculations above this are extrapolated (smooth curve continues, but accuracy may degrade).",
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
     "note": "High vapor pressure; easily vaporizes"

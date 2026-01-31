@@ -4,7 +4,7 @@
   "name": "Ammonia",
   "aliases": ["Ammonium Hydroxide (aqueous)", "NH3", "Azane"],
   "chemicalFormula": "NH₃",
-  "explicitSmiles": "N",
+  "explicitSmiles": "[NH3]",
   "molarMass": 17.03,
   "deltaHf": -45.94,
   "deltaGf": -16.45,

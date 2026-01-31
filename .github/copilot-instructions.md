@@ -43,6 +43,36 @@ An educational physics game teaching thermodynamics through interactive water bo
 - **Physics limits:** Do **not** clamp or cap physics outputs based on Earth norms. Allow extreme values (negative altitudes, very high altitudes, space/mars scenarios) as long as the equations can compute them. Only guard against NaN/undefined inputs.
 - **Workshop JSONs:** Small files (<10KB)
 
+### ⚠️ PHYSICS REGRESSION GUARDRAILS (MANDATORY)
+Before modifying ANY physics code, verify these rules:
+
+1. **No artificial clamps without physics justification**
+   - ❌ `Math.min(temperature, 100)` — arbitrary Earth-centric cap
+   - ❌ `if (altitude > 10000) altitude = 10000` — arbitrary limit
+   - ✅ `if (isNaN(value)) return fallback` — guards against invalid math
+   - ✅ Clamp only when physics equation breaks down (document why)
+
+2. **No static values for temperature-dependent properties**
+   - ❌ `const Kb = 0.512` — static ebullioscopic constant
+   - ❌ `const boilingElevation = 0.515` — pre-computed at 100°C only
+   - ✅ `calculateDynamicKb(boilingTempK, solventProps)` — calculated at runtime
+   - ✅ Properties that vary with T must be functions, not constants
+
+3. **Dynamic calculation preferred over pre-computed constants**
+   - ❌ Lookup tables with interpolation (loses precision at extremes)
+   - ✅ Direct equation evaluation (Antoine, Clausius-Clapeyron, ISA)
+   - ✅ Return metadata: `{ value, isExtrapolated, validRange }`
+
+4. **TminC/TmaxC are empirical range markers, NOT hard limits**
+   - These indicate where Antoine coefficients were experimentally verified
+   - Outside this range: accuracy degrades gradually (not a cliff)
+   - Return `isExtrapolated: true` but still compute the value
+
+**If you find yourself adding a clamp or static value, STOP and ask:**
+- Is there a physics equation that handles this case?
+- Can I compute this dynamically instead?
+- Am I limiting the scientific sandbox unnecessarily?
+
 ### 🔬 SCIENTIFIC SANDBOX PHILOSOPHY (CRITICAL)
 This is a **scientific sandbox game** meant to experiment and explore limits across all conditions (cryogenic, extreme altitudes, exotic substances, etc.). 
 - **NEVER decide to limit, omit, or skip data** because you think it's "not needed" or "not practical"

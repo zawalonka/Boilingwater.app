@@ -34,17 +34,50 @@
     "note": "Slightly less compressible than pure water due to dissolved ions"
   },
   "antoineCoefficients": {
-    "A": 8.07131,
-    "B": 1730.63,
-    "C": 233.426,
-    "TminC": 0,
-    "TmaxC": 100,
-    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated (smooth curve continues, but accuracy may degrade).",
-    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: The Antoine coefficients were experimentally validated up to this temperature. Calculations above this are extrapolated (smooth curve continues, but accuracy may degrade). For saltwater, the actual boiling point (~100.515°C) is slightly above this due to colligative elevation.",
+    "sets": [
+      {
+        "name": "low-temp",
+        "A": 8.07131,
+        "B": 1730.63,
+        "C": 233.426,
+        "TminC": 1,
+        "TmaxC": 100,
+        "source": "Pure water coefficients from NIST Chemistry WebBook (Bridgeman and Aldrich, 1964)",
+        "note": "Standard range for ambient/boiling conditions. Use this set for T ≤ 100°C."
+      },
+      {
+        "name": "high-temp",
+        "A": 8.14019,
+        "B": 1810.94,
+        "C": 244.485,
+        "TminC": 99,
+        "TmaxC": 374,
+        "source": "Pure water coefficients from Stull, 1947. Valid for pressurized liquid water up to critical point.",
+        "note": "High-temperature/high-pressure range. Use this set for T > 100°C. Requires pressurized system to keep water liquid above 100°C."
+      }
+    ],
+    "TminC": 1,
+    "TmaxC": 374,
+    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The base water Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated.",
+    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: 374°C is water's critical point — above this, liquid water cannot exist at any pressure. For solutions, this is the theoretical upper limit.",
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
-    "source": "Based on pure water coefficients from NIST Chemistry WebBook (Bridgeman and Aldrich, 1964). Boiling point elevation (declared as 0.515°C in info.json) is calculated using the van't Hoff factor for electrolytes: ΔTb = i·Kb·m = 1.9 × 0.512 °C/m × 0.5291 m ≈ 0.5147°C. Precise NaCl molar mass: 58.443 g/mol",
-    "note": "Uses pure water's experimentally-verified Antoine equation. Salt lowers vapor pressure (Raoult's Law) and increases boiling point via colligative property (van't Hoff factor i=1.9 for NaCl). Boiling point at sea level: 100.515°C (100°C water + 0.515°C elevation from dissolved salt). TminC/TmaxC define the VERIFIED range, not hard limits — the equation works outside this range but with reduced accuracy."
+    "source": "Based on pure water coefficients. Boiling point elevation calculated dynamically using van't Hoff factor: ΔTb = i·Kb·m. For 3% NaCl: i=1.9, m=0.5291 mol/kg, Kb calculated at runtime from Clausius-Clapeyron.",
+    "note": "Uses pure water's Antoine equation as base. Salt lowers vapor pressure (Raoult's Law) and increases boiling point via colligative property. The boiling point elevation (Kb) is calculated dynamically at the actual boiling temperature, not fixed at 0.512 °C·kg/mol."
+  },
+  "boilingPointElevationCorrelation": {
+    "method": "MIT Seawater Library (Nayar et al., 2016; Sharqawy et al., 2010)",
+    "validRange": {
+      "temperatureC": [0, 200],
+      "salinityGperKg": [0, 120]
+    },
+    "extendedRange": {
+      "temperatureC": [200, 374],
+      "note": "Extrapolated beyond 200°C. Colligative effect diminishes relative to pressure effects at extreme temperatures. Returns isExtrapolated: true."
+    },
+    "source": "https://web.mit.edu/seawater/",
+    "citation": "Nayar, K.G., Sharqawy, M.H., Banchik, L.D., and Lienhard, J.H. V, 'Thermophysical properties of seawater: A review and new correlations that include pressure dependence,' Desalination, Vol. 390, pp.1-24, 2016.",
+    "note": "For temperatures above 200°C, the BPE correlation is extrapolated. The simulation will flag this with a warning but continue to compute values."
   },
   "ionicStrength": {
     "value": 0.513,

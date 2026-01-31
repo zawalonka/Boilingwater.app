@@ -4,7 +4,7 @@
   "name": "Acetic Acid",
   "aliases": ["Ethanoic Acid", "Vinegar (dilute solution)", "Glacial Acetic Acid (pure)"],
   "chemicalFormula": "CH₃COOH",
-  "explicitSmiles": "CC(=O)O",
+  "explicitSmiles": "[CH3]C(=O)[OH]",
   "molarMass": 60.052,
   "deltaHf": -484.5,
   "deltaGf": -389.9,

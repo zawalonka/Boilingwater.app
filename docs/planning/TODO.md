@@ -14,31 +14,27 @@
 - [ ] Verify saltwater boiling at correct temperature (100.51°C at sea level, ~66.7°C at 10km)
 - [ ] Test experiment-specific popups (L1E1-Tutorial, L1E2-Altitude, L1E3-Different Fluids)
 
-### Add Antoine TminC/TmaxC Notes to Remaining JSON Files
-**Priority:** Low (delegate to less expensive AI)  
-**Template:** See `src/data/substances/compounds/pure/water-h2o/liquid/state.json` for example  
-**Completed:** water-h2o, saltwater-3pct-nacl  
-**Remaining files to update:**
-- [ ] `compounds/pure/ethanol-c2h5oh/liquid/state.json`
-- [ ] `compounds/pure/acetone-c3h6o/liquid/state.json`
-- [ ] `compounds/pure/ammonia-nh3/liquid/state.json`
-- [ ] `compounds/pure/ammonia-nh3/gas/state.json`
-- [ ] `compounds/pure/methane-ch4/liquid/state.json`
-- [ ] `compounds/pure/methane-ch4/gas/state.json`
-- [ ] `compounds/pure/propane-c3h8/liquid/state.json`
-- [ ] `compounds/pure/propane-c3h8/gas/state.json`
-- [ ] `compounds/pure/glycerin-c3h8o3/liquid/state.json`
-- [ ] `compounds/pure/isopropyl-alcohol-c3h8o/liquid/state.json`
-- [ ] `compounds/pure/hydrogen-peroxide-h2o2/liquid/state.json`
-- [ ] `compounds/pure/acetic-acid-ch3cooh/liquid/state.json`
+### ~~Add Antoine TminC/TmaxC Notes to Remaining JSON Files~~ ✅ DONE
+Added `TminC_note` and `TmaxC_note` fields to all remaining Antoine coefficient blocks in:
+- `compounds/pure/ethanol-c2h5oh/liquid/state.json`
+- `compounds/pure/acetone-c3h6o/liquid/state.json`
+- `compounds/pure/ammonia-nh3/liquid/state.json`
+- `compounds/pure/ammonia-nh3/gas/state.json`
+- `compounds/pure/methane-ch4/liquid/state.json`
+- `compounds/pure/methane-ch4/gas/state.json`
+- `compounds/pure/propane-c3h8/liquid/state.json`
+- `compounds/pure/propane-c3h8/gas/state.json`
+- `compounds/pure/glycerin-c3h8o3/liquid/state.json`
+- `compounds/pure/isopropyl-alcohol-c3h8o/liquid/state.json`
+- `compounds/pure/hydrogen-peroxide-h2o2/liquid/state.json`
+- `compounds/pure/acetic-acid-ch3cooh/liquid/state.json`
 
-**What to add:** Add `TminC_note` and `TmaxC_note` fields explaining that these are empirically verified range boundaries, not hard limits.
-
-### Add Regression Guardrails
-- [ ] Add physics guardrail checklist to DEVELOPMENT.md
-  - No artificial clamps without physics justification
-  - No static values for temperature-dependent properties
-  - Dynamic calculation preferred over pre-computed constants
+### ~~Add Regression Guardrails~~ ✅ DONE
+Added to copilot-instructions.md:
+- No artificial clamps without physics justification
+- No static values for temperature-dependent properties
+- Dynamic calculation preferred over pre-computed constants
+- TminC/TmaxC are range markers, not limits
 
 ---
 

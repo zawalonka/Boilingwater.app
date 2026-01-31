@@ -7,7 +7,7 @@
     "Hydrogen Oxide"
   ],
   "chemicalFormula": "H₂O",
-  "explicitSmiles": "O",
+  "explicitSmiles": "[H]O[H]",
   "molarMass": 18.015,
   "deltaHf": -285.83,
   "deltaGf": -237.13,

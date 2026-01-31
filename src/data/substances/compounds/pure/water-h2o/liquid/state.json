@@ -33,17 +33,37 @@
     "note": "How much density changes under pressure (use for high-altitude inverse)"
   },
   "antoineCoefficients": {
+    "sets": [
+      {
+        "name": "low-temperature",
+        "A": 8.07131,
+        "B": 1730.63,
+        "C": 233.426,
+        "TminC": 1,
+        "TmaxC": 100,
+        "source": "NIST (Bridgeman and Aldrich, 1964)"
+      },
+      {
+        "name": "high-temperature",
+        "A": 8.14019,
+        "B": 1810.94,
+        "C": 244.485,
+        "TminC": 99,
+        "TmaxC": 374,
+        "source": "NIST (Stull, 1947)"
+      }
+    ],
     "A": 8.07131,
     "B": 1730.63,
     "C": 233.426,
     "TminC": 1,
-    "TmaxC": 100,
-    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated (smooth curve continues, but accuracy may degrade).",
-    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: The Antoine coefficients were experimentally validated up to this temperature. Calculations above this are extrapolated (smooth curve continues, but accuracy may degrade).",
+    "TmaxC": 374,
+    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: Below 1°C, water freezes at standard pressure. The low-temperature set (1-100°C) is used.",
+    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: 374°C is water's critical point (liquid/gas distinction vanishes). The high-temperature set (99-374°C) covers above-boiling conditions.",
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
-    "source": "NIST Chemistry WebBook (Bridgeman and Aldrich, 1964). Coefficients calculated by NIST from author's experimental data.",
-    "note": "Predicts vapor pressure of liquid water (used for boiling at altitude). TminC/TmaxC define the VERIFIED range, not hard limits — the equation works outside this range but with reduced accuracy."
+    "source": "NIST Chemistry WebBook - two coefficient sets covering 1-374°C",
+    "note": "Two overlapping sets provide full liquid range. Default coefficients are for common use (1-100°C). Physics engine should select appropriate set based on expected temperature range."
   },
   "electricalConductivity": {
     "value": 0.00055,

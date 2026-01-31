@@ -4,7 +4,7 @@
   "name": "Isopropyl Alcohol",
   "aliases": ["2-Propanol", "Isopropanol", "Rubbing Alcohol", "IPA"],
   "chemicalFormula": "C₃H₈O",
-  "explicitSmiles": "CC(C)O",
+  "explicitSmiles": "[CH3][CH](OH)[CH3]",
   "molarMass": 60.096,
   "deltaHf": -318.1,
   "deltaGf": -173.6,

@@ -48,6 +48,8 @@
     "C": 178.5,
     "TminC": 150,
     "TmaxC": 290,
+    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated (smooth curve continues, but accuracy may degrade).",
+    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: The Antoine coefficients were experimentally validated up to this temperature. Calculations above this are extrapolated (smooth curve continues, but accuracy may degrade).",
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
     "source": "Published thermodynamic data for glycerin; valid at high temperatures (150-290°C) where vapor pressure becomes measurable.",

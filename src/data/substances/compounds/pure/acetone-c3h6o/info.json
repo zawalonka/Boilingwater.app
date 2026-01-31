@@ -4,7 +4,7 @@
   "name": "Acetone",
   "aliases": ["Propanone", "Dimethyl Ketone", "2-Propanone"],
   "chemicalFormula": "C₃H₆O",
-  "explicitSmiles": "CC(=O)C",
+  "explicitSmiles": "[CH3]C(=O)[CH3]",
   "molarMass": 58.08,
   "deltaHf": -248.4,
   "deltaGf": -155.4,

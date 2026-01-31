@@ -4,7 +4,7 @@
   "name": "Methane",
   "aliases": ["Natural Gas (primary component)", "Marsh Gas", "CH₄"],
   "chemicalFormula": "CH₄",
-  "explicitSmiles": "C",
+  "explicitSmiles": "[CH4]",
   "molarMass": 16.043,
   "deltaHf": -74.87,
   "deltaGf": -50.72,

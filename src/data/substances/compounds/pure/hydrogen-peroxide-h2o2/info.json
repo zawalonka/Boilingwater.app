@@ -4,7 +4,7 @@
   "name": "Hydrogen Peroxide",
   "aliases": ["Peroxide", "Dihydrogen Dioxide", "Oxidanyl"],
   "chemicalFormula": "H₂O₂",
-  "explicitSmiles": "OO",
+  "explicitSmiles": "[HO][OH]",
   "molarMass": 34.0147,
   "deltaHf": -187.78,
   "deltaGf": -120.35,

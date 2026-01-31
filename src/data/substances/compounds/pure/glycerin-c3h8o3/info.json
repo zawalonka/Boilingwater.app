@@ -4,7 +4,7 @@
   "name": "Glycerin",
   "aliases": ["Glycerol", "1,2,3-Propanetriol", "Glycerine"],
   "chemicalFormula": "C₃H₈O₃",
-  "explicitSmiles": "OCC(O)CO",
+  "explicitSmiles": "[HO][CH2][CH](OH)[CH2][OH]",
   "molarMass": 92.094,
   "deltaHf": -669.6,
   "deltaGf": -477.4,

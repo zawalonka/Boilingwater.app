@@ -48,6 +48,8 @@
     "C": 229.664,
     "TminC": -9,
     "TmaxC": 56,
+    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated (smooth curve continues, but accuracy may degrade).",
+    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: The Antoine coefficients were experimentally validated up to this temperature. Calculations above this are extrapolated (smooth curve continues, but accuracy may degrade).",
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
     "source": "NIST Chemistry WebBook (Ambrose, Sprake, et al., 1974). Experimental vapor pressure from 259.16 to 507.60 K.",

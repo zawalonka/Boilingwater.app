@@ -351,6 +351,14 @@ function ControlPanel({
       */}
       {showLocationPopup && isLocationPopupAllowed && (
         <div className="location-panel">
+          {/* Loading overlay */}
+          {isLoadingLocation && (
+            <div className="location-loading-overlay">
+              <div className="location-loading-spinner">⏳</div>
+              <div className="location-loading-text">Determining altitude from location...</div>
+            </div>
+          )}
+          
           <h3>📍 Set Your Location</h3>
           <p className="location-subtitle">
             Notice how the boiling point changes with altitude? Enter your location or altitude to test.
@@ -368,7 +376,7 @@ function ControlPanel({
             <div className="location-inputs">
               <input
                 type="text"
-                placeholder="Enter city, landmark, or region (e.g., Denver, Tokyo, Sydney)"
+                placeholder="City, landmark, or place (Death Valley, Mt Everest, Tokyo)"
                 value={userZipCode}
                 onChange={(e) => {
                   setUserZipCode(e.target.value)
@@ -396,7 +404,7 @@ function ControlPanel({
             <div className="altitude-inputs">
               <input
                 type="number"
-                placeholder="Meters above sea level (0-10000)"
+                placeholder="Meters (negative = below sea level)"
                 value={manualAltitude}
                 onChange={(e) => {
                   setManualAltitude(e.target.value)
@@ -405,8 +413,6 @@ function ControlPanel({
                 onKeyPress={(e) => e.key === 'Enter' && handleSetManualAltitude()}
                 disabled={isLoadingLocation}
                 className="altitude-input"
-                min="0"
-                max="10000"
               />
               <button
                 onClick={handleSetManualAltitude}

@@ -47,7 +47,7 @@ export const searchLocation = async (locationName) => {
     const data = await response.json();
 
     if (data.length === 0) {
-      throw new Error(`Location not found: "${locationName}". Try a city name, landmark, or region.`);
+      throw new Error(`Location not found: "${locationName}". Try a city, landmark, mountain, or geographic feature.`);
     }
 
     // Return best match (first result is usually most relevant)

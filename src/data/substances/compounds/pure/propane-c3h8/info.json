@@ -4,7 +4,7 @@
   "name": "Propane",
   "aliases": ["LPG (Liquefied Petroleum Gas)", "C₃H₈", "Bottled Gas"],
   "chemicalFormula": "C₃H₈",
-  "explicitSmiles": "CCC",
+  "explicitSmiles": "[CH3][CH2][CH3]",
   "molarMass": 44.097,
   "deltaHf": -103.85,
   "deltaGf": -23.4,

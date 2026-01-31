@@ -4,7 +4,7 @@
   "name": "Ethanol",
   "aliases": ["Ethyl Alcohol", "Grain Alcohol", "Drinking Alcohol", "EtOH"],
   "chemicalFormula": "C₂H₅OH",
-  "explicitSmiles": "CCO",
+  "explicitSmiles": "[CH3][CH2][OH]",
   "molarMass": 46.07,
   "deltaHf": -277.69,
   "deltaGf": -174.78,
