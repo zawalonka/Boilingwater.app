@@ -14,7 +14,6 @@
 
 import { useState } from 'react'
 import '../styles/Header.css'
-import { getDefaultTemperatureUnit } from '../utils/unitUtils'
 import { EXPERIMENTS } from '../constants/workshops'
 
 /**
@@ -66,12 +65,6 @@ function Header({
    */
   const [menuOpen, setMenuOpen] = useState(false)
 
-  /**
-   * Temperature unit preference (C or F)
-   * Starts with default based on browser locale
-   */
-  const [temperatureUnit, setTemperatureUnit] = useState(getDefaultTemperatureUnit())
-
   // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
@@ -113,10 +106,7 @@ function Header({
     onLevelChange?.(next)
   }
 
-  // Temperature unit toggle
-  const handleTemperatureUnitChange = () => {
-    setTemperatureUnit(prev => prev === 'C' ? 'F' : 'C')
-  }  // ============================================================================
+  // ============================================================================
   // RENDER
   // ============================================================================
 
@@ -207,13 +197,13 @@ function Header({
               <span className="level-note">⚠️ Resets game</span>
             </div>
 
-            {/* Temperature unit toggle */}
+            {/* Reset level button */}
             <button 
-              className="unit-toggle-button"
-              onClick={handleTemperatureUnitChange}
-              title={`Switch to ${temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius'}`}
+              className="reset-level-button"
+              onClick={handleReload}
+              title="Reset current level to starting state"
             >
-              🌡️ {temperatureUnit === 'C' ? '°C' : '°F'}
+              🔄 Reset
             </button>
           </>
         )}

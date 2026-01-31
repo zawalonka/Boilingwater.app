@@ -299,9 +299,9 @@
 }
 
 /* ========================================================================
-   TEMPERATURE UNIT TOGGLE
+   RESET LEVEL BUTTON
    ======================================================================== */
-.unit-toggle-button {
+.reset-level-button {
   background: var(--workshop-button-primary, #4CAF50);
   color: white;
   border: none;
@@ -315,13 +315,13 @@
   margin-left: auto;  /* Push to right side */
 }
 
-.unit-toggle-button:hover {
+.reset-level-button:hover {
   background: var(--workshop-button-hover, #45a049);
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.unit-toggle-button:active {
+.reset-level-button:active {
   transform: translateY(0);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
