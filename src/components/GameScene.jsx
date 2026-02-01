@@ -583,13 +583,16 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
               specificHeatJgC: fluidProps.specificHeat || 4.186,     // J/(g·°C)
               surfaceAreaM2: estimatePotSurfaceArea(0.2),            // 20cm pot
               partialPressurePa: partialPressure,
-              alpha: getEvaporationCoefficient(activeFluid),
+              alpha: getEvaporationCoefficient(activeFluid, fluidProps?.chemicalFormula),
               deltaTimeS: deltaTime
             })
             
             // Apply evaporative cooling (can cool below ambient!)
+            // IMPORTANT: Apply to newState.temperature (from heating sim), not prev!
             if (evapResult.massEvaporatedKg > 1e-9) {
-              setTemperature(prev => prev + evapResult.tempChangeC)
+              // Combine heating result + evaporative cooling
+              const finalTemp = newState.temperature + evapResult.tempChangeC
+              setTemperature(finalTemp)
               setWaterInPot(evapResult.newMassKg)
               
               // Add vapor to room air composition (pass formula for atmosphere key)
@@ -597,7 +600,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
               
               // Debug: Log significant evaporation events
               if (evapResult.massEvaporatedKg > 1e-6) {
-                console.log(`💨 Pre-boil evap: ${(evapResult.massEvaporatedKg * 1000).toFixed(3)}g, cooling: ${evapResult.tempChangeC.toFixed(3)}°C`)
+                console.log(`💨 Pre-boil evap: ${(evapResult.massEvaporatedKg * 1000).toFixed(3)}g, cooling: ${evapResult.tempChangeC.toFixed(3)}°C, final: ${finalTemp.toFixed(2)}°C`)
               }
             }
           }

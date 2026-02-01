@@ -257,11 +257,41 @@ export function simulateEvaporationStep({
 }
 
 /**
+ * Normalize chemical formula for lookup
+ * Converts Unicode subscripts to ASCII digits (H₂O → H2O)
+ * 
+ * @param {string} formula - Chemical formula (may have Unicode subscripts)
+ * @returns {string} Normalized formula with ASCII digits
+ */
+function normalizeFormula(formula) {
+  if (!formula) return null
+  const subscriptMap = {
+    '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4',
+    '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9'
+  }
+  return formula.replace(/[₀-₉]/g, char => subscriptMap[char] || char)
+}
+
+/**
  * Get evaporation coefficient for a substance
  * 
- * @param {string} substanceId - Substance identifier
+ * @param {string} substanceId - Substance identifier (e.g., 'ethanol')
+ * @param {string} chemicalFormula - Chemical formula (e.g., 'C₂H₅OH')
  * @returns {number} Evaporation coefficient (0-1)
  */
-export function getEvaporationCoefficient(substanceId) {
-  return EVAPORATION_COEFFICIENTS[substanceId] || EVAPORATION_COEFFICIENTS.default
+export function getEvaporationCoefficient(substanceId, chemicalFormula = null) {
+  // First try normalized chemical formula (most accurate)
+  if (chemicalFormula) {
+    const normalizedFormula = normalizeFormula(chemicalFormula)
+    if (EVAPORATION_COEFFICIENTS[normalizedFormula]) {
+      return EVAPORATION_COEFFICIENTS[normalizedFormula]
+    }
+  }
+  
+  // Fallback to substance ID (shouldn't match, but try anyway)
+  if (EVAPORATION_COEFFICIENTS[substanceId]) {
+    return EVAPORATION_COEFFICIENTS[substanceId]
+  }
+  
+  return EVAPORATION_COEFFICIENTS.default
 }
