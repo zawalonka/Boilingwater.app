@@ -4,6 +4,26 @@
 
 An interactive physics and chemistry learning game that teaches through experimentation, starting with the simplest task: boiling water.
 
+---
+
+## ⚠️ AI-Generated Code Warning
+
+**This project is primarily AI-generated code developed collaboratively with GitHub Copilot and Claude.**
+
+**Run at your own risk. Results may vary or be unsafe, even on the same system.** This codebase has not undergone professional security audit. There may be security vulnerabilities, bugs, or unsafe code patterns introduced during AI-assisted development. The developer cannot guarantee the code is safe or functions correctly.
+
+- **Tested Environment:** Windows 11, VS Code, Node.js 18+ (but this does not guarantee safety)
+- **Status:** Pre-Alpha (experimental, unaudited)
+- **Known Risks:**
+  - AI-generated code may contain security flaws
+  - Behavior may be unpredictable across different systems
+  - Even on tested systems, results may vary or fail
+  - No warranty or guarantee of fitness for any purpose
+
+**Use at your own risk. Review all code before execution. Report issues via GitHub Issues.**
+
+---
+
 ## 🎯 Core Vision
 
 Like Kerbal Space Program taught orbital mechanics through play, Boiling Water teaches thermodynamics and chemistry through experimentation. The game uses **real physics equations** and **empirical data**—no "game physics" simplifications.
