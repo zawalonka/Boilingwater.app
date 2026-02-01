@@ -60,6 +60,17 @@ export function useRoomEnvironment(roomConfig, acUnit, airHandler, altitude = 0)
   }, [roomConfig, acUnit, airHandler])
 
   /**
+   * Toggle AC on/off
+   * @param {boolean} enabled - Whether AC is enabled
+   */
+  const setAcEnabled = useCallback((enabled) => {
+    setRoomState(prev => ({
+      ...prev,
+      acEnabled: Boolean(enabled)
+    }))
+  }, [])
+
+  /**
    * Set AC temperature setpoint
    * @param {number} tempC - Target temperature (°C)
    */
@@ -110,6 +121,7 @@ export function useRoomEnvironment(roomConfig, acUnit, airHandler, altitude = 0)
     // Actions
     updateRoom,
     addVapor,
+    setAcEnabled,
     setAcSetpoint,
     setAirHandlerMode,
     resetRoom,

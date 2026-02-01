@@ -179,6 +179,23 @@
   text-align: center;
 }
 
+/* AC Toggle - Same style as air handler toggle */
+.ac-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.ac-toggle.active {
+  background: rgba(33, 150, 243, 0.3);
+  border-color: rgba(33, 150, 243, 0.5);
+}
+
 /* Air Handler Toggle - Simple on/off */
 .air-handler-toggle {
   display: flex;

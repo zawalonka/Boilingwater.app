@@ -302,6 +302,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
     alerts: roomAlerts,
     updateRoom,
     addVapor,
+    setAcEnabled,
     setAcSetpoint,
     setAirHandlerMode,
     resetRoom
@@ -1567,6 +1568,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           availableAirHandlers={roomConfig?.availableAirHandlers}
           selectedAcUnitId={acUnitConfig?.id || roomConfig?.defaults?.acUnit}
           selectedAirHandlerId={airHandlerConfig?.id || roomConfig?.defaults?.airHandler}
+          onAcEnabledChange={setAcEnabled}
           onAcSetpointChange={setAcSetpoint}
           onAirHandlerModeChange={setAirHandlerMode}
           onAcUnitChange={(id) => onEquipmentChange?.('ac-units', id)}

@@ -23,6 +23,7 @@ function RoomControls({
   selectedAcUnitId,
   selectedAirHandlerId,
   // Callbacks
+  onAcEnabledChange,
   onAcSetpointChange,
   onAirHandlerModeChange,
   onAcUnitChange,
@@ -94,32 +95,51 @@ function RoomControls({
         </div>
       )}
 
-      {/* AC Setpoint Controls */}
+      {/* AC On/Off Toggle */}
       <div className="room-control-group">
         <label className="control-label">
-          <span>🎯 AC Setpoint</span>
-          <span className="control-status">{acStatus}</span>
+          <span>❄️ AC Unit</span>
         </label>
-        <div className="ac-setpoint-control">
-          <button 
-            className="setpoint-btn"
-            onClick={() => onAcSetpointChange?.((summary?.acSetpoint ?? 20) - 1)}
-            disabled={!acUnit}
-          >
-            −
-          </button>
-          <span className="setpoint-value">
-            {Math.round(summary?.acSetpoint ?? 20)}°C
+        <div 
+          className={`ac-toggle ${summary?.acEnabled ? 'active' : ''}`}
+          onClick={() => onAcEnabledChange?.(!summary?.acEnabled)}
+          style={{ cursor: acUnit ? 'pointer' : 'not-allowed', opacity: acUnit ? 1 : 0.5 }}
+        >
+          <span className="toggle-label">Climate Control</span>
+          <span className={`toggle-status ${summary?.acEnabled ? 'on' : 'off'}`}>
+            {summary?.acEnabled ? 'ON' : 'OFF'}
           </span>
-          <button 
-            className="setpoint-btn"
-            onClick={() => onAcSetpointChange?.((summary?.acSetpoint ?? 20) + 1)}
-            disabled={!acUnit}
-          >
-            +
-          </button>
         </div>
       </div>
+
+      {/* AC Setpoint Controls (only when AC enabled) */}
+      {summary?.acEnabled && (
+        <div className="room-control-group">
+          <label className="control-label">
+            <span>🎯 AC Setpoint</span>
+            <span className="control-status">{acStatus}</span>
+          </label>
+          <div className="ac-setpoint-control">
+            <button 
+              className="setpoint-btn"
+              onClick={() => onAcSetpointChange?.((summary?.acSetpoint ?? 20) - 1)}
+              disabled={!acUnit}
+            >
+              −
+            </button>
+            <span className="setpoint-value">
+              {Math.round(summary?.acSetpoint ?? 20)}°C
+            </span>
+            <button 
+              className="setpoint-btn"
+              onClick={() => onAcSetpointChange?.((summary?.acSetpoint ?? 20) + 1)}
+              disabled={!acUnit}
+            >
+              +
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Air Handler Selection */}
       {availableAirHandlers?.length > 1 && (

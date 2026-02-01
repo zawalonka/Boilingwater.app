@@ -99,6 +99,7 @@ export function createRoomState(roomConfig, altitude = 0) {
     composition: { ...atmosphere },
     
     // AC state
+    acEnabled: true,  // AC on/off switch
     acSetpoint: room.initialTempC || 20,
     acPidState: createPidState(),
     acHeatOutput: 0,
@@ -382,16 +383,20 @@ export function simulateRoomStep(roomState, acUnit, airHandler, deltaTime, optio
   }
   
   // 2. Apply AC control (effectiveness scales with airflow)
-  // More airflow = faster air exchange = AC works better
-  const airflowEffectiveness = Math.min(1.5, airflow.totalCFM / 150)  // 150 CFM = baseline
-  const acResult = applyAcControl(
-    state.temperature,
-    state.acSetpoint,
-    acUnit,
-    state.acPidState,
-    deltaTime * airflowEffectiveness,  // Effective time step scaled by airflow
-    state.volumeM3
-  )
+  // Skip if AC is disabled
+  let acResult = { newTemp: state.temperature, heatOutput: 0, updatedPidState: state.acPidState }
+  if (state.acEnabled && acUnit) {
+    // More airflow = faster air exchange = AC works better
+    const airflowEffectiveness = Math.min(1.5, airflow.totalCFM / 150)  // 150 CFM = baseline
+    acResult = applyAcControl(
+      state.temperature,
+      state.acSetpoint,
+      acUnit,
+      state.acPidState,
+      deltaTime * airflowEffectiveness,  // Effective time step scaled by airflow
+      state.volumeM3
+    )
+  }
   
   // Track AC energy usage
   const acJoules = Math.abs(acResult.heatOutput) * deltaTime
@@ -499,6 +504,7 @@ export function getRoomSummary(roomState) {
     co2Percent: Math.round((roomState.composition.CO2 || 0) * 100 * 100) / 100,
     alerts: roomState.alerts,
     acStatus: roomState.acHeatOutput,
+    acEnabled: roomState.acEnabled,
     acSetpoint: roomState.acSetpoint,
     airHandlerMode: roomState.airHandlerMode,
     scrubberActivity: roomState.scrubberActivity || 0
