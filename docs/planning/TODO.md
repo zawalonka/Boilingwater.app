@@ -61,16 +61,13 @@
    - [ ] End-of-experiment modal
    - Note: `getExperimentData()` in hook is ready but unused
 
-2. **Pre-Boiling Evaporation (MISSING FEATURE)**
-   - **Gap Found:** Vapor is ONLY tracked when `isBoiling === true`
-   - Volatile substances (acetone, ethanol, ammonia) evaporate at room temp
-   - Physics: Use Antoine equation to calculate partial pressure → evap rate
-   - Formula: `evapRate = f(vaporPressure, surfaceArea, airflow)`
-   - Implementation:
-     - [ ] Add `calculateEvaporationRate(temp, vaporPressure, surfaceArea)` to physics
-     - [ ] Call `addVapor()` every timestep when pot has liquid (not just boiling)
-     - [ ] Vapor amount = evapRate × deltaTime
-   - Affects: L1E4 scorecard, exposure tracking, safety lessons
+2. **Pre-Boiling Evaporation ✅ COMPLETE**
+   - [x] Hertz-Knudsen equation implemented in `evaporation.js`
+   - [x] Evaporative cooling (can cool below ambient!)
+   - [x] Empirical α coefficients: Water 0.04, Acetone 0.5, Ethanol 0.3
+   - [x] Integrated into GameScene physics loop (L1E4+ only)
+   - [x] Accounts for room saturation (reduces net evaporation)
+   - [x] Vapor added to room composition every timestep
 
 3. **Decomposition Behavior (NOT IMPLEMENTED)**
    - **Current:** Substances with `boilingPoint: null` just heat indefinitely
