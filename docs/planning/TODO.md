@@ -61,7 +61,10 @@
    - [ ] End-of-experiment modal
    - Note: `getExperimentData()` in hook is ready but unused
 
-2. **Pre-Boiling Evaporation ✅ COMPLETE**
+2. **Wiki: Static Knowledge Site (Build-Generated)**
+   - [ ] See detailed checklist in [wiki/TODO.md](wiki/TODO.md)
+
+3. **Pre-Boiling Evaporation ✅ COMPLETE**
    - [x] Hertz-Knudsen equation implemented (fallback only)
    - [x] **Mass transfer model (preferred)** - Fuller-Schettler-Giddings + boundary layer
    - [x] Evaporative cooling (can cool below ambient!)
@@ -76,12 +79,12 @@
      - Would give realistic starting humidity for selected location
      - Currently uses 50% RH standard day (like ISA for atmosphere)
 
-3. **Time Speed Sub-stepping (TODO)**
+4. **Time Speed Sub-stepping (TODO)**
    - [ ] At high time speeds (65536x), deltaTime = 6553s/frame - need sub-stepping
    - [ ] Create separate physics utility for time-step subdivision
    - [ ] Apply to evaporation, heating, and cooling calculations
 
-3. **Decomposition Behavior (NOT IMPLEMENTED)**
+5. **Decomposition Behavior (NOT IMPLEMENTED)**
    - **Current:** Substances with `boilingPoint: null` just heat indefinitely
    - **Should:** When `temp ≥ decompositionPoint`:
      - [ ] Trigger fire/smoke visual effects
@@ -94,21 +97,25 @@
      - [ ] Add `checkDecomposition()` in physics loop
      - [ ] Add decomposition visual effects to workshop effects.json
 
-4. **Room Environment Phase 3: UI Enhancements**
+6. **Room Environment Phase 3: UI Enhancements**
    - [x] Room Controls panel (done)
    - [ ] Live heat/composition graphs
    - [x] Room alerts/warnings (done)
 
-5. **Unit Conversion System**
+7. **Unit Conversion System**
    - Wire UI, add more units, update all displays
 
 ### Medium Priority
-6. **Save Data & Persistence**
+8. **Save Data & Persistence**
    - LocalStorage autosave
    - Console codes (portable)
    - File export/import
 
-5. **Substance Documentation**
+9. **Substance Documentation**
+10. **Levels/Experiments Data-Driven Migration**
+   - [ ] Move levels/experiments to JSON in public assets (workshop-like)
+   - [ ] Generate level/experiment dropdowns from data
+   - [ ] Define ordering/metadata for custom community experiments
    - More JSDoc examples
    - Field documentation
    - Developer guides
