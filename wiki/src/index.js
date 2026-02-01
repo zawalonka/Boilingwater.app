@@ -124,6 +124,7 @@ const page = ({ title, content }) => `<!doctype html>
             <a href="${withBase('entities/experiments/index.html')}">Experiments</a>
             <a href="${withBase('entities/formulas/index.html')}">Formulas</a>
             <a href="${withBase('entities/processes/index.html')}">Processes</a>
+            <a href="${withBase('entities/modules/index.html')}">Modules</a>
             <div class="wiki-menu-divider"></div>
             <a href="/">Back to Game</a>
           </nav>
@@ -356,6 +357,59 @@ const buildProcesses = async () => {
   return processes.sort((a, b) => a.slug.localeCompare(b.slug))
 }
 
+const parseImports = (content) => {
+  const imports = []
+  // Match: import { ... } from '...' AND export { ... } from '...'
+  const importRegex = /(?:import|export)\s+(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"]/g
+  let match
+  while ((match = importRegex.exec(content)) !== null) {
+    imports.push(match[1])
+  }
+  return [...new Set(imports)] // Deduplicate
+}
+
+const buildModules = async () => {
+  // Key game files to create wiki pages for
+  const modulePatterns = [
+    'src/App.jsx',
+    'src/main.jsx',
+    'src/components/*.jsx',
+    'src/utils/*.js',
+    'src/utils/physics/index.js',
+    'src/constants/*.js',
+    'src/hooks/*.js'
+  ]
+  
+  const files = new Set()
+  for (const pattern of modulePatterns) {
+    for (const file of globSync(pattern, { cwd: repoRoot, absolute: true })) {
+      // Exclude formulas and processes (they have their own pages)
+      if (!file.includes('physics/formulas') && !file.includes('physics/processes')) {
+        files.add(file)
+      }
+    }
+  }
+  
+  const modules = []
+  for (const file of files) {
+    const content = await fs.readFile(file, 'utf-8')
+    const relative = path.relative(path.join(repoRoot, 'src'), file)
+    const slug = relative.replace(/\\/g, '/').replace(/\.(js|jsx)$/, '')
+    modules.push({
+      slug,
+      file,
+      filename: path.basename(file),
+      summary: extractDocSummary(content),
+      docBlock: extractDocBlock(content),
+      exports: parseExports(content),
+      imports: parseImports(content),
+      content,
+      isComponent: file.endsWith('.jsx')
+    })
+  }
+  return modules.sort((a, b) => a.slug.localeCompare(b.slug))
+}
+
 const buildUsageMap = async (symbols) => {
   const files = globSync('src/**/*.{js,jsx}', {
     cwd: repoRoot,
@@ -410,6 +464,20 @@ const renderInfobox = (title, rows) => {
 
 const renderLinkList = (items) => items.length ? renderList(items) : '<p>None found.</p>'
 
+const renderUsedInList = (filePaths, fileToWikiEntity) => {
+  if (!filePaths.length) return ''
+  const items = filePaths.map((filePath) => {
+    const normalized = filePath.replace(/\\/g, '/')
+    const entity = fileToWikiEntity.get(normalized)
+    if (entity) {
+      return linkTo(entity.href, entity.label)
+    }
+    // Non-wiki file - show as plain text
+    return escapeHtml(filePath)
+  })
+  return renderList(items)
+}
+
 const getOrderedSibling = (items, current, direction = 1) => {
   const sorted = [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   const index = sorted.findIndex((item) => item.id === current.id || item.id === current)
@@ -457,6 +525,7 @@ const build = async () => {
   const { levels, experiments } = await buildLevelsAndExperiments()
   const formulas = await buildFormulas()
   const processes = await buildProcesses()
+  const modules = await buildModules()
 
   const elementChildren = new Map()
   const compoundChildren = new Map()
@@ -489,6 +558,36 @@ const build = async () => {
 
   const formulaToProcesses = new Map()
   const processToFormulas = new Map()
+
+  // Build file path → wiki entity map for cross-referencing
+  const fileToWikiEntity = new Map()
+  for (const formula of formulas) {
+    const relPath = path.relative(repoRoot, formula.file).replace(/\\/g, '/')
+    fileToWikiEntity.set(relPath, {
+      type: 'formula',
+      slug: formula.slug,
+      href: `entities/formulas/${formula.slug}.html`,
+      label: formula.slug
+    })
+  }
+  for (const process of processes) {
+    const relPath = path.relative(repoRoot, process.file).replace(/\\/g, '/')
+    fileToWikiEntity.set(relPath, {
+      type: 'process',
+      slug: process.slug,
+      href: `entities/processes/${process.slug}.html`,
+      label: process.slug
+    })
+  }
+  for (const mod of modules) {
+    const relPath = path.relative(repoRoot, mod.file).replace(/\\/g, '/')
+    fileToWikiEntity.set(relPath, {
+      type: 'module',
+      slug: mod.slug,
+      href: `entities/modules/${mod.slug}.html`,
+      label: mod.filename
+    })
+  }
 
   for (const process of processes) {
     const matches = Array.from(process.content.matchAll(/from\s+['"][^'"]*formulas\/([^'"]+)['"]/g))
@@ -543,6 +642,9 @@ const build = async () => {
       line-height: 1.2;
       margin: 0;
     }
+    .wiki-menu {
+      position: relative;
+    }
     .wiki-menu summary {
       list-style: none;
       cursor: pointer;
@@ -554,16 +656,20 @@ const build = async () => {
     }
     .wiki-menu summary::-webkit-details-marker { display: none; }
     .wiki-menu-links {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 100;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-top: 8px;
+      margin-top: 4px;
       background: #ffffff;
       padding: 12px;
       border-radius: 6px;
       border: 1px solid #a2a9b1;
       min-width: 200px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
     .wiki-menu-links a { color: #0645ad; text-decoration: none; }
     .wiki-menu-links a:hover { text-decoration: underline; }
@@ -672,7 +778,8 @@ const build = async () => {
           <h3>Physics</h3>
           ${renderList([
             linkTo('entities/formulas/index.html', `Formulas (${formulas.length})`),
-            linkTo('entities/processes/index.html', `Processes (${processes.length})`)
+            linkTo('entities/processes/index.html', `Processes (${processes.length})`),
+            linkTo('entities/modules/index.html', `Modules (${modules.length})`)
           ])}
         </div>
       </div>
@@ -920,12 +1027,13 @@ const build = async () => {
     const referencedIn = formula.exports
       .flatMap((name) => Array.from(formulaUsage.get(name) || []))
     const uniqueReferences = Array.from(new Set(referencedIn)).sort()
+    const usedInHtml = renderUsedInList(uniqueReferences, fileToWikiEntity)
 
     const infobox = renderInfobox(formula.slug, [
       { label: 'Type', value: 'Formula' },
       { label: 'Exports', value: formula.exports.length ? renderList(formula.exports.map((item) => escapeHtml(item))) : '' },
       { label: 'Processes', value: usedByProcesses.length ? renderLinkList(usedByProcesses) : '' },
-      { label: 'Used in', value: uniqueReferences.length ? `${uniqueReferences.length} file(s)` : '' }
+      { label: 'Used in', value: usedInHtml }
     ])
 
     const content = `
@@ -958,12 +1066,13 @@ const build = async () => {
     const referencedIn = process.exports
       .flatMap((name) => Array.from(processUsage.get(name) || []))
     const uniqueReferences = Array.from(new Set(referencedIn)).sort()
+    const usedInHtml = renderUsedInList(uniqueReferences, fileToWikiEntity)
 
     const infobox = renderInfobox(process.slug, [
       { label: 'Type', value: process.isStub ? 'Process (Stub)' : 'Process' },
       { label: 'Formulas', value: usesFormulas.length ? renderLinkList(usesFormulas) : '' },
       { label: 'Exports', value: process.exports.length ? renderList(process.exports.map((item) => escapeHtml(item))) : '' },
-      { label: 'Used in', value: uniqueReferences.length ? `${uniqueReferences.length} file(s)` : '' }
+      { label: 'Used in', value: usedInHtml }
     ])
 
     const content = `
@@ -982,6 +1091,108 @@ const build = async () => {
       </section>
     `
     await writePage(`entities/processes/${process.slug}.html`, page({ title: process.slug, content }))
+  }
+
+  // Build module usage maps
+  const moduleUsage = await buildUsageMap(modules.flatMap((m) => m.exports))
+  const moduleImportsMap = new Map()
+  for (const mod of modules) {
+    moduleImportsMap.set(mod.slug, mod.imports)
+  }
+
+  const moduleLinks = modules.map((mod) => linkTo(`entities/modules/${mod.slug}.html`, mod.filename))
+  await writePage('entities/modules/index.html', page({
+    title: 'Modules',
+    content: `<section class="section">${renderEntityHeader('Modules', 'Game source files')} ${renderList(moduleLinks)}</section>`
+  }))
+
+  for (const mod of modules) {
+    // Find which other modules import this one
+    const importedBy = modules
+      .filter((other) => other.imports.some((imp) => imp.includes(mod.slug) || imp.endsWith(mod.filename.replace(/\.(js|jsx)$/, ''))))
+      .map((other) => linkTo(`entities/modules/${other.slug}.html`, other.filename))
+
+    // Resolve relative imports to module slugs
+    const resolveImportToSlug = (importPath, fromModuleSlug) => {
+      if (!importPath.startsWith('.')) return null
+      // Get directory of the importing module
+      const fromDir = path.dirname(fromModuleSlug)
+      // Resolve the import relative to that directory
+      let resolved = path.join(fromDir, importPath).replace(/\\/g, '/')
+      // Remove leading slashes and normalize
+      resolved = resolved.replace(/^\/+/, '').replace(/\/index$/, '')
+      return resolved
+    }
+
+    // Find what this module imports (as wiki links where possible)
+    const importsHtml = mod.imports
+      .map((imp) => {
+        // Check if it's a local import
+        if (imp.startsWith('.') || imp.startsWith('@/')) {
+          const resolved = resolveImportToSlug(imp, mod.slug)
+          if (resolved) {
+            // Try exact match first
+            let matchedMod = modules.find((m) => m.slug === resolved)
+            // Try with /index suffix
+            if (!matchedMod) matchedMod = modules.find((m) => m.slug === resolved + '/index')
+            // Try matching the basename
+            if (!matchedMod) {
+              const baseName = path.basename(resolved)
+              matchedMod = modules.find((m) => m.slug.endsWith('/' + baseName) || m.slug === baseName)
+            }
+            if (matchedMod) {
+              return linkTo(`entities/modules/${matchedMod.slug}.html`, matchedMod.filename)
+            }
+          }
+          // Check formulas - match against formula slugs
+          if (imp.includes('formulas/')) {
+            const formulaSlug = path.basename(imp, '.js')
+            const formula = formulas.find((f) => f.slug === formulaSlug)
+            if (formula) return linkTo(`entities/formulas/${formula.slug}.html`, formula.slug)
+          }
+          // Check processes - match full path after 'processes/'
+          if (imp.includes('processes/')) {
+            const afterProcesses = imp.split('processes/')[1]
+            if (afterProcesses) {
+              const processPath = afterProcesses.replace(/\.js$/, '')
+              const proc = processes.find((p) => p.slug === processPath || p.slug.endsWith(processPath))
+              if (proc) return linkTo(`entities/processes/${proc.slug}.html`, path.basename(proc.slug))
+            }
+          }
+        }
+        return `<span class="external-import">${escapeHtml(imp)}</span>`
+      })
+      .join(', ')
+
+    const referencedIn = mod.exports
+      .flatMap((name) => Array.from(moduleUsage.get(name) || []))
+    const uniqueReferences = Array.from(new Set(referencedIn)).sort()
+    const usedInHtml = renderUsedInList(uniqueReferences, fileToWikiEntity)
+
+    const infobox = renderInfobox(mod.filename, [
+      { label: 'Type', value: mod.isComponent ? 'React Component' : 'Module' },
+      { label: 'Exports', value: mod.exports.length ? renderList(mod.exports.map((item) => escapeHtml(item))) : '' },
+      { label: 'Imports', value: importsHtml || '' },
+      { label: 'Imported by', value: importedBy.length ? renderLinkList(importedBy) : '' },
+      { label: 'Used in', value: usedInHtml }
+    ])
+
+    const content = `
+      ${infobox}
+      <section class="section">
+        ${renderEntityHeader(mod.filename, mod.isComponent ? 'React Component' : 'Module')}
+      </section>
+      ${renderEducationalSection(mod.docBlock, true)}
+      <section class="section">
+        <h2>Source file</h2>
+        <p><code>${escapeHtml(path.relative(repoRoot, mod.file))}</code></p>
+        <details>
+          <summary>View source code</summary>
+          <pre class="code">${escapeHtml(mod.content)}</pre>
+        </details>
+      </section>
+    `
+    await writePage(`entities/modules/${mod.slug}.html`, page({ title: mod.filename, content }))
   }
 
   await writeCache({

@@ -11,12 +11,12 @@
    - [x] Define wiki folder layout (source, generator, output)
    - [x] Ensure wiki tools/scripts never touch gameplay code
 
-## Phase 1: Core Generator
+## ✅ Phase 1: Core Generator
 2. **Static site generator (build-time)**
    - [x] Build script (Node) to generate HTML from repo data
    - [x] Incremental rebuilds via hash cache (global inputs)
    - [x] Force-rebuild flag
-   - [ ] Changed-files-only optimization (skip when unrelated files changed)
+   - [x] Changed-files-only optimization (skip when unrelated files changed)
 
 3. **Entity model + relationships**
    - [x] Elements, compounds, solutions
@@ -24,12 +24,14 @@
    - [x] Parent/child graphs with cross-links (elements ↔ compounds, compounds ↔ solutions)
    - [x] Phases (solid/liquid/gas state files)
    - [x] Formulas and processes (extraction + usage mapping)
+   - [x] Modules (game source files - App, GameScene, physics/index, etc.)
 
 4. **Page types**
    - [x] Index (overview + counts)
    - [x] Entity detail pages (parsed JSON + readable layout)
    - [x] Relationship sections (parents/children on entity pages)
-   - [x] Usage pages (formulas → processes → game callsites)
+   - [x] Usage pages (formulas → processes → modules → game callsites)
+   - [x] Module pages with imports/exports and cross-linking
 
 ## Phase 2: UX & Validation
 5. **Readable layout & learning focus**
@@ -43,6 +45,6 @@
 
 ## Phase 3: Integration
 7. **Build & deploy**
-   - [ ] Hook into build pipeline for GitHub Pages
-   - [ ] Add hamburger menu link to wiki
+   - [x] Hook into build pipeline (wiki:build & wiki:sync in dev/build)
+   - [x] Add hamburger menu link to wiki (Modules nav item)
    - [ ] Add docs for running generator locally
