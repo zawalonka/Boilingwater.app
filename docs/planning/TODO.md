@@ -134,3 +134,11 @@
    - Local storage → Cloud aggregation → AI insights pipeline
    - Post-1.0 release feature
 
+---
+
+## 🚨 REVIEW: License Compliance
+
+- [ ] Review all ComfyUI-related extensions, nodes, and workflows for license compatibility before use or distribution. 
+    - Already checked: "Make background transparent" workflow (see master license dependency log for details and limitations).
+- [ ] Update LICENSE_DEPENDENCY_LOG.md whenever a new workflow, extension, or third-party dependency is added or checked for license compatibility.
+
