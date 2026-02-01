@@ -99,7 +99,7 @@ export function createRoomState(roomConfig, altitude = 0) {
     composition: { ...atmosphere },
     
     // AC state
-    acEnabled: true,  // AC on/off switch
+    acEnabled: false,  // AC on/off switch (default OFF, user must enable)
     acSetpoint: room.initialTempC || 20,
     acPidState: createPidState(),
     acHeatOutput: 0,
