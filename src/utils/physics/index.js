@@ -152,3 +152,16 @@ export {
   calculateACH,
   STANDARD_ATMOSPHERES
 } from './formulas/gasExchange.js'
+
+// Evaporation - pre-boiling mass transfer and evaporative cooling
+export {
+  calculateEvaporationFlux,
+  calculateNetEvaporationFlux,
+  calculateEvaporatedMass,
+  calculateEvaporativeCooling,
+  estimatePotSurfaceArea,
+  calculatePartialPressure,
+  simulateEvaporationStep,
+  getEvaporationCoefficient,
+  EVAPORATION_COEFFICIENTS
+} from './formulas/evaporation.js'

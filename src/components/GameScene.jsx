@@ -20,7 +20,12 @@ import {
   calculateBoilingPoint,           // Calculates fluid's boiling point based on altitude
   calculateBoilingPointAtPressure, // Calculates fluid's boiling point based on pressure (for room feedback)
   simulateTimeStep,                // Runs one time step of physics (heating/cooling/boiling)
-  formatTemperature                // Formats temperature numbers for display (e.g., 98.5°C)
+  formatTemperature,               // Formats temperature numbers for display (e.g., 98.5°C)
+  // Evaporation physics (pre-boiling)
+  solveAntoineForPressure,         // Get vapor pressure at current temperature
+  simulateEvaporationStep,         // Calculate evaporation rate and cooling
+  estimatePotSurfaceArea,          // Estimate liquid surface area
+  getEvaporationCoefficient        // Get empirical evaporation coefficient
 } from '../utils/physics'
 import { loadSubstance, loadSubstanceInfo, parseSubstanceProperties, DEFAULT_SUBSTANCE, getAvailableSubstances } from '../utils/substanceLoader'
 import { GAME_CONFIG } from '../constants/physics'
@@ -550,7 +555,51 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           updateRoom(deltaTime, 'experiment_burner', heatInputWatts)
         }
         
-        // If water is evaporating, add vapor to room
+        // ========== PRE-BOILING EVAPORATION (Hertz-Knudsen) ==========
+        // Even below boiling point, volatile substances evaporate!
+        // This cools the liquid (can go BELOW ambient) and adds vapor to room.
+        // Only runs when NOT boiling (boiling evaporation is handled separately).
+        if (!newState.isBoiling && fluidProps?.antoineCoefficients && newState.waterMass > 0) {
+          // Get vapor pressure at current temperature
+          const vaporPressure = solveAntoineForPressure(newState.temperature, fluidProps.antoineCoefficients)
+          
+          if (vaporPressure && vaporPressure > 0) {
+            // Get partial pressure of this substance already in room air
+            const roomComposition = roomState?.composition || {}
+            const totalPressure = roomState?.pressure || 101325
+            const partialPressure = (roomComposition[activeFluid] || 0) * totalPressure
+            
+            // Calculate evaporation using Hertz-Knudsen equation
+            const evapResult = simulateEvaporationStep({
+              liquidTempC: newState.temperature,
+              liquidMassKg: newState.waterMass,
+              vaporPressurePa: vaporPressure,
+              molarMassKg: (fluidProps.molarMass || 18.015) / 1000,  // g/mol → kg/mol
+              latentHeatKJ: fluidProps.heatOfVaporization || 2257,   // kJ/kg
+              specificHeatJgC: fluidProps.specificHeat || 4.186,     // J/(g·°C)
+              surfaceAreaM2: estimatePotSurfaceArea(0.2),            // 20cm pot
+              partialPressurePa: partialPressure,
+              alpha: getEvaporationCoefficient(activeFluid),
+              deltaTimeS: deltaTime
+            })
+            
+            // Apply evaporative cooling (can cool below ambient!)
+            if (evapResult.massEvaporatedKg > 1e-9) {
+              setTemperature(prev => prev + evapResult.tempChangeC)
+              setWaterInPot(evapResult.newMassKg)
+              
+              // Add vapor to room air composition
+              addVapor(activeFluid, evapResult.massEvaporatedKg, fluidProps?.molarMass || 18.015)
+              
+              // Debug: Log significant evaporation events
+              if (evapResult.massEvaporatedKg > 1e-6) {
+                console.log(`💨 Pre-boil evap: ${(evapResult.massEvaporatedKg * 1000).toFixed(3)}g, cooling: ${evapResult.tempChangeC.toFixed(3)}°C`)
+              }
+            }
+          }
+        }
+        
+        // If water is boiling, add boiling-phase vapor to room
         if (newState.isBoiling && newState.waterMass < waterInPot) {
           const evaporatedMass = waterInPot - newState.waterMass
           addVapor(activeFluid, evaporatedMass, fluidProps?.molarMass || 18.015)
