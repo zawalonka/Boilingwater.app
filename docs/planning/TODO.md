@@ -62,19 +62,24 @@
    - Note: `getExperimentData()` in hook is ready but unused
 
 2. **Pre-Boiling Evaporation ✅ COMPLETE**
-   - [x] Hertz-Knudsen equation implemented in `evaporation.js`
+   - [x] Hertz-Knudsen equation implemented (fallback only)
+   - [x] **Mass transfer model (preferred)** - Fuller-Schettler-Giddings + boundary layer
    - [x] Evaporative cooling (can cool below ambient!)
-   - [x] Empirical α coefficients: Water 0.04, Acetone 0.5, Ethanol 0.3
-   - [x] Integrated into GameScene physics loop (L1E4+ only)
+   - [x] Diffusion volumes added to all 118 elements via script
+   - [x] Diffusion volume sum calculated at load time (no pre-calculation)
    - [x] Accounts for room saturation (reduces net evaporation)
    - [x] Vapor added to room composition every timestep
    - [x] Room humidity now affects water evaporation rate
-   - [x] Uses chemical formula from substance JSON (no hardcoding)
-   - [x] Added RH conversion utilities (`volumeFractionToRH`, `formatHumidity`)
+   - **Evaporation rates now match real-world** (~5 g/hr for water, ~28 g/hr for ethanol)
    - **Future:** Gather real weather data from location for humidity/temp
      - API source TBD (OpenWeatherMap, NOAA, etc.)
      - Would give realistic starting humidity for selected location
      - Currently uses 50% RH standard day (like ISA for atmosphere)
+
+3. **Time Speed Sub-stepping (TODO)**
+   - [ ] At high time speeds (65536x), deltaTime = 6553s/frame - need sub-stepping
+   - [ ] Create separate physics utility for time-step subdivision
+   - [ ] Apply to evaporation, heating, and cooling calculations
 
 3. **Decomposition Behavior (NOT IMPLEMENTED)**
    - **Current:** Substances with `boilingPoint: null` just heat indefinitely

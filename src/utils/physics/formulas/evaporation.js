@@ -266,3 +266,135 @@ export function simulateEvaporationStep({
 // Evaporation coefficients are now loaded from substance JSON files.
 // Use: fluidProps.evaporationCoefficient ?? DEFAULT_EVAPORATION_COEFFICIENT
 // The legacy lookup table (LEGACY_EVAPORATION_COEFFICIENTS) is kept only as reference.
+
+// ============================================================================
+// MASS TRANSFER MODEL (Preferred - Physically Accurate)
+// ============================================================================
+// The Hertz-Knudsen approach above gives theoretical max rates for vacuum.
+// Real evaporation is limited by boundary layer diffusion - use the functions
+// below for physically accurate simulation.
+
+import { calculateDiffusionInAir, AIR_DIFFUSION_VOLUME, AIR_MOLAR_MASS } from './diffusion.js'
+import { calculateMassTransferCoefficient, calculateEvaporationMass } from './massTransfer.js'
+
+/**
+ * Simulate evaporation using mass transfer model (physically accurate)
+ * 
+ * This uses the Fuller-Schettler-Giddings diffusion coefficient and
+ * natural convection mass transfer correlations to calculate realistic
+ * evaporation rates.
+ * 
+ * @param {object} params - Simulation parameters
+ * @param {number} params.liquidTempC - Current liquid temperature (°C)
+ * @param {number} params.liquidMassKg - Current liquid mass (kg)
+ * @param {number} params.vaporPressurePa - Saturation vapor pressure at liquid temp
+ * @param {number} params.pressurePa - Total atmospheric pressure (Pa)
+ * @param {number} params.molarMassGmol - Molar mass (g/mol)
+ * @param {number} params.latentHeatKJ - Latent heat of vaporization (kJ/kg)
+ * @param {number} params.specificHeatJgC - Specific heat (J/g·°C)
+ * @param {number} params.potDiameterM - Pot diameter (m), default 0.2
+ * @param {number} params.partialPressurePa - Current partial pressure in room
+ * @param {number} params.diffusionVolumeSum - Sum of atomic diffusion volumes (Σv)
+ * @param {number} params.deltaTimeS - Time step (seconds)
+ * @returns {object} { massEvaporatedKg, tempChangeC, newTempC, newMassKg, debug }
+ */
+export function simulateEvaporationWithMassTransfer({
+  liquidTempC,
+  liquidMassKg,
+  vaporPressurePa,
+  pressurePa,
+  molarMassGmol,
+  latentHeatKJ,
+  specificHeatJgC,
+  potDiameterM = 0.2,
+  partialPressurePa = 0,
+  diffusionVolumeSum,
+  deltaTimeS
+}) {
+  // No evaporation if no liquid or no diffusion data
+  if (liquidMassKg <= 0) {
+    return {
+      massEvaporatedKg: 0,
+      tempChangeC: 0,
+      newTempC: liquidTempC,
+      newMassKg: 0,
+      debug: { reason: 'no liquid' }
+    }
+  }
+  
+  // If no diffusion volume data, fall back to Hertz-Knudsen with warning
+  if (!diffusionVolumeSum || diffusionVolumeSum <= 0) {
+    console.warn('No diffusion volume data - falling back to Hertz-Knudsen')
+    return simulateEvaporationStep({
+      liquidTempC,
+      liquidMassKg,
+      vaporPressurePa,
+      molarMassKg: molarMassGmol / 1000,
+      latentHeatKJ,
+      specificHeatJgC,
+      surfaceAreaM2: estimatePotSurfaceArea(potDiameterM),
+      partialPressurePa,
+      alpha: 0.01,  // Conservative fallback
+      deltaTimeS
+    })
+  }
+  
+  const temperatureK = liquidTempC + 273.15
+  
+  // Step 1: Calculate diffusion coefficient using Fuller-Schettler-Giddings
+  const D_AB = calculateDiffusionInAir({
+    temperatureC: liquidTempC,
+    pressurePa,
+    molarMass: molarMassGmol,
+    diffusionVolumeSum
+  })
+  
+  // Step 2: Calculate saturation mole fraction for Grashof number
+  // y_sat = P_sat / P_total
+  const satMoleFraction = vaporPressurePa / pressurePa
+  
+  // Step 3: Calculate mass transfer coefficient
+  const mtResult = calculateMassTransferCoefficient({
+    temperatureC: liquidTempC,
+    pressurePa,
+    characteristicLengthM: potDiameterM,
+    diffusionCoefficientM2s: D_AB,
+    molarMassVapor: molarMassGmol,
+    saturationMoleFraction: satMoleFraction
+  })
+  
+  // Step 4: Calculate evaporated mass
+  const surfaceArea = estimatePotSurfaceArea(potDiameterM)
+  let massEvaporated = calculateEvaporationMass({
+    massTransferCoeff: mtResult.massTransferCoeff,
+    saturationPressurePa: vaporPressurePa,
+    partialPressurePa,
+    temperatureK,
+    surfaceAreaM2: surfaceArea,
+    molarMassKg: molarMassGmol / 1000,
+    deltaTimeS
+  })
+  
+  // Can't evaporate more than we have
+  massEvaporated = Math.min(massEvaporated, liquidMassKg)
+  
+  // Step 5: Calculate evaporative cooling
+  const newMass = liquidMassKg - massEvaporated
+  const tempChange = calculateEvaporativeCooling(massEvaporated, newMass, latentHeatKJ, specificHeatJgC)
+  
+  // Apply cooling (can go below ambient!)
+  const newTemp = liquidTempC + tempChange
+  
+  return {
+    massEvaporatedKg: massEvaporated,
+    tempChangeC: tempChange,
+    newTempC: newTemp,
+    newMassKg: newMass,
+    debug: {
+      diffusionCoeff_m2s: D_AB,
+      massTransferCoeff_ms: mtResult.massTransferCoeff,
+      sherwoodNumber: mtResult.sherwoodNumber,
+      rayleighNumber: mtResult.rayleighNumber
+    }
+  }
+}

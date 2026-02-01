@@ -20,6 +20,53 @@ import {
 const phaseStateLoaders = import.meta.glob('../data/substances/compounds/**/state.json')
 
 // ============================================================================
+// INTERNAL HELPERS
+// ============================================================================
+
+/**
+ * Calculate diffusion volume sum by loading element data at runtime
+ * 
+ * This is called at substance load time (game resets on substance change).
+ * Each element's diffusion volume is stored in its JSON file.
+ * 
+ * @param {Array} elements - Array from compound info.json: [{symbol, count, ...}]
+ * @returns {Promise<number|null>} Sum of atomic diffusion volumes (Σv)
+ */
+async function calculateDiffusionVolumeSumFromElements(elements) {
+  if (!Array.isArray(elements) || elements.length === 0) {
+    return null
+  }
+  
+  let sum = 0
+  
+  for (const element of elements) {
+    const symbol = element.symbol
+    const count = element.count || 1
+    
+    // Load the element data from catalog
+    const loader = elementLoaders[symbol]
+    if (!loader) {
+      console.warn(`No loader for element ${symbol}`)
+      return null
+    }
+    
+    const data = await loader()
+    const elementData = data.default || data
+    
+    // Extract diffusion volume from element data
+    const diffusionVolume = elementData.diffusion?.atomicDiffusionVolume
+    if (typeof diffusionVolume !== 'number') {
+      console.warn(`No diffusion volume for ${symbol}`)
+      return null
+    }
+    
+    sum += count * diffusionVolume
+  }
+  
+  return sum
+}
+
+// ============================================================================
 // RE-EXPORTS
 // ============================================================================
 
@@ -150,6 +197,34 @@ export async function loadSubstance(substanceId, phase = 'liquid') {
       const compoundPath = infoData.id || substanceId
       const compoundCategory = infoData.category || 'pure'
       
+      // Load element diffusion volumes for mass transfer calculations
+      // This happens at load time (not pre-calculated) - game resets on substance change anyway
+      let diffusionVolumeSum = null
+      if (Array.isArray(infoData.elements) && infoData.elements.length > 0) {
+        // Pure compounds: calculate from element composition
+        try {
+          diffusionVolumeSum = await calculateDiffusionVolumeSumFromElements(infoData.elements)
+        } catch (err) {
+          console.warn(`Could not calculate diffusion volume for ${substanceId}:`, err.message)
+        }
+      } else if (infoData.type === 'mixture' && Array.isArray(infoData.components)) {
+        // Solutions/mixtures: use the SOLVENT's diffusion properties
+        // (e.g., saltwater evaporates water, not NaCl)
+        const solvent = infoData.components.find(c => c.role === 'solvent')
+        if (solvent && solvent.id) {
+          try {
+            // Recursively load the solvent compound to get its diffusion data
+            const solventData = await loadSubstance(solvent.id, phase)
+            diffusionVolumeSum = solventData?.diffusionVolumeSum ?? null
+            if (diffusionVolumeSum) {
+              console.log(`Mixture ${substanceId}: using solvent (${solvent.id}) diffusion volume sum: ${diffusionVolumeSum.toFixed(2)}`)
+            }
+          } catch (err) {
+            console.warn(`Could not load solvent diffusion for ${substanceId}:`, err.message)
+          }
+        }
+      }
+      
       try {
         // Dynamically import the phase state file
         // Path: ../data/substances/compounds/{category}/{folder}/{phase}/state.json
@@ -170,7 +245,8 @@ export async function loadSubstance(substanceId, phase = 'liquid') {
         return {
           ...infoData,
           phaseState: phaseStateData,
-          currentPhase: phase
+          currentPhase: phase,
+          diffusionVolumeSum  // Calculated at load time from element data
         }
       } catch (error) {
         console.warn(`Could not load phase state for ${substanceId}/${phase}:`, error.message)
@@ -178,6 +254,7 @@ export async function loadSubstance(substanceId, phase = 'liquid') {
         return {
           ...infoData,
           phaseState: null,
+          diffusionVolumeSum,
           currentPhase: phase
         }
       }

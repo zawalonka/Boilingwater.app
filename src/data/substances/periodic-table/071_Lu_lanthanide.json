@@ -44,5 +44,13 @@
     "notes": "Element of the lanthanide group"
   },
   "lastUpdated": "2026-01-27",
-  "educationalNotes": "Lutetium is the last lanthanide (chemically) - heaviest rare earth at 71! Lutetium-175 stable, lutetium-176 radioactive. Lutetium compounds in high-temperature ceramics. Lutetium tantalate crystal used in phonon engineering. Discovered in 1907. Named from Lutetia (Latin for Paris). Lutetium-177 used in cancer therapy (radioimmunotherapy). Expensive and limited applications. Extremely dense element."
+  "educationalNotes": "Lutetium is the last lanthanide (chemically) - heaviest rare earth at 71! Lutetium-175 stable, lutetium-176 radioactive. Lutetium compounds in high-temperature ceramics. Lutetium tantalate crystal used in phonon engineering. Discovered in 1907. Named from Lutetia (Latin for Paris). Lutetium-177 used in cancer therapy (radioimmunotherapy). Expensive and limited applications. Extremely dense element.",
+  "diffusion": {
+    "atomicDiffusionVolume": 22,
+    "unit": "dimensionless (cm³/mol conceptually)",
+    "source": "Estimated",
+    "note": "Lutetium - lanthanide estimate",
+    "equation": "Fuller-Schettler-Giddings (1966)",
+    "usage": "Sum atomic contributions for compound Σv, then: D_AB = 0.00143×T^1.75 / (P × M_AB^0.5 × (Σv_A^(1/3) + Σv_B^(1/3))²)"
+  }
 }

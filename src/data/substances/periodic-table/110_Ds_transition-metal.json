@@ -44,5 +44,13 @@
     "notes": "Element of the transition-metal group"
   },
   "lastUpdated": "2026-01-27",
-  "educationalNotes": "Darmstadtium is named after Darmstadt, Germany! Darmstadtium-281 half-life 12 seconds. Synthesized in 1994. Transactinide element - predicted mercury-like. Extremely heavy - properties defy prediction. Few atoms produced - decay studied. Named in 2003. Element chemistry unexplored. Research interest. Physics frontier."
+  "educationalNotes": "Darmstadtium is named after Darmstadt, Germany! Darmstadtium-281 half-life 12 seconds. Synthesized in 1994. Transactinide element - predicted mercury-like. Extremely heavy - properties defy prediction. Few atoms produced - decay studied. Named in 2003. Element chemistry unexplored. Research interest. Physics frontier.",
+  "diffusion": {
+    "atomicDiffusionVolume": 18,
+    "unit": "dimensionless (cm³/mol conceptually)",
+    "source": "Estimated",
+    "note": "Darmstadtium - superheavy estimate",
+    "equation": "Fuller-Schettler-Giddings (1966)",
+    "usage": "Sum atomic contributions for compound Σv, then: D_AB = 0.00143×T^1.75 / (P × M_AB^0.5 × (Σv_A^(1/3) + Σv_B^(1/3))²)"
+  }
 }

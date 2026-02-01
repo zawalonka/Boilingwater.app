@@ -23,7 +23,7 @@ import {
   formatTemperature,               // Formats temperature numbers for display (e.g., 98.5°C)
   // Evaporation physics (pre-boiling)
   solveAntoineForPressure,         // Get vapor pressure at current temperature
-  simulateEvaporationStep,         // Calculate evaporation rate and cooling
+  simulateEvaporationWithMassTransfer, // Mass transfer model (physically accurate evaporation)
   estimatePotSurfaceArea           // Estimate liquid surface area
 } from '../utils/physics'
 import { loadSubstance, loadSubstanceInfo, parseSubstanceProperties, DEFAULT_SUBSTANCE, getAvailableSubstances } from '../utils/substanceLoader'
@@ -556,9 +556,10 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           updateRoom(deltaTime, 'experiment_burner', heatInputWatts)
         }
         
-        // ========== PRE-BOILING EVAPORATION (Hertz-Knudsen) ==========
+        // ========== PRE-BOILING EVAPORATION (Mass Transfer Model) ==========
         // Even below boiling point, volatile substances evaporate!
         // This cools the liquid (can go BELOW ambient) and adds vapor to room.
+        // Uses Fuller-Schettler-Giddings diffusion + boundary layer mass transfer.
         // Only runs when NOT boiling (boiling evaporation is handled separately).
         if (!newState.isBoiling && fluidProps?.antoineCoefficients && newState.waterMass > 0) {
           // Get vapor pressure at current temperature
@@ -572,17 +573,20 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
             const totalPressure = roomState?.pressure || 101325
             const partialPressure = (roomComposition[atmosphereKey] || 0) * totalPressure
             
-            // Calculate evaporation using Hertz-Knudsen equation
-            const evapResult = simulateEvaporationStep({
+            // Calculate evaporation using mass transfer model (physically accurate)
+            // Uses diffusion coefficient from Fuller-Schettler-Giddings equation
+            // and natural convection mass transfer correlations
+            const evapResult = simulateEvaporationWithMassTransfer({
               liquidTempC: newState.temperature,
               liquidMassKg: newState.waterMass,
               vaporPressurePa: vaporPressure,
-              molarMassKg: (fluidProps.molarMass || 18.015) / 1000,  // g/mol → kg/mol
-              latentHeatKJ: fluidProps.heatOfVaporization || 2257,   // kJ/kg
-              specificHeatJgC: fluidProps.specificHeat || 4.186,     // J/(g·°C)
-              surfaceAreaM2: estimatePotSurfaceArea(0.2),            // 20cm pot
+              pressurePa: totalPressure,
+              molarMassGmol: fluidProps.molarMass || 18.015,
+              latentHeatKJ: fluidProps.heatOfVaporization || 2257,
+              specificHeatJgC: fluidProps.specificHeat || 4.186,
+              potDiameterM: 0.2,  // 20cm pot
               partialPressurePa: partialPressure,
-              alpha: fluidProps.evaporationCoefficient ?? 0.2,  // From substance JSON, fallback 0.2
+              diffusionVolumeSum: fluidProps.diffusionVolumeSum,  // Calculated at load time from element data
               deltaTimeS: deltaTime
             })
             
@@ -844,7 +848,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
   // ============================================================================
 
   /**
-  * Cycle through time speed options: 1x → 2x → 4x → 8x → 1x (Basic Mode)
+  * Cycle through time speed options: 1x → 2x → 4x → ... → 65536x (Basic Mode)
    */
   const handleSpeedUp = () => {
     setTimeSpeed(current => {
@@ -852,16 +856,9 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
       if (current < 1) return 0
       // From pause, go to 1x
       if (current === 0) return 1
-      // Normal progression
-      if (current === 1) return 2
-      if (current === 2) return 4
-      if (current === 4) return 8
-      if (current === 8) return 16
-      if (current === 16) return 32
-      if (current === 32) return 64
-      if (current === 64) return 128
-      if (current === 128) return 256
-      return 256  // Stay at 256x (no wrap)
+      // Normal progression (doubling)
+      const doubled = current * 2
+      return doubled <= 65536 ? doubled : 65536  // Cap at 65536x
     })
   }
 
@@ -873,16 +870,16 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
       // Handle pause state: 0 -> 1x
       if (current === 0) return 1
       const doubled = current * 2
-      return doubled <= 256 ? doubled : 256  // Cap at 256x
+      return doubled <= 65536 ? doubled : 65536  // Cap at 65536x
     })
   }
 
   /**
    * Halve the time speed (Advanced Mode)
-   * Progression: 1x -> 0 (pause) -> 1/2x -> 1/4x -> ... -> 1/256x
+   * Progression: 1x -> 0 (pause) -> 1/2x -> 1/4x -> ... -> 1/65536x
    */
   const handleSpeedHalve = () => {
-    const minSpeed = 1 / 256  // 1/256x as slowest
+    const minSpeed = 1 / 65536  // 1/65536x as slowest
     setTimeSpeed(current => {
       // At 1x, go to pause (0)
       if (current === 1) return 0
@@ -890,7 +887,7 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
       if (current === 0) return 0.5
       // Normal halving
       const halved = current / 2
-      return halved >= minSpeed ? halved : minSpeed  // Min 1/256x speed
+      return halved >= minSpeed ? halved : minSpeed  // Min 1/65536x speed
     })
   }
 

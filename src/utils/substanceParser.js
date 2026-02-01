@@ -212,6 +212,10 @@ export function parseSubstanceProperties(substanceData) {
     coolingCoefficient,  // 1/s
     evaporationCoefficient,  // Hertz-Knudsen α (0.01-1.0)
 
+    // MASS TRANSFER (calculated at load time from element diffusion volumes)
+    // Used by Fuller-Schettler-Giddings equation for realistic evaporation rates
+    diffusionVolumeSum: compound.diffusionVolumeSum ?? null,
+
     // ADVANCED THERMODYNAMICS (phase-specific, optional)
     compressibility: extractValue(phaseState?.compressibility),  // 1/Pa
     volumetricExpansionCoefficient: extractValue(phaseState?.volumetricExpansionCoefficient),  // 1/K

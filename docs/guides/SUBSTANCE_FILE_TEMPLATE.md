@@ -56,6 +56,40 @@ src/data/substances/
 - `lanthanide`
 - `actinide`
 
+### Element Diffusion Volumes
+
+Each element file includes a `diffusion` object with atomic diffusion volume data for the Fuller-Schettler-Giddings equation. This is used to calculate evaporation rates via boundary layer mass transfer.
+
+```json
+{
+  "diffusion": {
+    "atomicDiffusionVolume": 6.11,
+    "unit": "dimensionless (cm³/mol conceptually)",
+    "source": "Fuller 1966",
+    "note": "Oxygen - well characterized",
+    "equation": "Fuller-Schettler-Giddings (1966)",
+    "usage": "Sum atomic contributions for compound Σv"
+  }
+}
+```
+
+**Key Values (Fuller 1966):**
+| Element | Σv | Source |
+|---------|-----|--------|
+| H | 2.31 | Fuller 1966 |
+| C | 15.9 | Fuller 1966 |
+| N | 4.54 | Fuller 1966 |
+| O | 6.11 | Fuller 1966 |
+| S | 22.9 | Fuller 1966 |
+| Cl | 21.0 | Fuller 1966 |
+
+**Example - Ethanol (C₂H₅OH):**
+```
+Σv = 2×C + 6×H + 1×O = 2×15.9 + 6×2.31 + 1×6.11 = 51.77
+```
+
+The diffusion volume sum is calculated at compound load time (not pre-computed) by loading the element files and summing contributions.
+
 ---
 
 ## Template: Pure Compound Info File

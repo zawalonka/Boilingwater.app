@@ -154,9 +154,13 @@ export {
 } from './formulas/gasExchange.js'
 
 // Evaporation - pre-boiling mass transfer and evaporative cooling
-// NOTE: Evaporation coefficients are now in substance JSON files (evaporationCoefficient field)
-// Use fluidProps.evaporationCoefficient ?? DEFAULT_EVAPORATION_COEFFICIENT
+// NOTE: simulateEvaporationWithMassTransfer is the preferred method (physically accurate)
+// It uses Fuller-Schettler-Giddings diffusion + boundary layer mass transfer
+// Hertz-Knudsen functions kept for fallback/reference
 export {
+  // Mass transfer model (preferred - uses diffusion physics)
+  simulateEvaporationWithMassTransfer,
+  // Hertz-Knudsen model (fallback - theoretical max rate)
   calculateEvaporationFlux,
   calculateNetEvaporationFlux,
   calculateEvaporatedMass,
@@ -166,3 +170,20 @@ export {
   simulateEvaporationStep,
   DEFAULT_EVAPORATION_COEFFICIENT
 } from './formulas/evaporation.js'
+
+// Diffusion - Fuller-Schettler-Giddings equation for binary diffusion coefficients
+export {
+  calculateDiffusionCoefficient,
+  calculateDiffusionInAir,
+  calculateDiffusionVolumeSum,
+  AIR_DIFFUSION_VOLUME,
+  AIR_MOLAR_MASS
+} from './formulas/diffusion.js'
+
+// Mass Transfer - boundary layer correlations
+export {
+  calculateMassTransferCoefficient,
+  calculateEvaporationMass,
+  calculateSherwoodNumber,
+  airKinematicViscosity
+} from './formulas/massTransfer.js'

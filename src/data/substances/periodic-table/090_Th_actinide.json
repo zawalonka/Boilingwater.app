@@ -44,5 +44,13 @@
     "notes": "Element of the actinide group"
   },
   "lastUpdated": "2026-01-27",
-  "educationalNotes": "Thorium is radioactive but useful - thorium reactors may be future energy source! Thorium-232 decays slowly (14 billion year half-life). Thorium fuel abundant - India has large reserves. Monazite sand contains thorium - extracted for rare earths (radioactive waste). Named after Thor (Norse god). Discovered in 1828. Thorium dioxide extremely refractory - used in furnaces. Thorium arc lamps produced bright light."
+  "educationalNotes": "Thorium is radioactive but useful - thorium reactors may be future energy source! Thorium-232 decays slowly (14 billion year half-life). Thorium fuel abundant - India has large reserves. Monazite sand contains thorium - extracted for rare earths (radioactive waste). Named after Thor (Norse god). Discovered in 1828. Thorium dioxide extremely refractory - used in furnaces. Thorium arc lamps produced bright light.",
+  "diffusion": {
+    "atomicDiffusionVolume": 30,
+    "unit": "dimensionless (cm³/mol conceptually)",
+    "source": "Estimated",
+    "note": "Thorium - actinide estimate",
+    "equation": "Fuller-Schettler-Giddings (1966)",
+    "usage": "Sum atomic contributions for compound Σv, then: D_AB = 0.00143×T^1.75 / (P × M_AB^0.5 × (Σv_A^(1/3) + Σv_B^(1/3))²)"
+  }
 }

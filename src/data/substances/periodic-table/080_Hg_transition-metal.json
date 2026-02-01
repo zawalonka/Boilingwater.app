@@ -45,5 +45,13 @@
     "notes": "Element of the transition-metal group"
   },
   "lastUpdated": "2026-01-27",
-  "educationalNotes": "Mercury is the only liquid metal at room temperature - it's a shimmering silver liquid that rolls into spheres. Extremely toxic - mercury vapor damages brain and kidneys. Thermometers used mercury for 300 years (now mostly replaced with alcohol). Mercury switch lights toggle when tilted - old devices had them. Used in gold mining (amalgam extraction) causing severe poisoning in artisanal miners. Dental amalgams (silver fillings) contain mercury (controversy over safety). Named after Roman god - symbol Hg from Latin 'hydrargyrum' (liquid silver)."
+  "educationalNotes": "Mercury is the only liquid metal at room temperature - it's a shimmering silver liquid that rolls into spheres. Extremely toxic - mercury vapor damages brain and kidneys. Thermometers used mercury for 300 years (now mostly replaced with alcohol). Mercury switch lights toggle when tilted - old devices had them. Used in gold mining (amalgam extraction) causing severe poisoning in artisanal miners. Dental amalgams (silver fillings) contain mercury (controversy over safety). Named after Roman god - symbol Hg from Latin 'hydrargyrum' (liquid silver).",
+  "diffusion": {
+    "atomicDiffusionVolume": 20,
+    "unit": "dimensionless (cm³/mol conceptually)",
+    "source": "Estimated",
+    "note": "Mercury - estimated",
+    "equation": "Fuller-Schettler-Giddings (1966)",
+    "usage": "Sum atomic contributions for compound Σv, then: D_AB = 0.00143×T^1.75 / (P × M_AB^0.5 × (Σv_A^(1/3) + Σv_B^(1/3))²)"
+  }
 }

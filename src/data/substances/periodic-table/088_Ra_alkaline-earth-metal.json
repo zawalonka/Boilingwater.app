@@ -44,5 +44,13 @@
     "notes": "Element of the alkaline-earth-metal group"
   },
   "lastUpdated": "2026-01-27",
-  "educationalNotes": "Radium glows in dark - early watch faces painted with radium paint (workers died from radiation)! Radium-226 found in uranium ores. Marie Curie isolated radium, won Nobel Prize, died from radiation. Radium-223 used in cancer treatment (targets bone tumors). Alpha emitter - internals safe, external dangerous. Radon produced from radium decay. Used in old lightbulbs and clock dials (now banned). Extremely toxic."
+  "educationalNotes": "Radium glows in dark - early watch faces painted with radium paint (workers died from radiation)! Radium-226 found in uranium ores. Marie Curie isolated radium, won Nobel Prize, died from radiation. Radium-223 used in cancer treatment (targets bone tumors). Alpha emitter - internals safe, external dangerous. Radon produced from radium decay. Used in old lightbulbs and clock dials (now banned). Extremely toxic.",
+  "diffusion": {
+    "atomicDiffusionVolume": 40,
+    "unit": "dimensionless (cm³/mol conceptually)",
+    "source": "Estimated",
+    "note": "Estimated from group trend",
+    "equation": "Fuller-Schettler-Giddings (1966)",
+    "usage": "Sum atomic contributions for compound Σv, then: D_AB = 0.00143×T^1.75 / (P × M_AB^0.5 × (Σv_A^(1/3) + Σv_B^(1/3))²)"
+  }
 }
