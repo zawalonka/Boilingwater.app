@@ -38,10 +38,12 @@
     "C": 233.426,
     "TminC": 1,
     "TmaxC": 100,
+    "TminC_note": "EMPIRICALLY VERIFIED RANGE MINIMUM: The Antoine coefficients were experimentally validated down to this temperature. Calculations below this are extrapolated (smooth curve continues, but accuracy may degrade).",
+    "TmaxC_note": "EMPIRICALLY VERIFIED RANGE MAXIMUM: The Antoine coefficients were experimentally validated up to this temperature. Calculations above this are extrapolated (smooth curve continues, but accuracy may degrade).",
     "formula": "log10(Pvap) = A - B/(C + T)",
     "unit": "Pressure in mmHg, Temperature in °C",
     "source": "NIST Chemistry WebBook (Bridgeman and Aldrich, 1964). Coefficients calculated by NIST from author's experimental data.",
-    "note": "Predicts vapor pressure of liquid water (used for boiling at altitude)"
+    "note": "Predicts vapor pressure of liquid water (used for boiling at altitude). TminC/TmaxC define the VERIFIED range, not hard limits — the equation works outside this range but with reduced accuracy."
   },
   "electricalConductivity": {
     "value": 0.00055,

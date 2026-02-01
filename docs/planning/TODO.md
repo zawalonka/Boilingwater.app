@@ -1,6 +1,6 @@
 # Project TODO - Boiling Water App
 
-> **Last Updated:** 2026-01-29  
+> **Last Updated:** 2026-01-31  
 > **Status:** Pre-Alpha (working prototype with zero-hardcoding substance system)
 
 ---
@@ -13,15 +13,8 @@
 **Location:** [GameScene.jsx](../../src/components/GameScene.jsx) boil-stats-modal  
 **Fix Required:** Add unpause logic for all experiment completion handlers
 
-### 2. Saltwater Boiling Point - Van't Hoff Factor (CRITICAL ACCURACY)
-**Problem:** Declared boiling point elevation (0.16°C) is WRONG - doesn't account for van't Hoff factor  
-**Root Cause:** Treated NaCl like sugar (i=1) instead of electrolyte (i=1.9)  
-**Correct Value:** Should be ~0.515°C (100.515°C total), using precise NaCl molar mass 58.443 g/mol  
-**Calculation:** ΔTb = i·Kb·m = 1.9 × 0.512 × 0.5291 = 0.5147°C  
-**Molality:** (30g / 58.443 g/mol) / 0.970 kg = 0.5291 m  
-**Impact:** Incorrect physics education - students learn wrong effect of dissolved salt  
-**Location:** `src/data/substances/compounds/solutions/saltwater-3pct-nacl/info.json`  
-**Fix Required:** Update boilingPointElevation from 0.16 to 0.515 ✅ FIXED
+### 2. Saltwater Boiling Point - Van't Hoff Factor ✅ FIXED
+**Status:** Fixed - boilingPointElevation corrected to 0.515°C
 
 ---
 
@@ -32,6 +25,26 @@
 - [ ] Test element loading in-game (H, O, N and verify physics)
 - [ ] Verify saltwater boiling at correct temperature
 - [ ] Fix Level 3 pause bug
+
+### Add Antoine TminC/TmaxC Notes to Remaining JSON Files
+**Priority:** Low (delegate to less expensive AI)  
+**Template:** See `src/data/substances/compounds/pure/water-h2o/liquid/state.json` for example  
+**Completed:** water-h2o, saltwater-3pct-nacl  
+**Remaining files to update:**
+- [ ] `compounds/pure/ethanol-c2h5oh/liquid/state.json`
+- [ ] `compounds/pure/acetone-c3h6o/liquid/state.json`
+- [ ] `compounds/pure/ammonia-nh3/liquid/state.json`
+- [ ] `compounds/pure/ammonia-nh3/gas/state.json`
+- [ ] `compounds/pure/methane-ch4/liquid/state.json`
+- [ ] `compounds/pure/methane-ch4/gas/state.json`
+- [ ] `compounds/pure/propane-c3h8/liquid/state.json`
+- [ ] `compounds/pure/propane-c3h8/gas/state.json`
+- [ ] `compounds/pure/glycerin-c3h8o3/liquid/state.json`
+- [ ] `compounds/pure/isopropyl-alcohol-c3h8o/liquid/state.json`
+- [ ] `compounds/pure/hydrogen-peroxide-h2o2/liquid/state.json`
+- [ ] `compounds/pure/acetic-acid-ch3cooh/liquid/state.json`
+
+**What to add:** Add `TminC_note` and `TmaxC_note` fields explaining that these are empirically verified range boundaries, not hard limits. The equation works outside this range but accuracy may degrade.
 
 ---
 

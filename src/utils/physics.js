@@ -10,9 +10,21 @@ import { ATMOSPHERE, UNIVERSAL, GAME_CONFIG } from '../constants/physics'
  * of a liquid as a function of temperature. When vapor pressure equals atmospheric pressure,
  * the liquid boils. This equation is accurate to ±0.5°C across typical pressure ranges.
  * 
+ * NOTE ON TminC/TmaxC: These define the EMPIRICALLY VERIFIED range, not hard limits.
+ * The Antoine equation produces a smooth, continuous curve. Outside the verified range,
+ * the math still works but accuracy degrades gradually:
+ *   - 0.5°C outside: negligible error
+ *   - 10°C outside: ~0.1-0.5°C error  
+ *   - 50°C outside: ~1-5°C error
+ *   - Near critical point: Antoine breaks down
+ * 
+ * We do NOT clamp to TminC/TmaxC. Instead, we return metadata about whether the result
+ * is within the verified range so the UI can warn users when extrapolating.
+ * 
  * @param {number} pressurePa - Atmospheric pressure in Pascals
  * @param {object} antoineCoeffs - { A, B, C, TminC, TmaxC } from substance JSON
- * @returns {number} Temperature in °C where vapor pressure equals atmospheric pressure
+ * @returns {object} { temperature: °C, isExtrapolated: bool, verifiedRange: {min, max} }
+ *                   or null if coefficients are missing/invalid
  */
 function solveAntoineEquation(pressurePa, antoineCoeffs) {
   if (!antoineCoeffs) return null
@@ -38,15 +50,21 @@ function solveAntoineEquation(pressurePa, antoineCoeffs) {
   
   const boilingPoint = (B / denominator) - C
   
-  // Validate against valid temperature range if specified
-  if (Number.isFinite(TminC) && boilingPoint < TminC) {
-    return TminC
-  }
-  if (Number.isFinite(TmaxC) && boilingPoint > TmaxC) {
-    return TmaxC
-  }
+  // Check if result is within empirically verified range (for UI warning, NOT clamping)
+  const hasMinBound = Number.isFinite(TminC)
+  const hasMaxBound = Number.isFinite(TmaxC)
+  const belowMin = hasMinBound && boilingPoint < TminC
+  const aboveMax = hasMaxBound && boilingPoint > TmaxC
+  const isExtrapolated = belowMin || aboveMax
   
-  return boilingPoint
+  return {
+    temperature: boilingPoint,
+    isExtrapolated,
+    verifiedRange: {
+      min: hasMinBound ? TminC : null,
+      max: hasMaxBound ? TmaxC : null
+    }
+  }
 }
 
 /**
@@ -62,7 +80,8 @@ function solveAntoineEquation(pressurePa, antoineCoeffs) {
  * ALGORITHM:
  * 1. Calculate atmospheric pressure at given altitude (barometric formula)
  * 2. Use Antoine equation (if available) to find temperature where vapor pressure equals atmospheric pressure
- * 3. Fall back to linear approximation if Antoine coefficients not available
+ * 3. Apply mixture elevation (boilingPointElevation) for solutions
+ * 4. Fall back to linear approximation if Antoine coefficients not available
  * 
  * Accuracy:
  * - Antoine equation: ±0.5°C (empirical, substance-specific)
@@ -72,8 +91,10 @@ function solveAntoineEquation(pressurePa, antoineCoeffs) {
  * @param {object} fluidProps - Fluid properties object containing:
  *   - boilingPointSeaLevel: °C at sea level
  *   - antoineCoefficients: {A, B, C, TminC, TmaxC} for accurate calculation
+ *   - boilingPointElevation: °C elevation for mixtures/solutions (optional)
  *   - altitudeLapseRate: °C/meter fallback rate
- * @returns {number} Boiling point in Celsius (100 at sea level for water, ~95 at Denver, ~68 at Everest)
+ * @returns {object} { temperature: °C, isExtrapolated: bool, verifiedRange: {min, max} }
+ *                   or null if insufficient data
  */
 export function calculateBoilingPoint(altitude, fluidProps) {
   if (!fluidProps || !Number.isFinite(fluidProps.boilingPointSeaLevel)) {
@@ -88,46 +109,72 @@ export function calculateBoilingPoint(altitude, fluidProps) {
   
   // PRIORITY 1: Use Antoine equation if available (highly accurate, ±0.5°C)
   if (fluidProps.antoineCoefficients) {
-    const antoineBoilingPoint = solveAntoineEquation(atmosphericPressure, fluidProps.antoineCoefficients)
-    if (Number.isFinite(antoineBoilingPoint)) {
-      return antoineBoilingPoint
+    const antoineResult = solveAntoineEquation(atmosphericPressure, fluidProps.antoineCoefficients)
+    if (antoineResult && Number.isFinite(antoineResult.temperature)) {
+      // Calculate DYNAMIC boiling point elevation based on actual boiling temperature
+      // This is critical: Kb depends on temperature, so elevation is different at altitude!
+      const elevation = calculateBoilingPointElevation(antoineResult.temperature, fluidProps)
+      const finalTemp = antoineResult.temperature + elevation
+      return {
+        temperature: finalTemp,
+        isExtrapolated: antoineResult.isExtrapolated,
+        verifiedRange: antoineResult.verifiedRange,
+        baseBoilingPoint: antoineResult.temperature,
+        elevation: elevation
+      }
     }
   }
   
   // PRIORITY 2: Fall back to linear lapse rate approximation (±2°C)
   // Used for substances without Antoine coefficients
+  // NOTE: This is a simplified model. The lapse rate constant is approximate.
   const lapseRate = Number.isFinite(fluidProps.altitudeLapseRate)
     ? fluidProps.altitudeLapseRate
     : ATMOSPHERE.TEMP_LAPSE_RATE
   const temperatureDrop = altitude * lapseRate
   
   // Start from fluid's standard boiling point and subtract elevation effect
-  const boilingPoint = fluidProps.boilingPointSeaLevel - temperatureDrop
+  const baseBoilingPoint = fluidProps.boilingPointSeaLevel - temperatureDrop
   
-  return boilingPoint
+  // Calculate dynamic elevation for this base temperature
+  const elevation = calculateBoilingPointElevation(baseBoilingPoint, fluidProps)
+  const boilingPoint = baseBoilingPoint + elevation
+
+  // Fallback path has no verified range metadata (no Antoine data)
+  return {
+    temperature: boilingPoint,
+    isExtrapolated: false,  // Can't determine without Antoine range
+    verifiedRange: { min: null, max: null },
+    baseBoilingPoint: baseBoilingPoint,
+    elevation: elevation
+  }
 }
 
 /**
- * Calculate atmospheric pressure at given altitude
+ * Calculate atmospheric pressure at given altitude using ISA (International Standard Atmosphere)
  * 
  * PHYSICS BACKGROUND:
- * The barometric formula describes how air pressure decreases with altitude.
- * Formula: P = P₀ × e^(-Mgh/RT)
+ * The ISA troposphere model accounts for temperature decreasing with altitude,
+ * which causes pressure to drop faster than a simple isothermal model predicts.
+ * 
+ * In the troposphere (0-11km):
+ *   T = T₀ - L × h  (temperature decreases linearly)
+ *   P = P₀ × (T/T₀)^(g×M/(R×L))
+ * 
  * Where:
- *   P₀ = pressure at sea level (101,325 Pa)
- *   M = molar mass of air (0.029 kg/mol)
- *   g = gravitational acceleration (9.81 m/s²)
- *   h = altitude (meters)
- *   R = gas constant (8.314 J/(mol·K))
- *   T = temperature (Kelvin, ~288K = 15°C)
+ *   T₀ = 288.15 K (15°C at sea level)
+ *   L = 0.0065 K/m (temperature lapse rate)
+ *   P₀ = 101,325 Pa (sea level pressure)
+ *   g = 9.80665 m/s² (standard gravity)
+ *   M = 0.0289644 kg/mol (molar mass of dry air)
+ *   R = 8.31447 J/(mol·K) (gas constant)
  * 
- * Real-world examples:
- * - Sea level (0m): ~101,325 Pa
- * - Denver (1600m): ~83,000 Pa (~82% of sea level)
- * - Mount Everest (8848m): ~34,000 Pa (~34% of sea level)
- * 
- * This explains why water boils at lower temperatures at high altitude—
- * lower atmospheric pressure means water molecules escape as vapor more easily.
+ * Real-world examples (ISA values):
+ * - Sea level (0m): 101,325 Pa
+ * - Denver (1,609m): 83,436 Pa → water boils at ~95°C
+ * - La Paz (3,640m): 64,591 Pa → water boils at ~87°C
+ * - Mount Everest (8,848m): 31,436 Pa → water boils at ~70°C
+ * - 10,000m: 26,436 Pa → water boils at ~66°C
  * 
  * @param {number} altitude - Altitude in meters (0 = sea level)
  * @returns {number} Atmospheric pressure in Pascals
@@ -136,19 +183,102 @@ export function calculatePressure(altitude) {
   // Safety check: treat null/undefined as sea level
   if (altitude === null || altitude === undefined || Number.isNaN(altitude)) altitude = 0
   
-  // Barometric formula constants
-  // (We redefine them here to make the physics formula visible and educational)
-  const M = 0.029        // Molar mass of dry air (kg/mol)
-  const g = 9.81         // Gravitational acceleration (m/s²)
-  const T = 288.15       // Standard temperature (Kelvin, ~15°C)
+  // ISA troposphere constants (valid for 0-11km)
+  const T0 = 288.15       // Sea level temperature (K)
+  const L = 0.0065        // Temperature lapse rate (K/m)
+  const P0 = ATMOSPHERE.STANDARD_PRESSURE  // 101325 Pa
+  const g = 9.80665       // Standard gravity (m/s²)
+  const M = 0.0289644     // Molar mass of dry air (kg/mol)
+  const R = 8.31447       // Gas constant (J/(mol·K))
   
-  // Calculate exponent: -Mgh/RT
-  const exponent = -(M * g * altitude) / (UNIVERSAL.GAS_CONSTANT * T)
+  // Temperature at altitude
+  const T = T0 - L * altitude
   
-  // Apply exponential decay: P = P₀ × e^(exponent)
-  const pressure = ATMOSPHERE.STANDARD_PRESSURE * Math.exp(exponent)
+  // Prevent negative temperatures (troposphere ends at ~11km anyway)
+  if (T <= 0) {
+    // Above troposphere - use stratosphere model or cap
+    // For now, return minimum troposphere pressure (at 11km)
+    const T11km = T0 - L * 11000  // ~216.65 K
+    const exponent = (g * M) / (R * L)
+    return P0 * Math.pow(T11km / T0, exponent)  // ~22,632 Pa
+  }
+  
+  // ISA pressure formula: P = P₀ × (T/T₀)^(g×M/(R×L))
+  const exponent = (g * M) / (R * L)  // ≈ 5.2559
+  const pressure = P0 * Math.pow(T / T0, exponent)
   
   return pressure
+}
+
+/**
+ * Calculate dynamic ebullioscopic constant (Kb) at a given boiling temperature
+ * 
+ * PHYSICS BACKGROUND:
+ * The ebullioscopic constant Kb determines how much a solute raises the boiling point.
+ * It's NOT a constant - it depends on the boiling temperature itself:
+ * 
+ *   Kb = (R × Tb² × Msolvent) / ΔHvap
+ * 
+ * Where:
+ *   R = 8.314 J/(mol·K)
+ *   Tb = boiling temperature in Kelvin
+ *   Msolvent = molar mass of solvent in kg/mol (0.018015 for water)
+ *   ΔHvap = enthalpy of vaporization in J/mol (40,660 for water at 100°C)
+ * 
+ * For water:
+ *   At 100°C (373.15K): Kb ≈ 0.512 °C·kg/mol
+ *   At 66°C (339.15K): Kb ≈ 0.423 °C·kg/mol
+ *   At 50°C (323.15K): Kb ≈ 0.384 °C·kg/mol
+ * 
+ * @param {number} boilingTempC - Boiling temperature in Celsius
+ * @param {number} solventMolarMass - Molar mass of solvent in g/mol (18.015 for water)
+ * @param {number} heatOfVapKJ - Heat of vaporization in kJ/mol (40.66 for water)
+ * @returns {number} Kb in °C·kg/mol
+ */
+function calculateDynamicKb(boilingTempC, solventMolarMass = 18.015, heatOfVapKJ = 40.66) {
+  const R = 8.314                           // Gas constant (J/(mol·K))
+  const Tb = boilingTempC + 273.15          // Convert to Kelvin
+  const Msolvent = solventMolarMass / 1000  // Convert g/mol to kg/mol
+  const deltaHvap = heatOfVapKJ * 1000      // Convert kJ/mol to J/mol
+  
+  // Kb = (R × Tb² × Msolvent) / ΔHvap
+  const Kb = (R * Tb * Tb * Msolvent) / deltaHvap
+  
+  return Kb
+}
+
+/**
+ * Calculate dynamic boiling point elevation for a solution
+ * 
+ * PHYSICS: ΔTb = i × Kb × m
+ * Where Kb is calculated dynamically based on actual boiling temperature
+ * 
+ * @param {number} baseBoilingPointC - Base boiling point of pure solvent (°C)
+ * @param {object} solutionProps - Solution properties with vanHoffFactor and molality
+ * @returns {number} Boiling point elevation in °C
+ */
+function calculateBoilingPointElevation(baseBoilingPointC, solutionProps) {
+  if (!solutionProps) return 0
+  
+  const { vanHoffFactor, molality } = solutionProps
+  
+  // If we don't have dynamic parameters, fall back to static elevation
+  if (!Number.isFinite(vanHoffFactor) || !Number.isFinite(molality)) {
+    // Legacy fallback: use pre-computed boilingPointElevation if available
+    return Number.isFinite(solutionProps.boilingPointElevation) 
+      ? solutionProps.boilingPointElevation 
+      : 0
+  }
+  
+  // Calculate Kb at the actual boiling temperature
+  // For now, assume water as solvent (most common case)
+  // TODO: Get solvent molar mass and ΔHvap from solvent's JSON for other solvents
+  const Kb = calculateDynamicKb(baseBoilingPointC)
+  
+  // ΔTb = i × Kb × m
+  const elevation = vanHoffFactor * Kb * molality
+  
+  return elevation
 }
 
 /**
@@ -378,7 +508,8 @@ export function simulateTimeStep(state, heatInputWatts, deltaTime, fluidProps) {
   }
   
   // Calculate what the boiling point is at this altitude
-  const boilingPoint = calculateBoilingPoint(altitude, fluidProps)
+  const boilingPointResult = calculateBoilingPoint(altitude, fluidProps)
+  const boilingPoint = boilingPointResult?.temperature ?? null
   const canBoil = Boolean(fluidProps.canBoil) && Number.isFinite(boilingPoint)
   
   // HEATING PHASE: Apply heat energy from burner
@@ -421,6 +552,9 @@ export function simulateTimeStep(state, heatInputWatts, deltaTime, fluidProps) {
     waterMass: nextWaterMass,
     energyToVaporization: result.energyToVaporization,
     steamGenerated: steamGenerated,
-    isBoiling: canBoil && currentTemp >= boilingPoint && steamGenerated > 0
+    isBoiling: canBoil && currentTemp >= boilingPoint && steamGenerated > 0,
+    // Pass through extrapolation metadata for UI warning
+    isExtrapolated: boilingPointResult?.isExtrapolated ?? false,
+    verifiedRange: boilingPointResult?.verifiedRange ?? { min: null, max: null }
   }
 }

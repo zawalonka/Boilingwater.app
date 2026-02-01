@@ -26,6 +26,10 @@ function ControlPanel({
   expectedBoilTime,
   formatTemperature,
   
+  // Extrapolation warning data
+  isBoilingPointExtrapolated,
+  boilingPointVerifiedRange,
+  
   // UI state
   timeSpeed,
   isTimerRunning,
@@ -140,6 +144,20 @@ function ControlPanel({
             <span className="label">Boils at:</span>
             <span className="value">{canBoil ? `${formatTemperature(boilingPoint, 2)}°C` : 'N/A'}</span>
           </div>
+          
+          {/* Extrapolation warning - shows when boiling point is outside verified Antoine range */}
+          {isBoilingPointExtrapolated && canBoil && (
+            <div className="status-item extrapolation-warning" title="The boiling point calculation is outside the empirically verified temperature range for this substance. Results are estimated and may have reduced accuracy.">
+              <span className="label">⚠️</span>
+              <span className="value warning-text">
+                {boilingPointVerifiedRange?.max !== null && boilingPoint > boilingPointVerifiedRange.max
+                  ? `Above verified range (${formatTemperature(boilingPointVerifiedRange.max, 0)}°C)`
+                  : boilingPointVerifiedRange?.min !== null && boilingPoint < boilingPointVerifiedRange.min
+                    ? `Below verified range (${formatTemperature(boilingPointVerifiedRange.min, 0)}°C)`
+                    : 'Outside verified range'}
+              </span>
+            </div>
+          )}
           
           {/* Timer controls - prominent display with start/stop/reset (Advanced Mode Only) */}
           {isAdvancedModeAvailable && (

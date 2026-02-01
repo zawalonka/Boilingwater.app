@@ -135,6 +135,16 @@ export function parseSubstanceProperties(substanceData) {
   const triplePoint = compound.phaseTransitions?.triplePoint || null
   const criticalPoint = compound.phaseTransitions?.criticalPoint || null
 
+  // ===== MIXTURE/SOLUTION ELEVATION =====
+  // For solutions: boiling point elevation from dissolved solutes (colligative property)
+  // e.g., saltwater boils 0.515°C higher than pure water due to van't Hoff effect
+  const boilingPointElevation = Number.isFinite(compound.effectOfDissolution?.boilingPointElevation)
+    ? compound.effectOfDissolution.boilingPointElevation
+    : 0
+  const meltingPointDepression = Number.isFinite(compound.effectOfDissolution?.meltingPointDepression)
+    ? compound.effectOfDissolution.meltingPointDepression
+    : 0
+
   // ===== THERMODYNAMIC DATA =====
   // From phase-specific state files
   const specificHeat = extractValue(phaseState?.specificHeat)  // J/(g·°C)
@@ -180,6 +190,14 @@ export function parseSubstanceProperties(substanceData) {
     meltingPoint,
     triplePoint,
     criticalPoint,
+
+    // MIXTURE/SOLUTION ELEVATION (colligative properties)
+    // These are used by calculateBoilingPointElevation() for DYNAMIC calculation
+    // The static boilingPointElevation is kept for legacy fallback
+    boilingPointElevation,  // °C elevation (legacy, static at 100°C)
+    meltingPointDepression, // °C depression for solutions (e.g., -1.87 for saltwater)
+    vanHoffFactor: compound.effectOfDissolution?.vanHoffFactor ?? null,  // i (1.9 for NaCl)
+    molality: compound.effectOfDissolution?.molality ?? null,  // mol/kg solvent
 
     // ALTITUDE & PRESSURE (constant, from compound metadata)
     altitudeLapseRate,

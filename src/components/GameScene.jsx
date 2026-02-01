@@ -267,7 +267,11 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
 
   // Pre-calculate what temperature fluid will boil at for this altitude
   // Note: This is recalculated only when altitude or fluidProps changes
-  const boilingPoint = fluidProps ? calculateBoilingPoint(altitude, fluidProps) : null
+  // calculateBoilingPoint now returns { temperature, isExtrapolated, verifiedRange }
+  const boilingPointResult = fluidProps ? calculateBoilingPoint(altitude, fluidProps) : null
+  const boilingPoint = boilingPointResult?.temperature ?? null
+  const isBoilingPointExtrapolated = boilingPointResult?.isExtrapolated ?? false
+  const boilingPointVerifiedRange = boilingPointResult?.verifiedRange ?? { min: null, max: null }
   const canBoil = Boolean(fluidProps?.canBoil) && Number.isFinite(boilingPoint)
   const boilingPointSeaLevel = Number.isFinite(fluidProps?.boilingPointSeaLevel)
     ? fluidProps.boilingPointSeaLevel
@@ -1284,6 +1288,10 @@ function GameScene({ stage, location, onStageChange, workshopLayout, workshopIma
           isPotOverFlame={isPotOverFlame}
           expectedBoilTime={expectedBoilTime}
           formatTemperature={formatTemperature}
+          
+          // Extrapolation warning data
+          isBoilingPointExtrapolated={isBoilingPointExtrapolated}
+          boilingPointVerifiedRange={boilingPointVerifiedRange}
           
           // UI state
           timeSpeed={timeSpeed}
